@@ -1,0 +1,56 @@
+package com.etk2000.clsl;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+class GetVar implements ValueChunk {
+	final String name;
+
+	GetVar(String name) {
+		if (!CLSL.isValidId(this.name = name))
+			throw new CLSL_CompilerException("invalid var name: " + name);
+
+	}
+
+	GetVar(InputStream i) throws IOException {
+		if (!CLSL.isValidId(name = StreamUtils.readString(i)))
+			throw new CLSL_CompilerException("invalid var name: " + name);
+	}
+
+	@Override
+	public void transmit(OutputStream o) throws IOException {
+		StreamUtils.write(o, name);
+	}
+
+	@Override
+	public CLSLValue get(CLSLRuntimeEnv env) {
+		CLSLValue res = env.getVar(name);
+		if (res == null)
+			throw new CLSL_RuntimeException(name + " cannot be resolved to a variable");
+		return res;
+	}
+
+	@Override
+	public String toString() {
+		return name;
+	}
+	
+	@Override
+	public ExecutableChunk getExecutablePart(OptimizationEnvironment env) {
+		return null;
+	}
+
+	// TODO: just because we access its value doesn't mean we use what accessed;
+	// basically, to actually know if the var is used we need more passes AFAIK
+	@Override
+	public GetVar optimize(OptimizationEnvironment env) {
+		if (env.firstPass) {
+			int index = env.unusedVars.indexOf(name);
+			if (index != -1)
+				env.unusedVars.remove(index);
+			return this;
+		}
+		return env.unusedVars.contains(name) ? null : this;
+	}
+}

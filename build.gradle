@@ -1,0 +1,51 @@
+plugins {
+	id 'java'
+	id 'maven-publish'
+}
+
+ext {
+	junitVersion = '5.10.2'
+}
+
+repositories {
+	mavenLocal()
+	mavenCentral()
+}
+
+group = 'com.etk2000'
+version = '0.0.1'
+
+sourceSets.main.java.srcDirs = ['src']
+sourceSets.test.java.srcDirs = ['test']
+
+dependencies {
+	testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+}
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_1_8
+	targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+publishing {
+	repositories {
+		maven {
+			name = 'GitHubPackages'
+			url = 'https://maven.pkg.github.com/EtK2000/clsl'
+			credentials {
+				username = System.getenv('GITHUB_ACTOR')
+				password = System.getenv('GITHUB_TOKEN')
+			}
+		}
+	}
+	publications {
+		gpr(MavenPublication) {
+			from(components.java)
+		}
+	}
+}
+
+test {
+	useJUnitPlatform()
+}
