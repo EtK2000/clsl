@@ -1,5 +1,7 @@
 package com.etk2000.clsl;
 
+import com.etk2000.clsl.exception.variable.ClslInvalidVariableNameException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -15,13 +17,13 @@ public abstract class SetVarAbstract implements ExecutableValueChunk {
 
 	protected SetVarAbstract(String name, ValueChunk val) {
 		if (!CLSL.isValidId(this.name = name))
-			throw new CLSL_CompilerException("invalid var name: " + name);
+			throw new ClslInvalidVariableNameException(name);
 		this.val = val;
 	}
 
 	protected SetVarAbstract(InputStream i) throws IOException {
 		if (!CLSL.isValidId(name = StreamUtils.readString(i)))
-			throw new CLSL_CompilerException("invalid var name: " + name);
+			throw new ClslInvalidVariableNameException(name);
 		val = CLSL.readValueChunk(i);
 	}
 

@@ -1,5 +1,7 @@
 package com.etk2000.clsl;
 
+import com.etk2000.clsl.exception.math.ClslDivisionByZeroException;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -40,7 +42,7 @@ class OpModulus extends OpBinary {
 
 				// X % 0 = UNDEFINED
 				if (!v.toBoolean())
-					throw new CLSL_Exception("cannot modulus by 0");
+					throw new ClslDivisionByZeroException(true);
 
 				// X % 1 = 0
 				if (CLSL.isOne(v))

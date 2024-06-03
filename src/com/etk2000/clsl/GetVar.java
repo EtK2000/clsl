@@ -1,5 +1,8 @@
 package com.etk2000.clsl;
 
+import com.etk2000.clsl.exception.variable.ClslInvalidVariableNameException;
+import com.etk2000.clsl.exception.variable.ClslVariableCannotBeResolvedException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -9,13 +12,13 @@ class GetVar implements ValueChunk {
 
 	GetVar(String name) {
 		if (!CLSL.isValidId(this.name = name))
-			throw new CLSL_CompilerException("invalid var name: " + name);
+			throw new ClslInvalidVariableNameException("invalid var name: " + name);
 
 	}
 
 	GetVar(InputStream i) throws IOException {
 		if (!CLSL.isValidId(name = StreamUtils.readString(i)))
-			throw new CLSL_CompilerException("invalid var name: " + name);
+			throw new ClslInvalidVariableNameException("invalid var name: " + name);
 	}
 
 	@Override
@@ -27,7 +30,7 @@ class GetVar implements ValueChunk {
 	public CLSLValue get(CLSLRuntimeEnv env) {
 		CLSLValue res = env.getVar(name);
 		if (res == null)
-			throw new CLSL_RuntimeException(name + " cannot be resolved to a variable");
+			throw new ClslVariableCannotBeResolvedException(name);
 		return res;
 	}
 
@@ -35,7 +38,7 @@ class GetVar implements ValueChunk {
 	public String toString() {
 		return name;
 	}
-	
+
 	@Override
 	public ExecutableChunk getExecutablePart(OptimizationEnvironment env) {
 		return null;

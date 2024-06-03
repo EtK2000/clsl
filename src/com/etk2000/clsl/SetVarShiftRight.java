@@ -1,5 +1,7 @@
 package com.etk2000.clsl;
 
+import com.etk2000.clsl.exception.variable.ClslVariableCannotBeResolvedException;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -18,7 +20,7 @@ class SetVarShiftRight extends SetVarAbstract {
 			return env.getVar(name).sr(val.get(env), true);
 		}
 		catch (NullPointerException e) {
-			throw new CLSL_RuntimeException(name + " cannot be resolved to a variable");
+			throw new ClslVariableCannotBeResolvedException(name);
 		}
 	}
 

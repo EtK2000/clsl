@@ -1,5 +1,9 @@
 package com.etk2000.clsl;
 
+import com.etk2000.clsl.exception.ClslException;
+import com.etk2000.clsl.exception.ClslRuntimeException;
+import com.etk2000.clsl.exception.function.ClslBrokenJavaFunctionException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -8,22 +12,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CLSL {
-	private static final String[] INVALID_VAR_NAMES = { "break", "case", "char", "const", "continue", "do", "else", "float", "for", "goto", "if", "int", "NULL",
-			"return", "sizeof", "static", "struct", "switch", "typedef", "unsigned", "void", "while" };
+	private static final String[] INVALID_VAR_NAMES = {"break", "case", "char", "const", "continue", "do", "else", "float", "for", "goto", "if", "int", "NULL",
+			"return", "sizeof", "static", "struct", "switch", "typedef", "unsigned", "void", "while"};
 	public static boolean doWarn = true;
 
 	/**
 	 *
-	 *
 	 */
 
 	@FunctionalInterface
-	public static interface FunctionData {
+	public interface FunctionData {
 		void exec(CLSLRuntimeEnv env, CLSLValue[] args);
 	}
 
 	@FunctionalInterface
-	public static interface FunctionDataRet {
+	public interface FunctionDataRet {
 		CLSLValue exec(CLSLRuntimeEnv env, CLSLValue[] args);
 	}
 
@@ -61,12 +64,12 @@ public class CLSL {
 				CLSLValue res = f.exec(env, args);
 				if (returnType != ValueType.VOID) {
 					if (res == null)
-						throw new CLSL_RuntimeException("broken java function: result expected");
+						throw new ClslBrokenJavaFunctionException("result expected");
 					if (res.type != returnType)// TODO: cast?
-						throw new CLSL_RuntimeException("broken java function: wrong result type (got " + res.type + ", expected " + returnType + ')');
+						throw new ClslBrokenJavaFunctionException("wrong result type (got " + res.type + ", expected " + returnType + ')');
 				}
 				else if (res != null)
-					throw new CLSL_RuntimeException("broken java function: void result expected");
+					throw new ClslBrokenJavaFunctionException("void result expected");
 				return res;
 			}
 
@@ -186,6 +189,7 @@ public class CLSL {
 
 	/************/
 	/* Compiler */
+
 	/************/
 
 	// TODO: try to avoid memcpy
@@ -260,7 +264,7 @@ public class CLSL {
 			case LONG:
 				return new ConstLongChunk(value.toLong());
 		}
-		throw new CLSL_Exception("undefined ConstValueChunk of " + value.type);
+		throw new ClslException("undefined ConstValueChunk of " + value.type);
 	}
 
 	static void append(StringBuilderPoolable sb, ExecutableChunk[] chunks) {
@@ -337,10 +341,10 @@ public class CLSL {
 		try {
 			env.lookupFunction("main").call(env, new CLSLValue[0]);
 		}
-		catch (CLSL_RuntimeException e) {
+		catch (ClslRuntimeException e) {
 			System.err.println(e.getMessage());
 		}
-		System.out.println("ran in " + ((System.nanoTime() - start) / 1000) + " \u03BCs");
+		System.out.println("ran in " + ((System.nanoTime() - start) / 1000) + " μs");
 
 		System.out.println(env.getVar("gl_ClearColor"));
 	}

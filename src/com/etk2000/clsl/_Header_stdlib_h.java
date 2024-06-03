@@ -1,17 +1,19 @@
 package com.etk2000.clsl;
 
-import java.util.Random;
-
 import com.etk2000.clsl.ValueType.SubType;
+import com.etk2000.clsl.exception.ClslRuntimeException;
+import com.etk2000.clsl.exception.function.ClslIncompatibleArgumentTypeException;
+import com.etk2000.clsl.exception.function.ClslInvalidNumberOfArgumentsException;
+
+import java.util.Random;
 
 // please note: none of the exit or multibyte functions are implemented
 // TODO: implement bsearch and qsort functions
 public class _Header_stdlib_h extends _HeaderBase {
-	@SuppressWarnings("serial")
-	private static class CLSL_Abort extends CLSL_RuntimeException {
-		static final CLSL_Abort INSTANCE = new CLSL_Abort();
+	private static class ClslAbort extends ClslRuntimeException {
+		static final ClslAbort INSTANCE = new ClslAbort();
 
-		private CLSL_Abort() {
+		private ClslAbort() {
 			super("abort");
 		}
 	}
@@ -151,7 +153,7 @@ public class _Header_stdlib_h extends _HeaderBase {
 	}
 
 	private static final FunctionalChunk abort = CLSL.createFunctionalChunk((env, args) -> {
-		throw CLSL_Abort.INSTANCE;
+		throw ClslAbort.INSTANCE;
 	});
 
 	/********/
@@ -172,11 +174,11 @@ public class _Header_stdlib_h extends _HeaderBase {
 
 	private static final FunctionalChunk div = CLSL.createFunctionalChunk(ValueType.STRUCT, (env, args) -> {
 		if (args.length != 2)
-			throw new CLSL_RuntimeException("invalid number of arguments, got " + args.length + " expected 2");
+			throw new ClslInvalidNumberOfArgumentsException(args.length, 2);
 		if (args[0].type.subType != SubType.NUMBER)
-			throw new CLSL_RuntimeException("incompatible type for argument 0 of `div`");
+			throw new ClslIncompatibleArgumentTypeException(0, "div");
 		if (args[1].type.subType != SubType.NUMBER)
-			throw new CLSL_RuntimeException("incompatible type for argument 1 of `div`");
+			throw new ClslIncompatibleArgumentTypeException(1, "div");
 
 		int a = args[0].toInt(), b = args[1].toInt();
 		return new div_t(a / b, a % b);
@@ -185,9 +187,9 @@ public class _Header_stdlib_h extends _HeaderBase {
 	// note that this function isn't part of the C specification
 	private static final FunctionalChunk itoa = CLSL.createFunctionalChunk(ValueType.ARRAY, (env, args) -> {
 		if (args.length != 3)
-			throw new CLSL_RuntimeException("invalid number of arguments, got " + args.length + " expected 3");
+			throw new ClslInvalidNumberOfArgumentsException(args.length, 3);
 		if (!CLSL.isString(args[1]))
-			throw new CLSL_RuntimeException("incompatible type for argument 1 of `itoa`");
+			throw new ClslIncompatibleArgumentTypeException(1, "itoa");
 
 		switch (args[2].toInt()) {
 			case 2:
@@ -208,11 +210,11 @@ public class _Header_stdlib_h extends _HeaderBase {
 
 	private static final FunctionalChunk ldiv = CLSL.createFunctionalChunk(ValueType.STRUCT, (env, args) -> {
 		if (args.length != 2)
-			throw new CLSL_RuntimeException("invalid number of arguments, got " + args.length + " expected 2");
+			throw new ClslInvalidNumberOfArgumentsException(args.length, 2);
 		if (args[0].type.subType != SubType.NUMBER)
-			throw new CLSL_RuntimeException("incompatible type for argument 0 of `div`");
+			throw new ClslIncompatibleArgumentTypeException(0, "div");
 		if (args[1].type.subType != SubType.NUMBER)
-			throw new CLSL_RuntimeException("incompatible type for argument 1 of `div`");
+			throw new ClslIncompatibleArgumentTypeException(1, "div");
 
 		long a = args[0].toLong(), b = args[1].toLong();
 		return new ldiv_t(a / b, a % b);
@@ -240,7 +242,7 @@ public class _Header_stdlib_h extends _HeaderBase {
 
 		rand = CLSL.createFunctionalChunk(ValueType.INT, (env, args) -> {
 			if (args.length != 0)
-				throw new CLSL_RuntimeException("invalid number of arguments, got " + args.length + " expected 0");
+				throw new ClslInvalidNumberOfArgumentsException(args.length, 0);
 			return new CLSLInt(r.nextInt());
 		});
 

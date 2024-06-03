@@ -1,5 +1,8 @@
 package com.etk2000.clsl;
 
+import com.etk2000.clsl.exception.ClslStackUnderflowException;
+import com.etk2000.clsl.exception.variable.ClslVariableRedefinitionException;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,7 +38,7 @@ public abstract class CLSLRuntimeStack {
 			@Override
 			public void defineVar(String name, CLSLValue value) {
 				if (frame.put(name, value) != null)
-					throw new CLSL_RuntimeException("redefinition of '" + name + '\'');
+					throw new ClslVariableRedefinitionException(name);
 				currentSemi.add(name);
 			}
 
@@ -43,15 +46,15 @@ public abstract class CLSLRuntimeStack {
 			public CLSLValue getVar(String name) {
 				return frame.get(name);
 			}
-			
+
 			@Override
 			public Map<String, CLSLValue> getVars() {
 				return frame;
 			}
 
 			void semiPop() {
-				if (frame.size() == 0)
-					throw new CLSL_RuntimeException("stack semi-underflow");
+				if (frame.isEmpty())
+					throw new ClslStackUnderflowException(true);
 				semiFrames.pop().forEach(frame::remove);
 				currentSemi = semiFrames.peek();
 			}
@@ -71,7 +74,7 @@ public abstract class CLSLRuntimeStack {
 		public void defineVar(String name, CLSLValue value) {
 			currentFrame.defineVar(name, value);
 		}
-		
+
 		@Override
 		public Collection<? extends StackFrame> frames() {
 			return stack;
@@ -90,7 +93,7 @@ public abstract class CLSLRuntimeStack {
 		public void pop(boolean full) {
 			if (full) {
 				if (stack.size() == 1)
-					throw new CLSL_RuntimeException("stack underflow");
+					throw new ClslStackUnderflowException(false);
 				stack.pop();
 				currentFrame = stack.peek();
 			}

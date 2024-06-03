@@ -1,9 +1,8 @@
-package com.etk2000.clsl;
+package com.etk2000.clsl.exception;
 
 import java.util.regex.Matcher;
 
-@SuppressWarnings("serial")
-public class CLSL_CompilerException extends CLSL_Exception {
+public class ClslCompilerException extends ClslException {
 	private static int findNextReleventMatch(Matcher m) {
 		try {
 			int start = m.start(), i = start;
@@ -45,13 +44,18 @@ public class CLSL_CompilerException extends CLSL_Exception {
 		}
 	}
 
-	CLSL_CompilerException(String msg) {
+	public ClslCompilerException(String msg) {
 		super(msg);
 		setStackTrace(new StackTraceElement[0]);
 	}
 
+	public ClslCompilerException(String msg, Exception cause) {
+		super(msg, cause);
+		setStackTrace(new StackTraceElement[0]);
+	}
+
 	// use this constructor to show the code nearby
-	CLSL_CompilerException(String msg, int i, String res, Matcher m) {
+	public ClslCompilerException(String msg, int i, String res, Matcher m) {
 		this(msg + "; near: " + res.substring(Math.max(0, Math.min(i, findPrevReleventMatch(m))), Math.max(0, findNextReleventMatch(m))));
 	}
 

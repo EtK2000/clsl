@@ -1,5 +1,7 @@
 package com.etk2000.clsl;
 
+import com.etk2000.clsl.exception.variable.ClslVariableCannotBeResolvedException;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -18,7 +20,7 @@ class SetVar extends SetVarAbstract {
 			return env.getVar(name).set(val.get(env));
 		}
 		catch (NullPointerException e) {
-			throw new CLSL_RuntimeException(name + " cannot be resolved to a variable");
+			throw new ClslVariableCannotBeResolvedException(name);
 		}
 	}
 
@@ -36,7 +38,7 @@ class SetVar extends SetVarAbstract {
 	public ExecutableChunk optimize(OptimizationEnvironment env) {
 		if (env.firstPass) {
 			ValueChunk newVal = (ValueChunk) val.optimize(env.forValue());
-			if (newVal instanceof GetVar && ((GetVar)newVal).name.equals(name))
+			if (newVal instanceof GetVar && ((GetVar) newVal).name.equals(name))
 				return null;
 			return new SetVar(name, newVal);
 		}

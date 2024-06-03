@@ -1,5 +1,7 @@
 package com.etk2000.clsl;
 
+import com.etk2000.clsl.exception.ClslOptimizationException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -68,19 +70,19 @@ class ForChunk extends BlockChunk {
 	public String toString() {
 		try (StringBuilderPoolable sb = new StringBuilderPoolable()) {
 			sb.append("for (");
-			
+
 			if (pre != null)
 				sb.append(pre);
 			sb.append("; ");
-			
+
 			if (cause != null)
 				sb.append(cause);
 			sb.append("; ");
-			
+
 			if (post != null)
 				sb.append(post);
 			sb.append(") ");
-			
+
 			CLSL.append(sb, effect);
 			return sb.toString();
 		}
@@ -89,7 +91,7 @@ class ForChunk extends BlockChunk {
 	@Override
 	public ExecutableChunk optimize(OptimizationEnvironment env) {
 		if (cause == null)// maybe look for breaks?
-			throw new CLSL_Exception("theoretical infinite loop: " + this);
+			throw new ClslOptimizationException("theoretical infinite loop: " + this);
 
 		ExecutableChunk before, after;
 		ValueChunk query;
@@ -101,7 +103,7 @@ class ForChunk extends BlockChunk {
 			// only a Sith deals in absolutes
 			if ((query = (ValueChunk) cause.optimize(env.forValue())) instanceof ConstValueChunk) {
 				if (query.get(null).toBoolean())// maybe look for breaks?
-					throw new CLSL_Exception("theoretical infinite loop: " + this);
+					throw new ClslOptimizationException("theoretical infinite loop: " + this);
 
 				// remove unused variable definition if present
 				ExecutableChunk res = pre.optimize(env);

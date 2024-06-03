@@ -1,5 +1,7 @@
 package com.etk2000.clsl;
 
+import com.etk2000.clsl.exception.ClslException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -56,14 +58,14 @@ class WhileChunk extends BlockChunk {
 	@Override
 	public WhileChunk optimize(OptimizationEnvironment env) {
 		if (cause == null)// maybe look for breaks?
-			throw new CLSL_Exception("theoretical infinite loop: " + this);
+			throw new ClslException("theoretical infinite loop: " + this);
 		if (effect.length == 0)
 			return null;// empty while
 
 		ValueChunk query = (ValueChunk) cause.optimize(env.forValue());
 		if (query instanceof ConstValueChunk) {
 			if (query.get(null).toBoolean())// maybe look for breaks?
-				throw new CLSL_Exception("theoretical infinite loop: " + this);
+				throw new ClslException("theoretical infinite loop: " + this);
 			return null;
 		}
 

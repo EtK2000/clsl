@@ -1,5 +1,10 @@
 package com.etk2000.clsl;
 
+import com.etk2000.clsl.exception.type.ClslConstAssignmentException;
+import com.etk2000.clsl.exception.type.ClslConstDecrementException;
+import com.etk2000.clsl.exception.type.ClslConstIncrementException;
+import com.etk2000.clsl.exception.type.ClslInvalidArrayComponentTypeException;
+
 public class CLSLArrayConst extends CLSLArray implements CLSLConst {
 	public CLSLArrayConst(ValueType component, short length) {
 		super(component);
@@ -7,7 +12,7 @@ public class CLSLArrayConst extends CLSLArray implements CLSLConst {
 			case ARRAY:// TODO: allow multidimensional arrays
 			case POINTER:// TODO: allow multidimensional pointers
 			case VOID:
-				throw new CLSL_CompilerException("cannot create " + CLSL.typeName(type) + " of type " + CLSL.typeName(component));
+				throw new ClslInvalidArrayComponentTypeException(CLSL.typeName(type), CLSL.typeName(component));
 			case CHAR:
 				val = new CLSLCharConst[length];
 				break;
@@ -77,86 +82,86 @@ public class CLSLArrayConst extends CLSLArray implements CLSLConst {
 
 	@Override
 	public CLSLArray set(CLSLValue other) {
-		throw constAssignment();
+		throw new ClslConstAssignmentException();
 	}
 
 	@Override
 	public CLSLValue dec(boolean post) {
-		throw constDec();
+		throw new ClslConstDecrementException();
 	}
 
 	@Override
 	public CLSLValue inc(boolean post) {
-		throw constInc();
+		throw new ClslConstIncrementException();
 	}
 
 	@Override
 	public CLSLValue add(CLSLValue other, boolean set) {
 		if (set)
-			throw constAssignment();
+			throw new ClslConstAssignmentException();
 		return super.add(other, set);
 	}
 
 	@Override
 	public CLSLValue div(CLSLValue other, boolean set) {
 		if (set)
-			throw constAssignment();
+			throw new ClslConstAssignmentException();
 		return super.div(other, set);
 	}
 
 	@Override
 	public CLSLValue mod(CLSLValue other, boolean set) {
 		if (set)
-			throw constAssignment();
+			throw new ClslConstAssignmentException();
 		return super.mod(other, set);
 	}
 
 	@Override
 	public CLSLValue mul(CLSLValue other, boolean set) {
 		if (set)
-			throw constAssignment();
+			throw new ClslConstAssignmentException();
 		return super.mul(other, set);
 	}
 
 	@Override
 	public CLSLValue sub(CLSLValue other, boolean set) {
 		if (set)
-			throw constAssignment();
+			throw new ClslConstAssignmentException();
 		return super.sub(other, set);
 	}
 
 	@Override
 	public CLSLValue band(CLSLValue other, boolean set) {
 		if (set)
-			throw constAssignment();
+			throw new ClslConstAssignmentException();
 		return super.band(other, set);
 	}
 
 	@Override
 	public CLSLValue bor(CLSLValue other, boolean set) {
 		if (set)
-			throw constAssignment();
+			throw new ClslConstAssignmentException();
 		return super.bor(other, set);
 	}
 
 	@Override
 	public CLSLValue sl(CLSLValue other, boolean set) {
 		if (set)
-			throw constAssignment();
+			throw new ClslConstAssignmentException();
 		return super.sl(other, set);
 	}
 
 	@Override
 	public CLSLValue sr(CLSLValue other, boolean set) {
 		if (set)
-			throw constAssignment();
+			throw new ClslConstAssignmentException();
 		return super.sr(other, set);
 	}
 
 	@Override
 	public CLSLValue xor(CLSLValue other, boolean set) {
 		if (set)
-			throw constAssignment();
+			throw new ClslConstAssignmentException();
 		return super.xor(other, set);
 	}
 

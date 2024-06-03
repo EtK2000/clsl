@@ -1,5 +1,9 @@
 package com.etk2000.clsl;
 
+import com.etk2000.clsl.exception.ClslRuntimeException;
+import com.etk2000.clsl.exception.function.ClslIncompatibleArgumentTypeException;
+import com.etk2000.clsl.exception.function.ClslTooFewArgumentsException;
+
 import java.util.Formatter;
 
 // this library is supposed to be safe so we don't create unsafe functions
@@ -9,14 +13,13 @@ public class _Header_stdio_h extends _HeaderBase {
 
 	static {
 		final StringBuilder formatSb = new StringBuilder();
-		@SuppressWarnings("resource") // doesn't need close()
 		final Formatter format = new Formatter(formatSb);
 
 		printf = CLSL.createFunctionalChunk(ValueType.INT, (env, args) -> {
 			if (args.length == 0)
-				throw new CLSL_RuntimeException("too few arguments to function `printf`");
+				throw new ClslTooFewArgumentsException("printf");
 			if (!CLSL.isString(args[0]))
-				throw new CLSL_RuntimeException("incompatible type for argument 0 of `printf`");
+				throw new ClslIncompatibleArgumentTypeException(0, "printf");
 
 			try {// TODO: don't create a new array
 				Object[] vals = new Object[args.length - 1];
@@ -42,11 +45,11 @@ public class _Header_stdio_h extends _HeaderBase {
 
 		sprintf = CLSL.createFunctionalChunk(ValueType.INT, (env, args) -> {
 			if (args.length < 2)
-				throw new CLSL_RuntimeException("too few arguments to function `sprintf`");
+				throw new ClslTooFewArgumentsException("sprintf");
 			if (!CLSL.isString(args[0]))
-				throw new CLSL_RuntimeException("incompatible type for argument 0 of `sprintf`");
+				throw new ClslIncompatibleArgumentTypeException(0, "sprintf");
 			if (!CLSL.isString(args[1]))
-				throw new CLSL_RuntimeException("incompatible type for argument 1 of `sprintf`");
+				throw new ClslIncompatibleArgumentTypeException(1, "sprintf");
 
 			try {// TODO: don't create a new array
 				Object[] vals = new Object[args.length - 2];
@@ -65,7 +68,7 @@ public class _Header_stdio_h extends _HeaderBase {
 				}
 			}
 			catch (Exception e) {
-				if (e instanceof CLSL_RuntimeException)
+				if (e instanceof ClslRuntimeException)
 					throw e;
 				System.err.println(e.getClass().getSimpleName() + ": " + e.getMessage());
 				return new CLSLIntConst(-1);

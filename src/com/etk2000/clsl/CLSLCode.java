@@ -40,7 +40,12 @@ public class CLSLCode {
 	@Override
 	public String toString() {
 		try (StringBuilderPoolable sb = new StringBuilderPoolable()) {
-			chunks.forEach(chunk -> sb.append(chunk).append('\n'));
+			for (ExecutableChunk chunk : chunks) {
+				sb.append(chunk);
+				if (!(chunk instanceof IncludeExternChunk || chunk instanceof IncludeChunk))
+					sb.append(';');
+				sb.append('\n');
+			}
 			return sb.toString();
 		}
 	}

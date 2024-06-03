@@ -1,5 +1,7 @@
 package com.etk2000.clsl;
 
+import com.etk2000.clsl.exception.ClslRuntimeException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -22,7 +24,7 @@ class ReturnChunk implements ExecutableChunk {
 
 	@Override
 	public ReturnChunk execute(CLSLRuntimeEnv env) {
-		throw new CLSL_RuntimeException("one doesn't simply execute a ReturnChunk");
+		throw new ClslRuntimeException("one doesn't simply execute a ReturnChunk");
 	}
 
 	@Override

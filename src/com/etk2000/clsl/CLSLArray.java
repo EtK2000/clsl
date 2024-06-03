@@ -1,5 +1,10 @@
 package com.etk2000.clsl;
 
+import com.etk2000.clsl.exception.ClslRuntimeException;
+import com.etk2000.clsl.exception.type.ClslInvalidArrayComponentTypeException;
+import com.etk2000.clsl.exception.type.ClslInvalidArraySizeException;
+import com.etk2000.clsl.exception.variable.ClslBufferOverflowException;
+
 import java.util.Arrays;
 
 // TODO: allow arr[i] = x;
@@ -27,12 +32,12 @@ public class CLSLArray extends CLSLValue {
 	protected CLSLArray(ValueType type, ValueType component, short length) {
 		super(type);
 		if (type == ValueType.POINTER ? length < 1 : length < 0)
-			throw new CLSL_CompilerException("invalid size");
+			throw new ClslInvalidArraySizeException();
 
 		switch (this.component = component) {
 			case ARRAY:// TODO: allow multidimensional arrays
 			case POINTER:// TODO: allow multidimensional pointers
-				throw new CLSL_CompilerException("cannot create " + CLSL.typeName(type) + " of type " + CLSL.typeName(component));
+				throw new ClslInvalidArrayComponentTypeException(CLSL.typeName(type), CLSL.typeName(component));
 			case CHAR:
 				val = new CLSLChar[length];
 				for (short i = 0; i < length; ++i)
@@ -62,7 +67,7 @@ public class CLSLArray extends CLSLValue {
 				if (type == ValueType.POINTER)
 					val = new CLSLValue[length];// void*
 				else
-					throw new CLSL_CompilerException("cannot create " + CLSL.typeName(type) + " of type " + CLSL.typeName(component));
+					throw new ClslInvalidArrayComponentTypeException(CLSL.typeName(type), CLSL.typeName(component));
 		}
 	}
 
@@ -87,14 +92,14 @@ public class CLSLArray extends CLSLValue {
 		}
 
 		if ((component = comp) == null)
-			throw new CLSL_CompilerException("invalid array component type");
+			throw new ClslInvalidArrayComponentTypeException();
 	}
 
 	CLSLArray fill(CharSequence put) {
 		if (component != ValueType.CHAR)
-			throw new CLSL_RuntimeException("invalid component type");
+			throw new ClslInvalidArrayComponentTypeException();
 		if (put.length() + 1 > val.length)
-			throw new CLSL_RuntimeException("buffer overflow");
+			throw new ClslBufferOverflowException();
 
 		int i = 0;
 		for (; i < put.length(); ++i)
@@ -105,9 +110,9 @@ public class CLSLArray extends CLSLValue {
 
 	CLSLArray fill(CLSLArray other) {
 		if (component != ValueType.CHAR || other.component != ValueType.CHAR)
-			throw new CLSL_RuntimeException("invalid component type");
+			throw new ClslInvalidArrayComponentTypeException();
 		if ((other.val[other.val.length - 1].toBoolean() ? other.val.length + 1 : other.val.length) > val.length)
-			throw new CLSL_RuntimeException("buffer overflow");
+			throw new ClslBufferOverflowException();
 
 		int i = 0;
 		for (; i < other.val.length; ++i)
@@ -118,11 +123,11 @@ public class CLSLArray extends CLSLValue {
 
 	CLSLArray append(CLSLArray other) {
 		if (component != ValueType.CHAR || other.component != ValueType.CHAR)
-			throw new CLSL_RuntimeException("invalid component type");
+			throw new ClslInvalidArrayComponentTypeException();
 
 		int strlen = strlen();
 		if ((other.val[other.val.length - 1].toBoolean() ? other.val.length + 1 : other.val.length) > val.length - strlen)
-			throw new CLSL_RuntimeException("buffer overflow");
+			throw new ClslBufferOverflowException();
 
 		int i = 0;
 		for (; i < other.val.length; ++i)
@@ -133,7 +138,7 @@ public class CLSLArray extends CLSLValue {
 
 	int compareTo(CLSLArray other) {
 		if (component != ValueType.CHAR || other.component != ValueType.CHAR)
-			throw new CLSL_RuntimeException("can only compare strings");
+			throw new ClslRuntimeException("can only compare strings");
 
 		int len1 = strlen(), len2 = other.strlen(), lim = Math.min(len1, len2);
 		for (int i = 0; i < lim; ++i) {
@@ -146,7 +151,7 @@ public class CLSLArray extends CLSLValue {
 
 	int strlen() {
 		if (component != ValueType.CHAR)
-			throw new CLSL_RuntimeException("invalid component type");
+			throw new ClslInvalidArrayComponentTypeException();
 
 		for (int i = 0; i < val.length; ++i) {
 			if (val[i] == null || !val[i].toBoolean())
@@ -226,9 +231,10 @@ public class CLSLArray extends CLSLValue {
 	public String toString() {
 		if (component == ValueType.CHAR) {
 			try (StringBuilderPoolable sb = new StringBuilderPoolable()) {
+				sb.append('"');
 				for (short i = 0; i < val.length && val[i].toBoolean(); ++i)
 					sb.append(val[i].toChar());
-				return sb.toString();
+				return sb.append('"').toString();
 			}
 		}
 		return Arrays.toString(val);

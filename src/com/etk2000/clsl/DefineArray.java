@@ -1,5 +1,7 @@
 package com.etk2000.clsl;
 
+import com.etk2000.clsl.exception.variable.ClslArrayInstantiationException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -34,7 +36,7 @@ class DefineArray extends DefineVar {
 			len = (short) ((ConstArrayChunk) val).val.val.length;
 		}
 		else
-			throw new CLSL_CompilerException("array cannot be instantiated with non-array");
+			throw new ClslArrayInstantiationException();
 	}
 
 	@Override
@@ -49,7 +51,7 @@ class DefineArray extends DefineVar {
 		// FIXME: support any chunk that returns an array
 		if (newVal instanceof ConstArrayChunk)
 			return new DefineArray(name, ((ConstArrayChunk) newVal).val);
-		throw new CLSL_CompilerException("array cannot be instantiated with non-array");
+		throw new ClslArrayInstantiationException();
 	}
 
 	@Override

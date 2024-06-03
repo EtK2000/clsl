@@ -1,5 +1,9 @@
 package com.etk2000.clsl;
 
+import com.etk2000.clsl.exception.ClslRuntimeException;
+import com.etk2000.clsl.exception.function.ClslFunctionCallException;
+import com.etk2000.clsl.exception.function.ClslInvalidFunctionNameException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -11,13 +15,13 @@ class FunctionCall implements ExecutableValueChunk {
 
 	FunctionCall(String name, ValueChunk... args) {
 		if (!CLSL.isValidId(this.name = name))
-			throw new CLSL_CompilerException("invalid func name: " + name);
+			throw new ClslInvalidFunctionNameException("invalid func name: " + name);
 		this.args = args;
 	}
 
 	FunctionCall(InputStream i) throws IOException {
 		if (!CLSL.isValidId(name = StreamUtils.readString(i)))
-			throw new CLSL_CompilerException("invalid func name: " + name);
+			throw new ClslInvalidFunctionNameException("invalid func name: " + name);
 		args = CLSL.readValueChunks(i);
 	}
 
@@ -37,17 +41,17 @@ class FunctionCall implements ExecutableValueChunk {
 	public CLSLValue get(CLSLRuntimeEnv env) {
 		FunctionalChunk f = env.lookupFunction(name);
 		if (f == null)
-			throw new CLSL_RuntimeException(name + " cannot be resolved to a function");
+			throw new ClslFunctionCallException(name + " cannot be resolved to a function");
 
 		CLSLValue[] vals = new CLSLValue[args.length];
 		for (short i = 0; i < args.length; ++i)
 			vals[i] = args[i].get(env);
-		
+
 		try {
 			return f.call(env, vals);
 		}
-		catch(CLSL_RuntimeException e) {
-			throw new CLSL_RuntimeException(name + '(' + Arrays.toString(vals) + "): " + e.getMessage());
+		catch (ClslRuntimeException e) {
+			throw new ClslRuntimeException(name + '(' + Arrays.toString(vals) + "): " + e.getMessage());
 		}
 	}
 
@@ -63,7 +67,7 @@ class FunctionCall implements ExecutableValueChunk {
 			return sb.append(')').toString();
 		}
 	}
-	
+
 	@Override
 	public FunctionCall getExecutablePart(OptimizationEnvironment env) {
 		return optimize(env);

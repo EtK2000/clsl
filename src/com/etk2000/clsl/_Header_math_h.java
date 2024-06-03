@@ -1,5 +1,8 @@
 package com.etk2000.clsl;
 
+import com.etk2000.clsl.exception.function.ClslIncompatibleArgumentTypeException;
+import com.etk2000.clsl.exception.function.ClslInvalidNumberOfArgumentsException;
+
 // FIXME: implement this:
 // double frexp(double x, int *exponent)
 public class _Header_math_h extends _HeaderBase {
@@ -14,7 +17,7 @@ public class _Header_math_h extends _HeaderBase {
 
 	private static final FunctionalChunk atan2 = CLSL.createFunctionalChunk(ValueType.DOUBLE, (env, args) -> {
 		if (args.length != 2)
-			throw new CLSL_RuntimeException("invalid number of arguments, got " + args.length + " expected 2");
+			throw new ClslInvalidNumberOfArgumentsException(args.length, 2);
 		return new CLSLDoubleConst(Math.atan2(args[0].toDouble(), args[1].toDouble()));
 	});
 
@@ -38,14 +41,14 @@ public class _Header_math_h extends _HeaderBase {
 
 	private static final FunctionalChunk fmod = CLSL.createFunctionalChunk(ValueType.DOUBLE, (env, args) -> {
 		if (args.length != 2)
-			throw new CLSL_RuntimeException("invalid number of arguments, got " + args.length + " expected 2");
+			throw new ClslInvalidNumberOfArgumentsException(args.length, 2);
 		return new CLSLDoubleConst(args[0].toDouble() % args[1].toDouble());
 	});
 
 	// LOW: see if we can optimize this with a single Math call
 	private static final FunctionalChunk ldexp = CLSL.createFunctionalChunk(ValueType.DOUBLE, (env, args) -> {
 		if (args.length != 2)
-			throw new CLSL_RuntimeException("invalid number of arguments, got " + args.length + " expected 2");
+			throw new ClslInvalidNumberOfArgumentsException(args.length, 2);
 		return new CLSLDoubleConst(args[0].toDouble() * Math.pow(2, args[1].toDouble()));
 	});
 
@@ -57,9 +60,9 @@ public class _Header_math_h extends _HeaderBase {
 
 	private static final FunctionalChunk modf = CLSL.createFunctionalChunk(ValueType.DOUBLE, (env, args) -> {
 		if (args.length != 2)
-			throw new CLSL_RuntimeException("invalid number of arguments, got " + args.length + " expected 2");
+			throw new ClslInvalidNumberOfArgumentsException(args.length, 2);
 		if (!(args[1] instanceof CLSLArray))
-			throw new CLSL_RuntimeException("incompatible type for argument 1 of `modf`");
+			throw new ClslIncompatibleArgumentTypeException(1, "modf");
 
 		// LOW: add a set function that doesn't require wrapping in
 		// CLSLValue
@@ -70,7 +73,7 @@ public class _Header_math_h extends _HeaderBase {
 
 	private static final FunctionalChunk pow = CLSL.createFunctionalChunk(ValueType.DOUBLE, (env, args) -> {
 		if (args.length != 2)
-			throw new CLSL_RuntimeException("invalid number of arguments, got " + args.length + " expected 2");
+			throw new ClslInvalidNumberOfArgumentsException(args.length, 2);
 		return new CLSLDoubleConst(Math.pow(args[0].toDouble(), args[1].toDouble()));
 	});
 

@@ -3,7 +3,6 @@ package com.etk2000.clsl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
 
 class ConstArrayChunk extends ConstValueChunk {
 	final CLSLArrayConst val;
@@ -101,6 +100,6 @@ class ConstArrayChunk extends ConstValueChunk {
 
 	@Override
 	public String toString() {
-		return Arrays.toString(val.val);
+		return val.toString();
 	}
 }

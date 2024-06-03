@@ -1,5 +1,7 @@
 package com.etk2000.clsl;
 
+import com.etk2000.clsl.exception.ClslCompilerException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -13,9 +15,9 @@ public class CLSLCompiler {
 
 	private static void consumeSemicolon(int i, String res, Matcher m) {
 		if (!m.find())
-			throw new CLSL_CompilerException("error: expected `;`", i, res, m);
+			throw new ClslCompilerException("error: expected `;`", i, res, m);
 		if (!m.group().equals(";"))
-			throw new CLSL_CompilerException("error: expected `;`", i, res, m);
+			throw new ClslCompilerException("error: expected `;`", i, res, m);
 	}
 
 	@Deprecated
@@ -240,7 +242,7 @@ public class CLSLCompiler {
 			return getBlock(ss, 0).a;
 		}
 		catch (Exception e) {
-			throw new CLSL_CompilerException("invalid eval query: " + query + "; " + e.getMessage());
+			throw new ClslCompilerException("invalid eval query: " + query + "; " + e.getMessage());
 		}
 	}
 
@@ -249,7 +251,7 @@ public class CLSLCompiler {
 	// HIGH: add support for <<= >>= ?: * / + - *= /= += -= &= etc
 	private static IntGroup<ValueChunk> getBlock(List<Object> arr, int start) {
 		if (arr.get(start) != ExpressionType.PARENTHESIS_OPEN && arr.get(start) != ExpressionType.COMMA)
-			throw new CLSL_CompilerException("expected parentheses; near: " + arr.get(start));
+			throw new ClslCompilerException("expected parentheses; near: " + arr.get(start));
 
 		List<Object> res = new ArrayList<>();
 		List<ValueChunk> args = new ArrayList<>();
@@ -287,7 +289,7 @@ public class CLSLCompiler {
 				// x--
 				if (i > 0 && res.get(i - 1) instanceof ValueChunk)
 					res.set(--i, new OpDec(((GetVar) res.remove(i)).name, true));
-				// --x
+					// --x
 				else
 					res.set(i, new OpDec(((GetVar) res.remove(i + 1)).name, false));
 			}
@@ -295,7 +297,7 @@ public class CLSLCompiler {
 				// x++
 				if (i > 0 && res.get(i - 1) instanceof ValueChunk)
 					res.set(--i, new OpInc(((GetVar) res.remove(i)).name, true));
-				// ++x
+					// ++x
 				else
 					res.set(i, new OpInc(((GetVar) res.remove(i + 1)).name, false));
 			}
@@ -316,7 +318,7 @@ public class CLSLCompiler {
 			// x % y
 			if (res.get(i) == ExpressionType.MODULUS)
 				res.set(--i, new OpModulus((ValueChunk) res.remove(i), (ValueChunk) res.remove(i + 1)));
-			// x * y
+				// x * y
 			else if (res.get(i) == ExpressionType.MULTIPLY)
 				res.set(--i, new OpMultiply((ValueChunk) res.remove(i), (ValueChunk) res.remove(i + 1)));
 		}
@@ -326,7 +328,7 @@ public class CLSLCompiler {
 			// x + y
 			if (res.get(i) == ExpressionType.ADD)
 				res.set(--i, new OpAdd((ValueChunk) res.remove(i), (ValueChunk) res.remove(i + 1)));
-			// x - y
+				// x - y
 			else if (res.get(i) == ExpressionType.SUBTRACT)
 				res.set(--i, new OpSubtract((ValueChunk) res.remove(i), (ValueChunk) res.remove(i + 1)));
 		}
@@ -336,7 +338,7 @@ public class CLSLCompiler {
 			// x << y
 			if (res.get(i) == ExpressionType.SHIFT_LEFT)
 				res.set(--i, new OpShiftLeft((ValueChunk) res.remove(i), (ValueChunk) res.remove(i + 1)));
-			// x >> y
+				// x >> y
 			else if (res.get(i) == ExpressionType.SHIFT_RIGHT)
 				res.set(--i, new OpShiftRight((ValueChunk) res.remove(i), (ValueChunk) res.remove(i + 1)));
 		}
@@ -348,13 +350,13 @@ public class CLSLCompiler {
 				// x < y
 				if (res.get(i) == ExpressionType.LESS_THAN)
 					res.set(--i, new OpLessThan((ValueChunk) res.remove(i), (ValueChunk) res.remove(i + 1), false));
-				// x <= y
+					// x <= y
 				else if (res.get(i) == ExpressionType.LESS_THAN_OR_EQUAL)
 					res.set(--i, new OpLessThan((ValueChunk) res.remove(i), (ValueChunk) res.remove(i + 1), true));
-				// x > y
+					// x > y
 				else if (res.get(i) == ExpressionType.MORE_THAN)
 					res.set(--i, new OpLessThan((ValueChunk) res.remove(i + 2), (ValueChunk) res.remove(i), false));
-				// x >= y
+					// x >= y
 				else if (res.get(i) == ExpressionType.MORE_THAN_OR_EQUAL)
 					res.set(--i, new OpLessThan((ValueChunk) res.remove(i + 2), (ValueChunk) res.remove(i), true));
 			}
@@ -366,7 +368,7 @@ public class CLSLCompiler {
 				// x == y
 				if (res.get(i) == ExpressionType.EQUAL_TO)
 					res.set(--i, new OpEquals((ValueChunk) res.remove(i), (ValueChunk) res.remove(i + 1), false));
-				// x != y
+					// x != y
 				else if (res.get(i) == ExpressionType.NOT_EQUAL)
 					res.set(--i, new OpEquals((ValueChunk) res.remove(i), (ValueChunk) res.remove(i + 1), true));
 			}
@@ -418,7 +420,7 @@ public class CLSLCompiler {
 					res.set(--i, new OpTernary((ValueChunk) res.get(i), (ValueChunk) res.remove(i + 1), (ValueChunk) res.remove(i + 1)));
 				}
 				else
-					throw new CLSL_CompilerException("expected ':' near '?'");
+					throw new ClslCompilerException("expected ':' near '?'");
 			}
 		}
 
@@ -430,7 +432,7 @@ public class CLSLCompiler {
 		}
 
 		if (res.size() != 1)
-			throw new CLSL_CompilerException("invalid cause: " + res);
+			throw new ClslCompilerException("invalid cause: " + res);
 		return IntGroup.make((ValueChunk) res.get(0), n);
 	}
 
@@ -446,13 +448,14 @@ public class CLSLCompiler {
 
 		int i = 0;
 		if (!argumentMatcher.find())
-			throw new CLSL_CompilerException("expected expression", i, res, argumentMatcher);
+			throw new ClslCompilerException("expected expression", i, res, argumentMatcher);
 
 		int blocks = 1;
-		out: do {
+		out:
+		do {
 			switch (argumentMatcher.group()) {
 				case ";":
-					throw new CLSL_CompilerException("illegal token", i, res, argumentMatcher);
+					throw new ClslCompilerException("illegal token", i, res, argumentMatcher);
 				case ",":
 					arr.add(toValue(res.substring(i, argumentMatcher.start())).get(null));
 					i = argumentMatcher.start() + 1;
@@ -478,15 +481,16 @@ public class CLSLCompiler {
 
 		int i = m.start() + 1;
 		if (!m.find())
-			throw new CLSL_CompilerException("expected expression", i, res, m);
+			throw new ClslCompilerException("expected expression", i, res, m);
 
 		int blocks = 1;
 		boolean inChr = false, inStr = false;
 		ValueChunk wip = null;
-		out: do {
+		out:
+		do {
 			switch (m.group()) {
 				case ";":
-					throw new CLSL_CompilerException("illegal token", i, res, m);
+					throw new ClslCompilerException("illegal token", i, res, m);
 				case ",":
 					if (!inChr && !inStr) {
 						if (i == m.start()) {
@@ -541,15 +545,16 @@ public class CLSLCompiler {
 		if (!untilComma) {
 			i = m.start() + 1;
 			if (!m.find())
-				throw new CLSL_CompilerException("expected expression", i, res, m);
+				throw new ClslCompilerException("expected expression", i, res, m);
 		}
 
 		int blocks = prefix.equals("(") ? 2 : 1;
-		out: do {
+		out:
+		do {
 			switch (m.group()) {
 				case ";":
 					if (blocks > 1)
-						throw new CLSL_CompilerException("illegal token", i, res, m);
+						throw new ClslCompilerException("illegal token", i, res, m);
 					break out;// assume it's a for(;X;) or variable definition
 				case "(":
 					++blocks;
@@ -580,33 +585,33 @@ public class CLSLCompiler {
 		do {
 			int i = m.start() + 1;
 			if (!m.find())
-				throw new CLSL_CompilerException("expected variable name", i, res, m);
+				throw new ClslCompilerException("expected variable name", i, res, m);
 
 			String varName = res.substring(i, m.start());
 			if (m.group().equals("(")) {
 				if (!allowFunctions)
-					throw new CLSL_CompilerException("cannot define a function here", i, res, m);
+					throw new ClslCompilerException("cannot define a function here", i, res, m);
 				exec.add(readFunction(type, varName, res, m));
 				break;
 			}
 			if (m.group().equals("[")) {// FIXME: support reading <type>
-										// <name>[]=...
+				// <name>[]=...
 				i = m.start() + 1;
 				if (!m.find())
-					throw new CLSL_CompilerException("expected value", i, res, m);
+					throw new ClslCompilerException("expected value", i, res, m);
 				exec.add(new DefineArray(varName, type, (short) Integer.parseInt(res.substring(i, m.start()))));
 				break;
 			}
 			if (m.group().equals("=")) {
 				i = m.start() + 1;
 				if (!m.find())
-					throw new CLSL_CompilerException("expected value", i, res, m);
+					throw new ClslCompilerException("expected value", i, res, m);
 
 				// TODO: test: char c = '.';
 				if (type == ValueType.CHAR && m.group().equals("'") && (!m.find() || !m.group().equals("'")))
-					throw new CLSL_CompilerException("invalid character constant", i, res, m);
+					throw new ClslCompilerException("invalid character constant", i, res, m);
 				else if ((type == ValueType.FLOAT || type == ValueType.LONG) && m.group().equals(".") && !m.find())
-					throw new CLSL_CompilerException("expected decimal", i, res, m);
+					throw new ClslCompilerException("expected decimal", i, res, m);
 
 				// m.group().equals(";") ? toValue(res.substring(i, m.start()))
 				// : readValueChunk(i, res, m, true)
@@ -654,7 +659,7 @@ public class CLSLCompiler {
 	private static ExecutableChunk[] readEffect(String res, Matcher m, String prefix) {
 		int i = m.start() + 1;
 		if (!m.find())
-			throw new CLSL_CompilerException("expected expression", i, res, m);
+			throw new ClslCompilerException("expected expression", i, res, m);
 
 		boolean isBlock = m.group().equals("{");
 
@@ -662,7 +667,8 @@ public class CLSLCompiler {
 		if (isBlock) {
 			i = m.start() + 1;
 			int blocks = 1;
-			out: while (m.find()) {
+			out:
+			while (m.find()) {
 				switch (m.group()) {
 					case "{":
 						++blocks;
@@ -687,10 +693,10 @@ public class CLSLCompiler {
 	private static ExecutableChunk readExecutable(String res, Matcher m, boolean breakAtSemi) {
 		int i = m.start() + 1;
 		if (!m.find())
-			throw new CLSL_CompilerException("expected expression", i, res, m);
+			throw new ClslCompilerException("expected expression", i, res, m);
 
 		if (m.group().equals("{"))// if it's a block throw an error
-			throw new CLSL_CompilerException("illegal token", i, res, m);
+			throw new ClslCompilerException("illegal token", i, res, m);
 
 		// read until the semicolon
 		if (breakAtSemi) {
@@ -701,7 +707,8 @@ public class CLSLCompiler {
 		// read until close parentheses
 		else {
 			int blocks = 1;
-			out: while (m.find()) {
+			out:
+			while (m.find()) {
 				switch (m.group()) {
 					case "(":
 						++blocks;
@@ -729,7 +736,7 @@ public class CLSLCompiler {
 		int i = m.start() + 1;
 		int start = m.start();
 		if (!m.find())
-			throw new CLSL_CompilerException("expected expression", i, res, m);
+			throw new ClslCompilerException("expected expression", i, res, m);
 
 		List<Group<String, ValueType>> parameters = new ArrayList<>();
 		if (!m.group().equals(")")) {
@@ -739,7 +746,7 @@ public class CLSLCompiler {
 			while (!m.group().equals(")")) {
 				i = m.start() + 1;
 				if (!m.find())
-					throw new CLSL_CompilerException("expected expression", i, res, m);
+					throw new ClslCompilerException("expected expression", i, res, m);
 
 				// FIXME: add missing types and array/pointer support
 				switch (res.substring(i, m.start())) {
@@ -756,23 +763,23 @@ public class CLSLCompiler {
 						type = ValueType.STRUCT;
 						break;
 					default:
-						throw new CLSL_CompilerException("unsupported parameter type " + res.substring(i, m.start()) + " for function " + name, i, res, m);
+						throw new ClslCompilerException("unsupported parameter type " + res.substring(i, m.start()) + " for function " + name, i, res, m);
 				}
 
 				i = m.start() + 1;
 				if (!m.find())
-					throw new CLSL_CompilerException("expected expression", i, res, m);
+					throw new ClslCompilerException("expected expression", i, res, m);
 
 				varName = res.substring(i, m.start());
 				if (m.group().equals("[")) {
 					if (!m.find() || !m.group().equals("]"))
-						throw new CLSL_CompilerException("expected expression", i, res, m);
+						throw new ClslCompilerException("expected expression", i, res, m);
 
 					// FIXME: get length of List if it's supplied
 					type = ValueType.ARRAY;// FIXME: make List of type
 
 					if (!m.find())
-						throw new CLSL_CompilerException("expected expression", i, res, m);
+						throw new ClslCompilerException("expected expression", i, res, m);
 				}
 
 				parameters.add(new Group<>(varName, type));
@@ -781,11 +788,11 @@ public class CLSLCompiler {
 
 		start = m.start();
 		if (!m.find())
-			throw new CLSL_CompilerException("expected expression", i, res, m);
+			throw new ClslCompilerException("expected expression", i, res, m);
 		if (m.group().equals(";"))
-			throw new CLSL_CompilerException("bodyless functions not supported yet", i, res, m);
+			throw new ClslCompilerException("bodyless functions not supported yet", i, res, m);
 		else if (!m.group().equals("{"))
-			throw new CLSL_CompilerException("expected function body", i, res, m);
+			throw new ClslCompilerException("expected function body", i, res, m);
 
 		m.find(start);
 		return new FunctionalChunk(name, returnType, parameters.toArray(Util.array()), readEffect(res, m, ""));
@@ -818,7 +825,7 @@ public class CLSLCompiler {
 			case MODE_SET_XOR:
 				return new SetVarXor(varName, val);
 			default:
-				throw new CLSL_CompilerException("invalid mode: " + mode, i, res, m);
+				throw new ClslCompilerException("invalid mode: " + mode, i, res, m);
 		}
 	}
 
@@ -831,7 +838,7 @@ public class CLSLCompiler {
 		if (str.length() > 1 && str.charAt(0) == '\'' && str.charAt(str.length() - 1) == '\'') {
 			String c = Util.unescape(str.substring(1, str.length() - 1));
 			if (c.length() != 1)
-				throw new CLSL_CompilerException("invalid char " + str);
+				throw new ClslCompilerException("invalid char " + str);
 			return new ConstCharChunk(c.charAt(0));
 		}
 
@@ -844,7 +851,7 @@ public class CLSLCompiler {
 					return new ConstFloatChunk(Float.parseFloat(str));
 				}
 				catch (NumberFormatException e) {
-					throw new CLSL_CompilerException("invalid variable or value: " + str);
+					throw new ClslCompilerException("invalid variable or value: " + str);
 				}
 			}
 			if (str.charAt(str.length() - 1) == 'L') {// long suffix
@@ -852,7 +859,7 @@ public class CLSLCompiler {
 					return new ConstLongChunk(Long.parseLong(str));
 				}
 				catch (NumberFormatException e) {
-					throw new CLSL_CompilerException("invalid variable or value: " + str);
+					throw new ClslCompilerException("invalid variable or value: " + str);
 				}
 			}
 
@@ -867,7 +874,7 @@ public class CLSLCompiler {
 					}
 					catch (NumberFormatException ex) {
 						// TODO: attempt to parse as expression
-						throw new CLSL_CompilerException("invalid variable or value: " + str);
+						throw new ClslCompilerException("invalid variable or value: " + str);
 					}
 				}
 			}
@@ -878,7 +885,7 @@ public class CLSLCompiler {
 			}
 			catch (NumberFormatException ex) {
 				// TODO: attempt to parse as expression
-				throw new CLSL_CompilerException("invalid variable or value: " + str);
+				throw new ClslCompilerException("invalid variable or value: " + str);
 			}
 		}
 
@@ -900,25 +907,25 @@ public class CLSLCompiler {
 		}
 
 		// TODO: attempt to parse as expression
-		throw new CLSL_CompilerException("invalid variable or value: " + str);
+		throw new ClslCompilerException("invalid variable or value: " + str);
 	}
 
 	private final Matcher matcher = SYNTAX_PATTERN.matcher("");
 
-	public CLSLCode compile(String code, boolean allowFunctions) throws CLSL_CompilerException {
+	public CLSLCode compile(String code, boolean allowFunctions) throws ClslCompilerException {
 		synchronized (this) {
 			return new CLSLCode(compile(code, matcher, allowFunctions));
 		}
 	}
 
 	// HIGH: allow variable definition using expressions
-	private static List<ExecutableChunk> compile(String code, Matcher m, boolean allowFunctions) throws CLSL_CompilerException {
+	private static List<ExecutableChunk> compile(String code, Matcher m, boolean allowFunctions) throws ClslCompilerException {
 		// TODO: use StringBuilder until we need String
 		String res = code + '\n';
 
 		// remove line comments
 		// TODO: move this into whitespace for loop
-		for (int i; (i = res.indexOf("//")) > -1;)
+		for (int i; (i = res.indexOf("//")) > -1; )
 			res = res.substring(0, i) + res.substring(res.indexOf('\n', i));
 
 		// parse preprocessor and #includes here whilst we still have linebreaks
@@ -937,17 +944,17 @@ public class CLSLCompiler {
 					if (e != -1)
 						exec.add(new IncludeChunk(line.substring(s, e)));
 					else
-						throw new CLSL_CompilerException("cannot compile line: " + line);
+						throw new ClslCompilerException("cannot compile line: " + line);
 				}
 				else if ((s = line.indexOf('"')) != -1) {
 					int e = line.indexOf('"', ++s);
 					if (e != -1)
 						exec.add(new IncludeExternChunk(line.substring(s, e)));
 					else
-						throw new CLSL_CompilerException("cannot compile line: " + line);
+						throw new ClslCompilerException("cannot compile line: " + line);
 				}
 				else
-					throw new CLSL_CompilerException("cannot compile line: " + line);
+					throw new ClslCompilerException("cannot compile line: " + line);
 			}
 			else
 				System.out.println("ignoring line: " + line);
@@ -1025,13 +1032,13 @@ public class CLSLCompiler {
 					if (group.equals("<"))
 						builtin = true;
 					else if (!group.equals("\""))
-						throw new CLSL_CompilerException("#include expects \"FILENAME\" or <FILENAME>", i, res, m);
+						throw new ClslCompilerException("#include expects \"FILENAME\" or <FILENAME>", i, res, m);
 					String terminating = builtin ? ">" : "\"";
 
 					i = m.start() + 1;
 					do {
 						if (!m.find())
-							throw new CLSL_CompilerException("missing terminating " + terminating + " character", i, res, m);
+							throw new ClslCompilerException("missing terminating " + terminating + " character", i, res, m);
 					} while (!m.group().equals(terminating));
 					// FIXME: include code here
 					System.err.println("include " + res.substring(i, m.start()) + (builtin ? " builtin" : ""));
@@ -1091,20 +1098,20 @@ public class CLSLCompiler {
 					System.err.println("validate group: void");
 					i = m.start() + 1;
 					if (!m.find())
-						throw new CLSL_CompilerException("expected variable name", i, res, m);
-					
+						throw new ClslCompilerException("expected variable name", i, res, m);
+
 					if (_unsigned)
-						throw new CLSL_CompilerException("both `unsigned` and `void` in declaration specifiers", i, expression, m);
+						throw new ClslCompilerException("both `unsigned` and `void` in declaration specifiers", i, expression, m);
 
 					String varName = res.substring(i, m.start());
 					if (m.group().equals("(")) {
 						if (!allowFunctions)
-							throw new CLSL_CompilerException("cannot define a function here", i, res, m);
+							throw new ClslCompilerException("cannot define a function here", i, res, m);
 						exec.add(readFunction(ValueType.VOID, varName, res, m));
 						_const = false;
 					}
 					else
-						throw new CLSL_CompilerException("variable or field `" + varName + "` declared void", i, res, m);
+						throw new ClslCompilerException("variable or field `" + varName + "` declared void", i, res, m);
 					break;
 
 				// flow control
@@ -1119,20 +1126,20 @@ public class CLSLCompiler {
 						case "{":
 							break;
 						default:
-							throw new CLSL_CompilerException("expected expression before `" + group + "` token", i, res, m);
+							throw new ClslCompilerException("expected expression before `" + group + "` token", i, res, m);
 					}
 					ExecutableChunk[] effect = readEffect(res, m, group.equals(" ") || group.equals("{") ? "" : group);
 
 					if (group.equals("{") && (!m.find() || !m.group().equals("}")))
-						throw new CLSL_CompilerException("missing curly bracket before while", i, res, m);
+						throw new ClslCompilerException("missing curly bracket before while", i, res, m);
 
 					i = m.start() + 1;
 					if (!m.find() || !res.substring(i, m.start()).equals("while"))
-						throw new CLSL_CompilerException("expected while", i, res, m);
+						throw new ClslCompilerException("expected while", i, res, m);
 
 					exec.add(new DoWhileChunk(effect, readValueChunk(i, res, m, false)));
 					if (!m.find() || !m.group().equals(";"))
-						throw new CLSL_CompilerException("expected `;`", i, res, m);
+						throw new ClslCompilerException("expected `;`", i, res, m);
 
 					break;
 				}
@@ -1140,11 +1147,11 @@ public class CLSLCompiler {
 					System.err.println("validate group: else");
 					i = m.start() + 1;
 					if (!m.find())
-						throw new CLSL_CompilerException("expected expression", i, res, m);
+						throw new ClslCompilerException("expected expression", i, res, m);
 
 					if (res.substring(i, m.start()).equals("if")) {
 						if (!(exec.get(exec.size() - 1) instanceof IfChunk))
-							throw new CLSL_CompilerException("else-if only allowed after if", i, res, m);
+							throw new ClslCompilerException("else-if only allowed after if", i, res, m);
 
 						((IfChunk) exec.get(exec.size() - 1)).addElse(readCauseEffect(i, res, m));
 					}
@@ -1174,7 +1181,7 @@ public class CLSLCompiler {
 						case "(":
 							break;
 						default:
-							throw new CLSL_CompilerException("expected expression before `" + group + "` token", i, res, m);
+							throw new ClslCompilerException("expected expression before `" + group + "` token", i, res, m);
 					}
 					// FIXME: ensure return is in function and can be casted to
 					// return type
@@ -1207,11 +1214,11 @@ public class CLSLCompiler {
 							System.err.println("please finish implementing member access");
 
 							/*if (!CLSL.isValidId(expression))
-								throw new CLSL_CompilerException("invalid variable name: `" + expression + '`', i, res, m);
+								throw new ClslCompilerException("invalid variable name: `" + expression + '`', i, res, m);
 							
 							i = m.start() + 1;
 							if (!m.find())
-								throw new CLSL_CompilerException("expected expression", i, res, m);
+								throw new ClslCompilerException("expected expression", i, res, m);
 							
 							// new OpMember(new GetVar(expression), res.substring(i, m.start()));
 							// FIXME: finish OOP, support operations on above
@@ -1219,16 +1226,17 @@ public class CLSLCompiler {
 							i = m.start() + 1;
 							while (!m.group().equals(";")) {
 								if (!m.find())
-									throw new CLSL_CompilerException("unexpected EOF", i, res, m);
+									throw new ClslCompilerException("unexpected EOF", i, res, m);
 							}
 							exec.add(new SetVar(expression, buildExpression(res.substring(i, m.start()))));
-							*/break;
+							*/
+							break;
 						}
 
 						case "-": {
 							int start = m.start();
 							if (!m.find())
-								throw new CLSL_CompilerException("expected expression", i, res, m);
+								throw new ClslCompilerException("expected expression", i, res, m);
 
 							switch (m.group()) {
 								// "--"
@@ -1238,18 +1246,18 @@ public class CLSLCompiler {
 									if (expression.isEmpty()) {
 										int varStart = m.start() + 1;
 										if (!m.find())
-											throw new CLSL_CompilerException("expected expression", i, res, m);
+											throw new ClslCompilerException("expected expression", i, res, m);
 
 										String var = code.substring(varStart, m.start());
 										if (!CLSL.isValidId(var))
-											throw new CLSL_CompilerException("invalid variable name: `" + var + '`', i, res, m);
+											throw new ClslCompilerException("invalid variable name: `" + var + '`', i, res, m);
 										exec.add(new OpDec(var, false));
 									}
 
 									// X--
 									else {
 										if (!CLSL.isValidId(expression))
-											throw new CLSL_CompilerException("invalid variable name: `" + expression + '`', i, res, m);
+											throw new ClslCompilerException("invalid variable name: `" + expression + '`', i, res, m);
 										exec.add(new OpDec(expression, true));
 									}
 									break;
@@ -1257,7 +1265,7 @@ public class CLSLCompiler {
 								// "-="
 								case "=": {
 									if (!CLSL.isValidId(expression))
-										throw new CLSL_CompilerException("invalid variable name: `" + expression + '`', i, res, m);
+										throw new ClslCompilerException("invalid variable name: `" + expression + '`', i, res, m);
 									exec.add(readValueSet(expression, i, res, m, MODE_SET_SUB));
 									break;
 								}
@@ -1274,7 +1282,7 @@ public class CLSLCompiler {
 						case "+": {
 							int start = m.start();
 							if (!m.find())
-								throw new CLSL_CompilerException("expected expression", i, res, m);
+								throw new ClslCompilerException("expected expression", i, res, m);
 
 							switch (m.group()) {
 								// "++"
@@ -1284,18 +1292,18 @@ public class CLSLCompiler {
 									if (expression.isEmpty()) {
 										int varStart = m.start() + 1;
 										if (!m.find())
-											throw new CLSL_CompilerException("expected expression", i, res, m);
+											throw new ClslCompilerException("expected expression", i, res, m);
 
 										String var = code.substring(varStart, m.start());
 										if (!CLSL.isValidId(var))
-											throw new CLSL_CompilerException("invalid variable name: `" + var + '`', i, res, m);
+											throw new ClslCompilerException("invalid variable name: `" + var + '`', i, res, m);
 										exec.add(new OpInc(var, false));
 									}
 
 									// X++
 									else {
 										if (!CLSL.isValidId(expression))
-											throw new CLSL_CompilerException("invalid variable name: `" + expression + '`', i, res, m);
+											throw new ClslCompilerException("invalid variable name: `" + expression + '`', i, res, m);
 										exec.add(new OpInc(expression, true));
 									}
 									break;
@@ -1303,7 +1311,7 @@ public class CLSLCompiler {
 								// "+="
 								case "=": {
 									if (!CLSL.isValidId(expression))
-										throw new CLSL_CompilerException("invalid variable name: `" + expression + '`', i, res, m);
+										throw new ClslCompilerException("invalid variable name: `" + expression + '`', i, res, m);
 									exec.add(readValueSet(expression, i, res, m, MODE_SET_ADD));
 									break;
 								}
@@ -1320,13 +1328,13 @@ public class CLSLCompiler {
 						case "/": {
 							int start = m.start();
 							if (!m.find())
-								throw new CLSL_CompilerException("expected expression", i, res, m);
+								throw new ClslCompilerException("expected expression", i, res, m);
 
 							switch (m.group()) {
 								// "/="
 								case "=": {
 									if (!CLSL.isValidId(expression))
-										throw new CLSL_CompilerException("invalid variable name: `" + expression + '`', i, res, m);
+										throw new ClslCompilerException("invalid variable name: `" + expression + '`', i, res, m);
 									exec.add(readValueSet(expression, i, res, m, MODE_SET_DIV));
 									break;
 								}
@@ -1343,13 +1351,13 @@ public class CLSLCompiler {
 						case "*": {
 							int start = m.start();
 							if (!m.find())
-								throw new CLSL_CompilerException("expected expression", i, res, m);
+								throw new ClslCompilerException("expected expression", i, res, m);
 
 							switch (m.group()) {
 								// "*="
 								case "=": {
 									if (!CLSL.isValidId(expression))
-										throw new CLSL_CompilerException("invalid variable name: `" + expression + '`', i, res, m);
+										throw new ClslCompilerException("invalid variable name: `" + expression + '`', i, res, m);
 									exec.add(readValueSet(expression, i, res, m, MODE_SET_MUL));
 									break;
 								}
@@ -1366,13 +1374,13 @@ public class CLSLCompiler {
 						case "%": {
 							int start = m.start();
 							if (!m.find())
-								throw new CLSL_CompilerException("expected expression", i, res, m);
+								throw new ClslCompilerException("expected expression", i, res, m);
 
 							switch (m.group()) {
 								// "%="
 								case "=": {
 									if (!CLSL.isValidId(expression))
-										throw new CLSL_CompilerException("invalid variable name: `" + expression + '`', i, res, m);
+										throw new ClslCompilerException("invalid variable name: `" + expression + '`', i, res, m);
 									exec.add(readValueSet(expression, i, res, m, MODE_SET_MOD));
 									break;
 								}
@@ -1389,13 +1397,13 @@ public class CLSLCompiler {
 						case "^": {
 							int start = m.start();
 							if (!m.find())
-								throw new CLSL_CompilerException("expected expression", i, res, m);
+								throw new ClslCompilerException("expected expression", i, res, m);
 
 							switch (m.group()) {
 								// "^="
 								case "=": {
 									if (!CLSL.isValidId(expression))
-										throw new CLSL_CompilerException("invalid variable name: `" + expression + '`', i, res, m);
+										throw new ClslCompilerException("invalid variable name: `" + expression + '`', i, res, m);
 									exec.add(readValueSet(expression, i, res, m, MODE_SET_XOR));
 									break;
 								}
@@ -1412,13 +1420,13 @@ public class CLSLCompiler {
 						case "&": {
 							int start = m.start();
 							if (!m.find())
-								throw new CLSL_CompilerException("expected expression", i, res, m);
+								throw new ClslCompilerException("expected expression", i, res, m);
 
 							switch (m.group()) {
 								// "&="
 								case "=": {
 									if (!CLSL.isValidId(expression))
-										throw new CLSL_CompilerException("invalid variable name: `" + expression + '`', i, res, m);
+										throw new ClslCompilerException("invalid variable name: `" + expression + '`', i, res, m);
 									exec.add(readValueSet(expression, i, res, m, MODE_SET_BAND));
 									break;
 								}
@@ -1435,13 +1443,13 @@ public class CLSLCompiler {
 						case "|": {
 							int start = m.start();
 							if (!m.find())
-								throw new CLSL_CompilerException("expected expression", i, res, m);
+								throw new ClslCompilerException("expected expression", i, res, m);
 
 							switch (m.group()) {
 								// "|="
 								case "=": {
 									if (!CLSL.isValidId(expression))
-										throw new CLSL_CompilerException("invalid variable name: `" + expression + '`', i, res, m);
+										throw new ClslCompilerException("invalid variable name: `" + expression + '`', i, res, m);
 									exec.add(readValueSet(expression, i, res, m, MODE_SET_BOR));
 									break;
 								}
@@ -1458,20 +1466,20 @@ public class CLSLCompiler {
 						case "<": {
 							int start = m.start();
 							if (!m.find())
-								throw new CLSL_CompilerException("expected expression", i, res, m);
+								throw new ClslCompilerException("expected expression", i, res, m);
 
 							switch (m.group()) {
 								// "<<"
 								case "<": {
 									System.err.println("handle group in <<");
 									if (!m.find())
-										throw new CLSL_CompilerException("expected expression", i, res, m);
+										throw new ClslCompilerException("expected expression", i, res, m);
 
 									switch (m.group()) {
 										// <<=
 										case "=":
 											if (!CLSL.isValidId(expression))
-												throw new CLSL_CompilerException("invalid variable name: `" + expression + '`', i, res, m);
+												throw new ClslCompilerException("invalid variable name: `" + expression + '`', i, res, m);
 											exec.add(readValueSet(expression, i, res, m, MODE_SET_BLS));
 											break;
 										default:
@@ -1502,20 +1510,20 @@ public class CLSLCompiler {
 						case ">": {
 							int start = m.start();
 							if (!m.find())
-								throw new CLSL_CompilerException("expected expression", i, res, m);
+								throw new ClslCompilerException("expected expression", i, res, m);
 
 							switch (m.group()) {
 								// ">>"
 								case ">": {
 									System.err.println("handle group in >>");
 									if (!m.find())
-										throw new CLSL_CompilerException("expected expression", i, res, m);
+										throw new ClslCompilerException("expected expression", i, res, m);
 
 									switch (m.group()) {
 										// >>=
 										case "=":
 											if (!CLSL.isValidId(expression))
-												throw new CLSL_CompilerException("invalid variable name: `" + expression + '`', i, res, m);
+												throw new ClslCompilerException("invalid variable name: `" + expression + '`', i, res, m);
 											exec.add(readValueSet(expression, i, res, m, MODE_SET_BRS));
 											break;
 										default:
@@ -1546,21 +1554,21 @@ public class CLSLCompiler {
 						// "="
 						case "=":
 							if (!CLSL.isValidId(expression))
-								throw new CLSL_CompilerException("invalid variable name: `" + expression + '`', i, res, m);
+								throw new ClslCompilerException("invalid variable name: `" + expression + '`', i, res, m);
 
 							i = m.start() + 1;
 							if (!m.find())
-								throw new CLSL_CompilerException("expected expression", i, res, m);
+								throw new ClslCompilerException("expected expression", i, res, m);
 
 							while (!m.group().equals(";")) {
 								if (!m.find())
-									throw new CLSL_CompilerException("unexpected EOF", i, res, m);
+									throw new ClslCompilerException("unexpected EOF", i, res, m);
 							}
 							exec.add(new SetVar(expression, buildExpression(res.substring(i, m.start()))));
 							break;
 
 						default:
-							throw new CLSL_CompilerException("expected expression", i, res, m);
+							throw new ClslCompilerException("expected expression", i, res, m);
 					}
 					break;
 			}

@@ -1,5 +1,7 @@
 package com.etk2000.clsl;
 
+import com.etk2000.clsl.exception.type.ClslTypeCastException;
+
 public abstract class CLSLStruct extends CLSLValue {
 	public CLSLStruct() {
 		super(ValueType.STRUCT);
@@ -33,7 +35,7 @@ public abstract class CLSLStruct extends CLSLValue {
 			case VOID:
 				break;
 		}
-		throw new CLSL_RuntimeException("cannot cast from type " + typeName() + " to " + CLSL.typeName(to));
+		throw new ClslTypeCastException(typeName(), CLSL.typeName(to));
 	}
 
 	@Override

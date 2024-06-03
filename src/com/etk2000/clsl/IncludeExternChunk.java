@@ -1,5 +1,7 @@
 package com.etk2000.clsl;
 
+import com.etk2000.clsl.exception.include.ClslHeaderNotFoundException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -26,8 +28,8 @@ class IncludeExternChunk implements ExecutableChunk {
 	public ReturnChunk execute(CLSLRuntimeEnv env) {
 		CLSLCode h = env.headerFinder.find(header);
 		if (h == null)
-			throw new CLSL_RuntimeException(header + ": Could not find header");
-			
+			throw new ClslHeaderNotFoundException(header);
+
 		h.execute(env);
 		return null;
 	}

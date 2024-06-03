@@ -1,17 +1,19 @@
 package com.etk2000.clsl;
 
+import com.etk2000.clsl.exception.include.ClslInvalidHeaderException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 class IncludeChunk implements ExecutableChunk {
-	static enum BuiltinHeader {
+	enum BuiltinHeader {
 		lang_h(new _Header_lang_h()), math_h(new _Header_math_h()), stdlib_h(new _Header_stdlib_h()), stdio_h(new _Header_stdio_h()), string_h(
 				new _Header_string_h());
 
 		final ExecutableChunk headerCode;
 
-		private BuiltinHeader(ExecutableChunk headerCode) {
+		BuiltinHeader(ExecutableChunk headerCode) {
 			this.headerCode = headerCode;
 		}
 
@@ -27,7 +29,7 @@ class IncludeChunk implements ExecutableChunk {
 			this.header = BuiltinHeader.from(header);
 		}
 		catch (IllegalArgumentException e) {
-			throw new CLSL_CompilerException("invalid header: " + header);
+			throw new ClslInvalidHeaderException(header);
 		}
 	}
 

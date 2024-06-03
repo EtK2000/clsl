@@ -1,5 +1,11 @@
 package com.etk2000.clsl;
 
+import com.etk2000.clsl.exception.function.ClslFunctionCallException;
+import com.etk2000.clsl.exception.function.ClslFunctionDidntReturnAValueException;
+import com.etk2000.clsl.exception.function.ClslFunctionNotApplicableForArgumentsException;
+import com.etk2000.clsl.exception.function.ClslInvalidFunctionNameException;
+import com.etk2000.clsl.exception.function.ClslInvalidNumberOfArgumentsException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -13,7 +19,7 @@ public class FunctionalChunk extends BlockChunk implements ExecutableValueChunk 
 
 	FunctionalChunk(String name, ValueType returnType, Group<String, ValueType>[] parameters, ExecutableChunk[] effect) {
 		if (!CLSL.isValidId(this.name = name))
-			throw new CLSL_CompilerException("invalid function name: " + name);
+			throw new ClslInvalidFunctionNameException(name);
 
 		this.returnType = returnType;
 		this.parameters = parameters;
@@ -31,7 +37,7 @@ public class FunctionalChunk extends BlockChunk implements ExecutableValueChunk 
 	@SuppressWarnings("unchecked")
 	FunctionalChunk(InputStream i) throws IOException {
 		if (!CLSL.isValidId(name = StreamUtils.readString(i)))
-			throw new CLSL_CompilerException("invalid function name: " + name);
+			throw new ClslInvalidFunctionNameException(name);
 
 		returnType = StreamUtils.read(i, ValueType.class);
 		{
@@ -90,7 +96,7 @@ public class FunctionalChunk extends BlockChunk implements ExecutableValueChunk 
 				return ret.val.get(env);
 		}
 
-		throw new CLSL_RuntimeException("function " + name + " didn't return a value");
+		throw new ClslFunctionDidntReturnAValueException(name);
 	}
 
 	// execute the function, assumes args have been setup already
@@ -120,7 +126,7 @@ public class FunctionalChunk extends BlockChunk implements ExecutableValueChunk 
 					return null;
 			}
 
-			throw new CLSL_RuntimeException("welp, something broke...");
+			throw new ClslFunctionCallException("welp, something broke...");
 		}
 		finally {
 			env.popStack(true);
@@ -131,12 +137,12 @@ public class FunctionalChunk extends BlockChunk implements ExecutableValueChunk 
 	public CLSLValue call(CLSLRuntimeEnv env, CLSLValue... args) {
 		if (parameters != null) {// varargs don't need validations
 			if (args.length != parameters.length)
-				throw new CLSL_RuntimeException("invalid number of arguments, got " + args.length + " expected " + parameters.length);
+				throw new ClslInvalidNumberOfArgumentsException(args.length, parameters.length);
 
 			// validate args types
 			for (int i = 0; i < args.length; ++i) {
 				if (args[i].type.subType != parameters[i].b.subType)
-					throw new CLSL_RuntimeException("function not applicable for the arguments");
+					throw new ClslFunctionNotApplicableForArgumentsException();
 			}
 		}
 
@@ -163,7 +169,7 @@ public class FunctionalChunk extends BlockChunk implements ExecutableValueChunk 
 					return null;
 			}
 
-			throw new CLSL_RuntimeException("welp, something broke...");
+			throw new ClslFunctionCallException("welp, something broke...");
 		}
 		finally {
 			env.popStack(true);
