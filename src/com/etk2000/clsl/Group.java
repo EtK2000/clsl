@@ -1,11 +1,11 @@
 package com.etk2000.clsl;
 
 // TODO: is Comparable needed?
-class Group<A, B> implements Comparable<Group<A, B>> {
-	A a;
-	B b;
+public class Group<A, B> implements Comparable<Group<A, B>> {
+	public A a;
+	public B b;
 
-	Group(A a, B b) {
+	public Group(A a, B b) {
 		this.a = a;
 		this.b = b;
 	}

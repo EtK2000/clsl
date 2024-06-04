@@ -1,5 +1,7 @@
 package com.etk2000.clsl;
 
+import com.etk2000.clsl.chunk.FunctionalChunk;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -131,7 +133,7 @@ public class MainScopeLookupContainer extends ArrayList<FunctionLookupTable> {
 			if ((res = flt.lookup(name)) != null)
 				return res;
 		}
-		return null;//throw new CLSL_RuntimeException("undefined reference to '" + name + '\'');
+		return null;//throw new ClslRuntimeException("undefined reference to '" + name + '\'');
 	}
 
 	public void put(String name, FunctionalChunk func) {

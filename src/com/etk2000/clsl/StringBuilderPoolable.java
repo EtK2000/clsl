@@ -2,7 +2,7 @@ package com.etk2000.clsl;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-class StringBuilderPoolable implements AutoCloseable {
+public class StringBuilderPoolable implements AutoCloseable {
 	// I'm not abstracting away the types so I remember they're concurrent
 	private static final ConcurrentLinkedQueue<StringBuilder> small = new ConcurrentLinkedQueue<>(), large = new ConcurrentLinkedQueue<>();
 	static final short MAX_SMALL = 512, DEFAULT_SIZE = 64;
@@ -25,7 +25,7 @@ class StringBuilderPoolable implements AutoCloseable {
 
 	private final StringBuilder sb;
 
-	StringBuilderPoolable() {
+	public StringBuilderPoolable() {
 		sb = get(DEFAULT_SIZE);
 	}
 
@@ -73,7 +73,7 @@ class StringBuilderPoolable implements AutoCloseable {
 	}
 
 	public void setLength(int len) {
-		sb.setLength(0);
+		sb.setLength(len);
 	}
 
 	@Override

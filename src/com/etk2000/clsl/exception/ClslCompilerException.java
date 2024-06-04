@@ -3,7 +3,7 @@ package com.etk2000.clsl.exception;
 import java.util.regex.Matcher;
 
 public class ClslCompilerException extends ClslException {
-	private static int findNextReleventMatch(Matcher m) {
+	private static int findNextRelevantMatch(Matcher m) {
 		try {
 			int start = m.start(), i = start;
 			while (m.find()) {
@@ -21,7 +21,7 @@ public class ClslCompilerException extends ClslException {
 		}
 	}
 
-	private static int findPrevReleventMatch(Matcher m) {
+	private static int findPrevRelevantMatch(Matcher m) {
 		try {
 			int start = m.start(), i, j = start;
 			try {
@@ -56,11 +56,6 @@ public class ClslCompilerException extends ClslException {
 
 	// use this constructor to show the code nearby
 	public ClslCompilerException(String msg, int i, String res, Matcher m) {
-		this(msg + "; near: " + res.substring(Math.max(0, Math.min(i, findPrevReleventMatch(m))), Math.max(0, findNextReleventMatch(m))));
-	}
-
-	@Override
-	public String toString() {
-		return "CLSL compile error: " + getMessage();
+		this(msg + "; near: " + res.substring(Math.max(0, Math.min(i, findPrevRelevantMatch(m))), Math.max(0, findNextRelevantMatch(m))));
 	}
 }

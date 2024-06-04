@@ -5,8 +5,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
-class StreamUtils {
-	private static final byte[] NULL_STRING = { 1, 0 };
+public class StreamUtils {
+	private static final byte[] NULL_STRING = {1, 0};
 	private static final byte[] helper4 = new byte[4], helper8 = new byte[8];
 
 	private static void assertLen(int len) throws IOException {
