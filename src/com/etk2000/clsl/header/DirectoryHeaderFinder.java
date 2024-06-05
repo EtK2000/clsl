@@ -2,9 +2,9 @@ package com.etk2000.clsl.header;
 
 import com.etk2000.clsl.ClslCode;
 import com.etk2000.clsl.ClslCompiler;
-import com.etk2000.clsl.exception.ClslCompilerException;
 import com.etk2000.clsl.exception.ClslHeaderImportFailureException;
-import com.etk2000.clsl.exception.include.ClslHeaderMissingAtCompileTimeException;
+import com.etk2000.clsl.exception.ClslRuntimeException;
+import com.etk2000.clsl.exception.include.ClslHeaderNotFoundException;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,7 +22,7 @@ public class DirectoryHeaderFinder implements ClslExternHeaderFinder {
 	// FIXME: use ClslCompiler and allowFunctions from what accessed this
 	// please note, this does not do security checks!!!
 	@Override
-	public ClslCode find(String header) throws ClslCompilerException {
+	public ClslCode find(String header) throws ClslRuntimeException {
 		for (String d : ds) {
 			char c = d.charAt(d.length() - 1);
 			File f = new File((c != '/' && c != '\\' ? d + '/' : d) + header);
@@ -35,6 +35,6 @@ public class DirectoryHeaderFinder implements ClslExternHeaderFinder {
 				}
 			}
 		}
-		throw new ClslHeaderMissingAtCompileTimeException(header);
+		throw new ClslHeaderNotFoundException(header);
 	}
 }

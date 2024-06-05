@@ -17,7 +17,7 @@ public abstract class ClslRuntimeStack {
 		array_deque
 	}
 
-	public static interface StackFrame {
+	public interface StackFrame {
 		void defineVar(String name, ClslValue value);
 
 		ClslValue getVar(String name);

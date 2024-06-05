@@ -21,13 +21,13 @@ public class ReturnChunk implements ExecutableChunk {
 	}
 
 	@Override
-	public void transmit(OutputStream o) throws IOException {
-		Clsl.writeChunk(o, val);
+	public ReturnChunk execute(ClslRuntimeEnv env) {
+		throw new ClslRuntimeException("one doesn't simply execute a ReturnChunk");
 	}
 
 	@Override
-	public ReturnChunk execute(ClslRuntimeEnv env) {
-		throw new ClslRuntimeException("one doesn't simply execute a ReturnChunk");
+	public ReturnChunk optimize(OptimizationEnvironment env) {
+		return env.isFirstPass && val != null ? new ReturnChunk((ValueChunk) val.optimize(env.forValue())) : this;
 	}
 
 	@Override
@@ -36,7 +36,7 @@ public class ReturnChunk implements ExecutableChunk {
 	}
 
 	@Override
-	public ReturnChunk optimize(OptimizationEnvironment env) {
-		return env.isFirstPass && val != null ? new ReturnChunk((ValueChunk) val.optimize(env.forValue())) : this;
+	public void transmit(OutputStream o) throws IOException {
+		Clsl.writeChunk(o, val);
 	}
 }

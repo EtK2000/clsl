@@ -15,6 +15,7 @@ import java.util.Formatter;
 // TODO: add a safety toggle so all functions exist?
 public class StdioH extends HeaderBase {
 	private static final FunctionalChunk printf, sprintf;
+	public static final StdioH INSTANCE = new StdioH();
 
 	static {
 		final StringBuilder formatSb = new StringBuilder();
@@ -90,5 +91,8 @@ public class StdioH extends HeaderBase {
 				return sprintf;
 		}
 		return null;
+	}
+
+	private StdioH() {
 	}
 }

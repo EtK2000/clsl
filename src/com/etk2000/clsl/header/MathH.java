@@ -11,6 +11,8 @@ import com.etk2000.clsl.value.ClslDoubleConst;
 // FIXME: implement this:
 // double frexp(double x, int *exponent)
 public class MathH extends HeaderBase {
+	public static final MathH INSTANCE = new MathH();
+
 	private static final FunctionalChunk acos = Clsl.createFunctionalChunk(ValueType.DOUBLE,
 			(env, args) -> new ClslDoubleConst(Math.acos(assertAndGet(args, 1, 0).toDouble())));
 
@@ -143,5 +145,8 @@ public class MathH extends HeaderBase {
 				return tanh;
 		}
 		return null;
+	}
+
+	private MathH() {
 	}
 }

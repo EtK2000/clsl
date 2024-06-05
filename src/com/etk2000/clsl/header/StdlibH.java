@@ -68,7 +68,7 @@ public class StdlibH extends HeaderBase {
 					case VOID:
 						break;
 					case STRUCT:
-						return obj instanceof div_t ? ((div_t) obj).quot.val == quot.val && ((div_t) obj).rem.val == rem.val : false;
+						return obj instanceof div_t && ((div_t) obj).quot.val == quot.val && ((div_t) obj).rem.val == rem.val;
 				}
 				throw new UnsupportedOperationException(
 						"The operator == is undefined for the argument type(s) " + typeName() + ", " + ((ClslValue) obj).typeName());
@@ -163,6 +163,8 @@ public class StdlibH extends HeaderBase {
 			return this;
 		}
 	}
+
+	public static final StdlibH INSTANCE = new StdlibH();
 
 	private static final FunctionalChunk abort = Clsl.createFunctionalChunk((env, args) -> {
 		throw ClslAbort.INSTANCE;
@@ -292,5 +294,8 @@ public class StdlibH extends HeaderBase {
 				return srand;
 		}
 		return null;
+	}
+
+	private StdlibH() {
 	}
 }

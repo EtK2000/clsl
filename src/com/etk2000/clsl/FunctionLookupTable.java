@@ -4,5 +4,5 @@ import com.etk2000.clsl.chunk.FunctionalChunk;
 
 @FunctionalInterface
 public interface FunctionLookupTable {
-	public FunctionalChunk lookup(String functionName);
+	FunctionalChunk lookup(String functionName);
 }

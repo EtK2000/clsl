@@ -67,8 +67,8 @@ public class FunctionCallChunk implements ExecutableValueChunk {
 		try (StringBuilderPoolable sb = new StringBuilderPoolable()) {
 			sb.append(name).append('(');
 			if (args.length > 0) {
-				for (short i = 0; i < args.length; ++i)
-					sb.append(args[i]).append(", ");
+				for (ValueChunk arg : args)
+					sb.append(arg).append(", ");
 				sb.deleteLast(2);// remove extra comma
 			}
 			return sb.append(')').toString();

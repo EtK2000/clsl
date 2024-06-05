@@ -24,13 +24,8 @@ public class IncludeExternalChunk implements ExecutableChunk {
 	}
 
 	@Override
-	public void transmit(OutputStream o) throws IOException {
-		StreamUtils.write(o, header);
-	}
-
-	@Override
 	public ReturnChunk execute(ClslRuntimeEnv env) {
-		ClslCode h = env.headerFinder.find(header);
+		final ClslCode h = env.headerFinder.find(header);
 		if (h == null)
 			throw new ClslHeaderNotFoundException(header);
 
@@ -39,13 +34,28 @@ public class IncludeExternalChunk implements ExecutableChunk {
 	}
 
 	@Override
-	public String toString() {
-		return "#include \"" + header + '"';
+	public boolean equals(Object other) {
+		if (this == other)
+			return true;
+		if (other == null || getClass() != other.getClass())
+			return false;
+
+		return header.equals(((IncludeExternalChunk) other).header);
 	}
 
 	// TODO: maybe check if any included functions and/or variables are used
 	@Override
 	public ExecutableChunk optimize(OptimizationEnvironment env) {
 		return this;
+	}
+
+	@Override
+	public String toString() {
+		return "#include \"" + header + '"';
+	}
+
+	@Override
+	public void transmit(OutputStream o) throws IOException {
+		StreamUtils.write(o, header);
 	}
 }
