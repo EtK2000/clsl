@@ -18,7 +18,7 @@ public class SetVarMul extends SetVarAbstract {
 		super(name, val);
 	}
 
-	SetVarMul(InputStream i) throws IOException {
+	public SetVarMul(InputStream i) throws IOException {
 		super(i);
 	}
 

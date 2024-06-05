@@ -20,7 +20,7 @@ public class OpIndex implements ValueChunk {
 		this.index = index;
 	}
 
-	OpIndex(InputStream i) throws IOException {
+	public OpIndex(InputStream i) throws IOException {
 		op = Clsl.readValueChunk(i);
 		index = Clsl.readValueChunk(i);
 	}

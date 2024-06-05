@@ -18,7 +18,7 @@ public class ConstLongChunk extends ConstValueChunk {
 		this.val = new ClslLongConst(val);
 	}
 
-	ConstLongChunk(InputStream i) throws IOException {
+	public ConstLongChunk(InputStream i) throws IOException {
 		super(ValueType.LONG);
 		val = new ClslLongConst(StreamUtils.readLong(i));
 	}

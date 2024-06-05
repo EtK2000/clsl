@@ -14,7 +14,7 @@ public class DefineDouble extends DefineVar {
 		super(ValueType.DOUBLE, name, val);
 	}
 
-	DefineDouble(InputStream i) throws IOException {
+	public DefineDouble(InputStream i) throws IOException {
 		super(ValueType.DOUBLE, i);
 	}
 

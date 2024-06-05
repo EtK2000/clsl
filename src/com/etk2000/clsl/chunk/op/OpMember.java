@@ -22,7 +22,7 @@ public class OpMember implements ValueChunk {
 		this.member = member;
 	}
 
-	OpMember(InputStream i) throws IOException {
+	public OpMember(InputStream i) throws IOException {
 		op = Clsl.readValueChunk(i);
 		member = StreamUtils.readString(i);
 	}

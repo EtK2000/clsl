@@ -16,8 +16,11 @@ import java.io.OutputStream;
 
 public class IncludeChunk implements ExecutableChunk {
 	enum BuiltinHeader {
-		lang_h(new LangH()), math_h(new MathH()), stdlib_h(new StdlibH()), stdio_h(new StdioH()), string_h(
-				new StringH());
+		lang_h(new LangH()),
+		math_h(new MathH()),
+		stdlib_h(new StdlibH()),
+		stdio_h(new StdioH()),
+		string_h(StringH.INSTANCE);
 
 		final ExecutableChunk headerCode;
 

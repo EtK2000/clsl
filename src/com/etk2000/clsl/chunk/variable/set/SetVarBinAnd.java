@@ -17,7 +17,7 @@ public class SetVarBinAnd extends SetVarAbstract {
 		super(name, val);
 	}
 
-	SetVarBinAnd(InputStream i) throws IOException {
+	public SetVarBinAnd(InputStream i) throws IOException {
 		super(i);
 	}
 

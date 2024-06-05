@@ -20,7 +20,7 @@ public class OpDec implements ExecutableValueChunk {
 		this.post = post;
 	}
 
-	OpDec(InputStream i) throws IOException {
+	public OpDec(InputStream i) throws IOException {
 		name = StreamUtils.readString(i);
 		post = StreamUtils.readByte(i) != 0;
 	}

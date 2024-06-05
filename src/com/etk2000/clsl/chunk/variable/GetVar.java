@@ -22,7 +22,7 @@ public class GetVar implements ValueChunk {
 			throw new ClslInvalidVariableNameException("invalid var name: " + name);
 	}
 
-	GetVar(InputStream i) throws IOException {
+	public GetVar(InputStream i) throws IOException {
 		if (!ClslUtil.isValidId(name = StreamUtils.readString(i)))
 			throw new ClslInvalidVariableNameException("invalid var name: " + name);
 	}

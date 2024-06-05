@@ -21,7 +21,7 @@ public class OpEquals extends OpBinary {
 		this.not = not;
 	}
 
-	OpEquals(InputStream i) throws IOException {
+	public OpEquals(InputStream i) throws IOException {
 		super(i);
 		not = StreamUtils.readByte(i) != 0;
 	}

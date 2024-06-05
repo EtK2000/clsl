@@ -17,7 +17,7 @@ public class OpMultiply extends OpBinary {
 		super(op1, op2);
 	}
 
-	OpMultiply(InputStream i) throws IOException {
+	public OpMultiply(InputStream i) throws IOException {
 		super(i);
 	}
 

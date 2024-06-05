@@ -48,7 +48,7 @@ public class ConstArrayChunk extends ConstValueChunk {
 			val.val[i] = new ClslIntConst(vals[i]);
 	}
 
-	ConstArrayChunk(InputStream i) throws IOException {
+	public ConstArrayChunk(InputStream i) throws IOException {
 		super(ValueType.ARRAY);
 		val = new ClslArrayConst(StreamUtils.read(i, ValueType.class), (StreamUtils.readByteUnsigned(i)));
 		switch (val.component) {

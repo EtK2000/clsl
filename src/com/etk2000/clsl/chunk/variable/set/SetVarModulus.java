@@ -17,7 +17,7 @@ public class SetVarModulus extends SetVarAbstract {
 		super(name, val);
 	}
 
-	SetVarModulus(InputStream i) throws IOException {
+	public SetVarModulus(InputStream i) throws IOException {
 		super(i);
 	}
 

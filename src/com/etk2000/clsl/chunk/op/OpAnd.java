@@ -17,7 +17,7 @@ public class OpAnd extends OpBinary {
 		super(op1, op2);
 	}
 
-	OpAnd(InputStream i) throws IOException {
+	public OpAnd(InputStream i) throws IOException {
 		super(i);
 	}
 

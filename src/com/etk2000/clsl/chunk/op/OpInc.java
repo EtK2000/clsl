@@ -20,7 +20,7 @@ public class OpInc implements ExecutableValueChunk {
 		this.post = post;
 	}
 
-	OpInc(InputStream i) throws IOException {
+	public OpInc(InputStream i) throws IOException {
 		name = StreamUtils.readString(i);
 		post = StreamUtils.readByte(i) != 0;
 	}

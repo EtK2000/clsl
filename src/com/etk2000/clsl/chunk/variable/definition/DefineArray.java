@@ -34,7 +34,7 @@ public class DefineArray extends DefineVar {
 		this.len = (short) val.val.length;
 	}
 
-	DefineArray(InputStream i) throws IOException {
+	public DefineArray(InputStream i) throws IOException {
 		super(ValueType.ARRAY, i);
 		if (val == null) {
 			component = StreamUtils.read(i, ValueType.class);

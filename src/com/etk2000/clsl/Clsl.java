@@ -29,7 +29,6 @@ import com.etk2000.clsl.value.ClslValue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -108,13 +107,10 @@ public class Clsl {
 
 	public static ExecutableChunk readExecutableChunk(InputStream i) throws IOException {
 		try {
-			return (ExecutableChunk) StreamUtils.read(i, ChunkType.class).clazz.getDeclaredConstructor(InputStream.class).newInstance(i);
+			return (ExecutableChunk) StreamUtils.read(i, ChunkType.class).read.apply(i);
 		}
 		catch (EnumConstantNotPresentException e) {
 			return null;
-		}
-		catch (ReflectiveOperationException e) {
-			throw new IOException(e instanceof InvocationTargetException ? e.getCause() : e);
 		}
 	}
 
@@ -166,13 +162,10 @@ public class Clsl {
 
 	public static ValueChunk readValueChunk(InputStream i) throws IOException {
 		try {
-			return (ValueChunk) StreamUtils.read(i, ChunkType.class).clazz.getDeclaredConstructor(InputStream.class).newInstance(i);
+			return (ValueChunk) StreamUtils.read(i, ChunkType.class).read.apply(i);
 		}
 		catch (EnumConstantNotPresentException e) {
 			return null;
-		}
-		catch (ReflectiveOperationException e) {
-			throw new IOException(e instanceof InvocationTargetException ? e.getCause() : e);
 		}
 	}
 
@@ -184,19 +177,13 @@ public class Clsl {
 	}
 
 	public static void writeChunk(OutputStream o, ClslChunk c) throws IOException {
-		final ChunkType[] types = ChunkType.values();
-		if (c == null) {
-			o.write(types.length);
-			return;
+		if (c == null)
+			o.write(ChunkType.values().length);
+
+		else {
+			StreamUtils.write(o, ChunkType.valueOf(c.getClass()));
+			c.transmit(o);
 		}
-		for (ChunkType t : types) {
-			if (t.clazz == c.getClass()) {
-				StreamUtils.write(o, t);
-				c.transmit(o);
-				return;
-			}
-		}
-		throw new IOException("cannot transmit " + c.getClass().getName());
 	}
 
 	public static void writeChunks(OutputStream o, ClslChunk[] cs) throws IOException {

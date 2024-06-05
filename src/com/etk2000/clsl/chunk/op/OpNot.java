@@ -22,7 +22,7 @@ public class OpNot implements ValueChunk {
 		this.var = var;
 	}
 
-	OpNot(InputStream i) throws IOException {
+	public OpNot(InputStream i) throws IOException {
 		var = Clsl.readValueChunk(i);
 	}
 

@@ -14,7 +14,7 @@ public class DefineLong extends DefineVar {
 		super(ValueType.LONG, name, val);
 	}
 
-	DefineLong(InputStream i) throws IOException {
+	public DefineLong(InputStream i) throws IOException {
 		super(ValueType.LONG, i);
 	}
 

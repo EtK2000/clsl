@@ -17,7 +17,7 @@ public class SetVarSub extends SetVarAbstract {
 		super(name, val);
 	}
 
-	SetVarSub(InputStream i) throws IOException {
+	public SetVarSub(InputStream i) throws IOException {
 		super(i);
 	}
 

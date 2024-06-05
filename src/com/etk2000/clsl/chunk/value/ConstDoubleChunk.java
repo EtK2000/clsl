@@ -18,7 +18,7 @@ public class ConstDoubleChunk extends ConstValueChunk {
 		this.val = new ClslDoubleConst(val);
 	}
 
-	ConstDoubleChunk(InputStream i) throws IOException {
+	public ConstDoubleChunk(InputStream i) throws IOException {
 		super(ValueType.DOUBLE);
 		val = new ClslDoubleConst(StreamUtils.readFloat(i));
 	}

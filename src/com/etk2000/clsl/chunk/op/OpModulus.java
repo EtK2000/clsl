@@ -18,7 +18,7 @@ public class OpModulus extends OpBinary {
 		super(op1, op2);
 	}
 
-	OpModulus(InputStream i) throws IOException {
+	public OpModulus(InputStream i) throws IOException {
 		super(i);
 	}
 

@@ -21,7 +21,7 @@ public class OpLessThan extends OpBinary {
 		this.lte = lte;
 	}
 
-	OpLessThan(InputStream i) throws IOException {
+	public OpLessThan(InputStream i) throws IOException {
 		super(i);
 		lte = StreamUtils.readByte(i) != 0;
 	}

@@ -24,7 +24,7 @@ public class OpTernary implements ValueChunk {
 		this.op3 = op3;
 	}
 
-	OpTernary(InputStream i) throws IOException {
+	public OpTernary(InputStream i) throws IOException {
 		op1 = Clsl.readValueChunk(i);
 		op2 = Clsl.readValueChunk(i);
 		op3 = Clsl.readValueChunk(i);

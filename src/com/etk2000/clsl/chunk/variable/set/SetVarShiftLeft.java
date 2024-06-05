@@ -18,7 +18,7 @@ public class SetVarShiftLeft extends SetVarAbstract {
 		super(name, val);
 	}
 
-	SetVarShiftLeft(InputStream i) throws IOException {
+	public SetVarShiftLeft(InputStream i) throws IOException {
 		super(i);
 	}
 

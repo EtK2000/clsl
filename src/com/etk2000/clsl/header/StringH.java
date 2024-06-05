@@ -10,6 +10,8 @@ import com.etk2000.clsl.value.ClslInt;
 import com.etk2000.clsl.value.ClslIntConst;
 
 public class StringH extends HeaderBase {
+	public static final StringH INSTANCE = new StringH();
+
 	private static final FunctionalChunk strcat = Clsl.createFunctionalChunk(ValueType.ARRAY, (env, args) -> {
 		if (args.length != 2)
 			throw new ClslInvalidNumberOfArgumentsException(args.length, 2);
@@ -58,5 +60,8 @@ public class StringH extends HeaderBase {
 				return strlen;
 		}
 		return null;
+	}
+
+	private StringH() {
 	}
 }

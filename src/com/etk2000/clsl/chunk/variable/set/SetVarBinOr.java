@@ -17,7 +17,7 @@ public class SetVarBinOr extends SetVarAbstract {
 		super(name, val);
 	}
 
-	SetVarBinOr(InputStream i) throws IOException {
+	public SetVarBinOr(InputStream i) throws IOException {
 		super(i);
 	}
 

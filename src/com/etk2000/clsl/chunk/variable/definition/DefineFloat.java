@@ -14,7 +14,7 @@ public class DefineFloat extends DefineVar {
 		super(ValueType.FLOAT, name, val);
 	}
 
-	DefineFloat(InputStream i) throws IOException {
+	public DefineFloat(InputStream i) throws IOException {
 		super(ValueType.FLOAT, i);
 	}
 

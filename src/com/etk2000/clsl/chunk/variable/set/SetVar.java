@@ -17,7 +17,7 @@ public class SetVar extends SetVarAbstract {
 		super(name, val);
 	}
 
-	SetVar(InputStream i) throws IOException {
+	public SetVar(InputStream i) throws IOException {
 		super(i);
 	}
 

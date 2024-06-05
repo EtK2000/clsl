@@ -16,12 +16,10 @@ import com.etk2000.clsl.value.ClslArrayConst;
 import org.junit.jupiter.api.Test;
 
 public class TestStringH {
-	private static final StringH HEADER = new StringH();
-
 	@Test
 	void testStrcatBufferOverflow() {
 		final ClslRuntimeEnv env = new ClslRuntimeEnv(new DirectoryHeaderFinder(), new MainScopeLookupContainer());
-		final FunctionalChunk strcat = HEADER.lookup("strcat");
+		final FunctionalChunk strcat = StringH.INSTANCE.lookup("strcat");
 
 		assertThrows(ClslBufferOverflowException.class, () -> strcat.call(env, new ClslArrayConst("1"), new ClslArrayConst("2")));
 	}
@@ -29,7 +27,7 @@ public class TestStringH {
 	@Test
 	void testStrcatWrongArgumentCount() {
 		final ClslRuntimeEnv env = new ClslRuntimeEnv(new DirectoryHeaderFinder(), new MainScopeLookupContainer());
-		final FunctionalChunk strcat = HEADER.lookup("strcat");
+		final FunctionalChunk strcat = StringH.INSTANCE.lookup("strcat");
 
 		assertThrows(ClslRuntimeException.class, () -> strcat.call(env, new ClslArrayConst("1")));
 		assertThrows(ClslRuntimeException.class, () -> strcat.call(env, new ClslArrayConst("1"), new ClslArrayConst("2"), new ClslArrayConst("3")));
@@ -40,7 +38,7 @@ public class TestStringH {
 	@Test
 	void testStrcat() {
 		final ClslRuntimeEnv env = new ClslRuntimeEnv(new DirectoryHeaderFinder(), new MainScopeLookupContainer());
-		final FunctionalChunk strcat = HEADER.lookup("strcat");
+		final FunctionalChunk strcat = StringH.INSTANCE.lookup("strcat");
 
 		final ClslArray target = new ClslArray(ValueType.CHAR, (short) 15);
 

@@ -18,7 +18,7 @@ public class ConstIntChunk extends ConstValueChunk {
 		this.val = new ClslIntConst(val);
 	}
 
-	ConstIntChunk(InputStream i) throws IOException {
+	public ConstIntChunk(InputStream i) throws IOException {
 		super(ValueType.INT);
 		val = new ClslIntConst(StreamUtils.readInt(i));
 	}

@@ -16,7 +16,7 @@ public class OpXor extends OpBinary {
 		super(op1, op2);
 	}
 
-	OpXor(InputStream i) throws IOException {
+	public OpXor(InputStream i) throws IOException {
 		super(i);
 	}
 

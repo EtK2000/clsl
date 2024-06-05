@@ -17,7 +17,7 @@ public class SetVarXor extends SetVarAbstract {
 		super(name, val);
 	}
 
-	SetVarXor(InputStream i) throws IOException {
+	public SetVarXor(InputStream i) throws IOException {
 		super(i);
 	}
 

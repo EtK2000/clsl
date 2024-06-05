@@ -1,5 +1,6 @@
 package com.etk2000.clsl.chunk;
 
+import com.etk2000.clsl.ThrowingFunction;
 import com.etk2000.clsl.chunk.op.OpAdd;
 import com.etk2000.clsl.chunk.op.OpAnd;
 import com.etk2000.clsl.chunk.op.OpBinAnd;
@@ -26,51 +27,132 @@ import com.etk2000.clsl.chunk.value.ConstDoubleChunk;
 import com.etk2000.clsl.chunk.value.ConstFloatChunk;
 import com.etk2000.clsl.chunk.value.ConstIntChunk;
 import com.etk2000.clsl.chunk.value.ConstLongChunk;
+import com.etk2000.clsl.chunk.variable.GetVar;
+import com.etk2000.clsl.chunk.variable.definition.DefineArray;
+import com.etk2000.clsl.chunk.variable.definition.DefineChar;
+import com.etk2000.clsl.chunk.variable.definition.DefineDouble;
+import com.etk2000.clsl.chunk.variable.definition.DefineFloat;
+import com.etk2000.clsl.chunk.variable.definition.DefineInt;
+import com.etk2000.clsl.chunk.variable.definition.DefineLong;
+import com.etk2000.clsl.chunk.variable.set.SetVar;
+import com.etk2000.clsl.chunk.variable.set.SetVarAdd;
+import com.etk2000.clsl.chunk.variable.set.SetVarBinAnd;
+import com.etk2000.clsl.chunk.variable.set.SetVarBinOr;
+import com.etk2000.clsl.chunk.variable.set.SetVarDiv;
+import com.etk2000.clsl.chunk.variable.set.SetVarModulus;
+import com.etk2000.clsl.chunk.variable.set.SetVarMul;
 import com.etk2000.clsl.chunk.variable.set.SetVarShiftLeft;
+import com.etk2000.clsl.chunk.variable.set.SetVarShiftRight;
+import com.etk2000.clsl.chunk.variable.set.SetVarSub;
+import com.etk2000.clsl.chunk.variable.set.SetVarXor;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 public enum ChunkType {
-	Include(IncludeChunk.class), IncludeExtern(IncludeExternChunk.class),
+	INCLUDE(IncludeChunk.class, IncludeChunk::new),
+	INCLUDE_EXTERNAL(IncludeExternalChunk.class, IncludeExternalChunk::new),
 
 	//
 
-	ConstArray(ConstArrayChunk.class), ConstChar(ConstCharChunk.class), ConstDouble(ConstDoubleChunk.class), ConstFloat(ConstFloatChunk.class), ConstInt(
-			ConstIntChunk.class), ConstLong(ConstLongChunk.class), //
-	Functional(FunctionalChunk.class), FunctionCall(FunctionCallChunk.class), Return(ReturnChunk.class), //
-	DefineArray(com.etk2000.clsl.chunk.variable.definition.DefineArray.class), DefineChar(com.etk2000.clsl.chunk.variable.definition.DefineChar.class), DefineDouble(com.etk2000.clsl.chunk.variable.definition.DefineDouble.class), DefineFloat(com.etk2000.clsl.chunk.variable.definition.DefineFloat.class), DefineInt(
-			com.etk2000.clsl.chunk.variable.definition.DefineInt.class), DefineLong(com.etk2000.clsl.chunk.variable.definition.DefineLong.class), //
+	CONST_ARRAY(ConstArrayChunk.class, ConstArrayChunk::new),
+	CONST_CHAR(ConstCharChunk.class, ConstCharChunk::new),
+	CONST_DOUBLE(ConstDoubleChunk.class, ConstDoubleChunk::new),
+	CONST_FLOAT(ConstFloatChunk.class, ConstFloatChunk::new),
+	CONST_INT(ConstIntChunk.class, ConstIntChunk::new),
+	CONST_LONG(ConstLongChunk.class, ConstLongChunk::new),
 
 	//
 
-	CodeBlock(CodeBlockChunk.class), //
-	DoWhile(DoWhileChunk.class), For(ForChunk.class), If(IfChunk.class), While(WhileChunk.class), //
+	DEFINE_ARRAY(DefineArray.class, DefineArray::new),
+	DEFINE_CHAR(DefineChar.class, DefineChar::new),
+	DEFINE_DOUBLE(DefineDouble.class, DefineDouble::new),
+	DEFINE_FLOAT(DefineFloat.class, DefineFloat::new),
+	DEFINE_INT(DefineInt.class, DefineInt::new),
+	DEFINE_LONG(DefineLong.class, DefineLong::new),
 
 	//
 
-	GetVar(com.etk2000.clsl.chunk.variable.GetVar.class), SetVar(com.etk2000.clsl.chunk.variable.set.SetVar.class), //
-	SetVarAdd(com.etk2000.clsl.chunk.variable.set.SetVarAdd.class), SetVarBinAnd(com.etk2000.clsl.chunk.variable.set.SetVarBinAnd.class), SetVarBinOr(com.etk2000.clsl.chunk.variable.set.SetVarBinOr.class), SetVarDiv(com.etk2000.clsl.chunk.variable.set.SetVarDiv.class), SetVarModulus(
-			com.etk2000.clsl.chunk.variable.set.SetVarModulus.class), SetVarMul(com.etk2000.clsl.chunk.variable.set.SetVarMul.class), SetVarShiftLeft(
-			com.etk2000.clsl.chunk.variable.set.SetVarShiftLeft.class), SetVarShiftRight(SetVarShiftLeft.class), SetVarSub(com.etk2000.clsl.chunk.variable.set.SetVarSub.class), SetVarXor(com.etk2000.clsl.chunk.variable.set.SetVarXor.class), //
+	FUNCTIONAL(FunctionalChunk.class, FunctionalChunk::new),
+	FUNCTION_CALL(FunctionCallChunk.class, FunctionCallChunk::new),
+	RETURN(ReturnChunk.class, ReturnChunk::new),
 
 	//
 
-	And(OpAnd.class), Equals(OpEquals.class), Not(OpNot.class), Or(OpOr.class), Xor(OpXor.class), LessThan(OpLessThan.class), Ternary(OpTernary.class),
-	//
-
-	Index(OpIndex.class), Member(OpMember.class),
-
-	//
-
-	BinAnd(OpBinAnd.class), BinOr(OpBinOr.class), ShiftLeft(OpShiftLeft.class), ShiftRight(OpShiftRight.class), //
-	Add(OpAdd.class), Divide(OpDivide.class), Modulus(OpModulus.class), Multiply(OpMultiply.class), Subtract(OpSubtract.class), //
-	Dec(OpDec.class), Inc(OpInc.class),
+	CODE_BLOCK(CodeBlockChunk.class, CodeBlockChunk::new),
+	DO_WHILE(DoWhileChunk.class, DoWhileChunk::new),
+	FOR(ForChunk.class, ForChunk::new),
+	IF(IfChunk.class, IfChunk::new),
+	WHILE(WhileChunk.class, WhileChunk::new),
 
 	//
 
-	DuoExecutableChunk(DuoExecutableChunk.class), TriExecutableChunk(TriExecutableChunk.class);
+	GET_VAR(GetVar.class, GetVar::new),
+	SET_VAR(SetVar.class, SetVar::new),
+	SET_VAR_ADD(SetVarAdd.class, SetVarAdd::new),
+	SET_VAR_BIN_AND(SetVarBinAnd.class, SetVarBinAnd::new),
+	SET_VAR_BIN_OR(SetVarBinOr.class, SetVarBinOr::new),
+	SET_VAR_DIV(SetVarDiv.class, SetVarDiv::new),
+	SET_VAR_MODULUS(SetVarModulus.class, SetVarModulus::new),
+	SET_VAR_MUL(SetVarMul.class, SetVarMul::new),
+	SET_VAR_SHIFT_LEFT(SetVarShiftLeft.class, SetVarShiftLeft::new),
+	SET_VAR_SHIFT_RIGHT(SetVarShiftRight.class, SetVarShiftRight::new),
+	SET_VAR_SUB(SetVarSub.class, SetVarSub::new),
+	SET_VAR_XOR(SetVarXor.class, SetVarXor::new),
 
-	public final Class<? extends ClslChunk> clazz;
+	//
 
-	ChunkType(Class<? extends ClslChunk> clazz) {
+	AND(OpAnd.class, OpAnd::new),
+	EQUALS(OpEquals.class, OpEquals::new),
+	LESS_THAN(OpLessThan.class, OpLessThan::new),
+	NOT(OpNot.class, OpNot::new),
+	OR(OpOr.class, OpOr::new),
+	TERNARY(OpTernary.class, OpTernary::new),
+	XOR(OpXor.class, OpXor::new),
+
+	//
+
+	INDEX(OpIndex.class, OpIndex::new),
+	MEMBER(OpMember.class, OpMember::new),
+
+	//
+
+	ADD(OpAdd.class, OpAdd::new),
+	BIN_AND(OpBinAnd.class, OpBinAnd::new),
+	BIN_OR(OpBinOr.class, OpBinOr::new),
+	DEC(OpDec.class, OpDec::new),
+	DIVIDE(OpDivide.class, OpDivide::new),
+	INC(OpInc.class, OpInc::new),
+	MODULUS(OpModulus.class, OpModulus::new),
+	MULTIPLY(OpMultiply.class, OpMultiply::new),
+	SHIFT_LEFT(OpShiftLeft.class, OpShiftLeft::new),
+	SHIFT_RIGHT(OpShiftRight.class, OpShiftRight::new),
+	SUBTRACT(OpSubtract.class, OpSubtract::new),
+
+	//
+
+	DUO_EXECUTABLE_CHUNK(DuoExecutableChunk.class, DuoExecutableChunk::new),
+	TRI_EXECUTABLE_CHUNK(TriExecutableChunk.class, TriExecutableChunk::new);
+
+	private static final Map<Class<? extends ClslChunk>, ChunkType> LOOKUP = new HashMap<>();
+
+	static {
+		for (ChunkType type : values())
+			LOOKUP.put(type.clazz, type);
+	}
+
+	public static ChunkType valueOf(Class<? extends ClslChunk> clazz) {
+		return LOOKUP.get(clazz);
+	}
+
+	private final Class<? extends ClslChunk> clazz;
+	public final ThrowingFunction<InputStream, ClslChunk, IOException> read;
+
+	@SuppressWarnings("unchecked")
+	<T extends ClslChunk> ChunkType(Class<T> clazz, ThrowingFunction<InputStream, T, IOException> read) {
 		this.clazz = clazz;
+		this.read = (ThrowingFunction<InputStream, ClslChunk, IOException>) read;
 	}
 }

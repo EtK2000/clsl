@@ -16,7 +16,7 @@ public class OpAdd extends OpBinary {
 		super(op1, op2);
 	}
 
-	OpAdd(InputStream i) throws IOException {
+	public OpAdd(InputStream i) throws IOException {
 		super(i);
 	}
 

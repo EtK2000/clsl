@@ -16,7 +16,7 @@ public class OpShiftLeft extends OpBinary {
 		super(op1, op2);
 	}
 
-	OpShiftLeft(InputStream i) throws IOException {
+	public OpShiftLeft(InputStream i) throws IOException {
 		super(i);
 	}
 

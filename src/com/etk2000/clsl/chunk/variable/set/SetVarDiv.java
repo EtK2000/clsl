@@ -18,7 +18,7 @@ public class SetVarDiv extends SetVarAbstract {
 		super(name, val);
 	}
 
-	SetVarDiv(InputStream i) throws IOException {
+	public SetVarDiv(InputStream i) throws IOException {
 		super(i);
 	}
 

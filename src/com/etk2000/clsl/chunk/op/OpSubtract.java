@@ -16,7 +16,7 @@ public class OpSubtract extends OpBinary {
 		super(op1, op2);
 	}
 
-	OpSubtract(InputStream i) throws IOException {
+	public OpSubtract(InputStream i) throws IOException {
 		super(i);
 	}
 

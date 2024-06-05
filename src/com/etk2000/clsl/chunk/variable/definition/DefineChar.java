@@ -14,7 +14,7 @@ public class DefineChar extends DefineVar {
 		super(ValueType.CHAR, name, val);
 	}
 
-	DefineChar(InputStream i) throws IOException {
+	public DefineChar(InputStream i) throws IOException {
 		super(ValueType.CHAR, i);
 	}
 

@@ -8,7 +8,7 @@ import com.etk2000.clsl.chunk.FunctionCallChunk;
 import com.etk2000.clsl.chunk.FunctionalChunk;
 import com.etk2000.clsl.chunk.IfChunk;
 import com.etk2000.clsl.chunk.IncludeChunk;
-import com.etk2000.clsl.chunk.IncludeExternChunk;
+import com.etk2000.clsl.chunk.IncludeExternalChunk;
 import com.etk2000.clsl.chunk.ReturnChunk;
 import com.etk2000.clsl.chunk.ValueChunk;
 import com.etk2000.clsl.chunk.WhileChunk;
@@ -336,7 +336,7 @@ public class ClslCompiler {
 				else if ((s = line.indexOf('"')) != -1) {
 					int e = line.indexOf('"', ++s);
 					if (e != -1)
-						exec.add(new IncludeExternChunk(line.substring(s, e)));
+						exec.add(new IncludeExternalChunk(line.substring(s, e)));
 					else
 						throw new ClslCompilerException("cannot compile line: " + line);
 				}

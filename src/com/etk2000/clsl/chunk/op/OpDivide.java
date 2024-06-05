@@ -18,7 +18,7 @@ public class OpDivide extends OpBinary {
 		super(op1, op2);
 	}
 
-	OpDivide(InputStream i) throws IOException {
+	public OpDivide(InputStream i) throws IOException {
 		super(i);
 	}
 

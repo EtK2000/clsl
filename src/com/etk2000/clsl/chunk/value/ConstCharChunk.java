@@ -19,7 +19,7 @@ public class ConstCharChunk extends ConstValueChunk {
 		this.val = new ClslCharConst(val);
 	}
 
-	ConstCharChunk(InputStream i) throws IOException {
+	public ConstCharChunk(InputStream i) throws IOException {
 		super(ValueType.CHAR);
 		val = new ClslCharConst(StreamUtils.readByte(i));
 	}

@@ -14,7 +14,7 @@ public class DefineInt extends DefineVar {
 		super(ValueType.INT, name, val);
 	}
 
-	DefineInt(InputStream i) throws IOException {
+	public DefineInt(InputStream i) throws IOException {
 		super(ValueType.INT, i);
 	}
 

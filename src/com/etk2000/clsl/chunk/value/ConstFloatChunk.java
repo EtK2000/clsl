@@ -18,7 +18,7 @@ public class ConstFloatChunk extends ConstValueChunk {
 		this.val = new ClslFloatConst(val);
 	}
 
-	ConstFloatChunk(InputStream i) throws IOException {
+	public ConstFloatChunk(InputStream i) throws IOException {
 		super(ValueType.FLOAT);
 		val = new ClslFloatConst(StreamUtils.readFloat(i));
 	}

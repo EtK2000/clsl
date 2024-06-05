@@ -2,7 +2,7 @@ package com.etk2000.clsl;
 
 import com.etk2000.clsl.chunk.ExecutableChunk;
 import com.etk2000.clsl.chunk.IncludeChunk;
-import com.etk2000.clsl.chunk.IncludeExternChunk;
+import com.etk2000.clsl.chunk.IncludeExternalChunk;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,7 +46,7 @@ public class ClslCode {
 		try (StringBuilderPoolable sb = new StringBuilderPoolable()) {
 			for (ExecutableChunk chunk : chunks) {
 				sb.append(chunk);
-				if (!(chunk instanceof IncludeExternChunk || chunk instanceof IncludeChunk))
+				if (!(chunk instanceof IncludeExternalChunk || chunk instanceof IncludeChunk))
 					sb.append(';');
 				sb.append('\n');
 			}
