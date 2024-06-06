@@ -7,10 +7,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class ClslLStructMapped extends ClslLStruct {
+public class ClslStructMapped extends ClslStruct {
 	private final Map<String, ClslValue> members;
 
-	public ClslLStructMapped(Map<String, ClslValue> members) {
+	public ClslStructMapped(Map<String, ClslValue> members) {
 		this.members = Collections.unmodifiableMap(members);
 	}
 
@@ -21,11 +21,11 @@ public class ClslLStructMapped extends ClslLStruct {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public ClslLStructConstMapped copy() {
+	public ClslStructConstMapped copy() {
 		Map<String, ClslValue> constMap = new HashMap<>(members.size());
 		for (Entry<String, ClslValue> e : members.entrySet())
 			constMap.put(e.getKey(), e.getValue().copy());
-		return new ClslLStructConstMapped(constMap);
+		return new ClslStructConstMapped(constMap);
 	}
 
 	@Override
@@ -42,7 +42,7 @@ public class ClslLStructMapped extends ClslLStruct {
 				case VOID:
 					break;
 				case STRUCT:
-					return other instanceof ClslLStructMapped ? members.equals(((ClslLStructMapped) other).members) : false;
+					return other instanceof ClslStructMapped && members.equals(((ClslStructMapped) other).members);
 			}
 			throw new UnsupportedOperationException(
 					"The operator == is undefined for the argument type(s) " + typeName() + ", " + ((ClslValue) obj).typeName());
@@ -69,7 +69,7 @@ public class ClslLStructMapped extends ClslLStruct {
 			sb.append("struct { ");
 			for (Entry<String, ClslValue> e : members.entrySet())
 				sb.append(e.getKey()).append(" = ").append(e.getValue()).append(", ");
-			return sb.deleteLast(members.size() > 0 ? 2 : 1).append('}').toString();
+			return sb.deleteLast(members.isEmpty() ? 1 : 2).append('}').toString();
 		}
 	}
 

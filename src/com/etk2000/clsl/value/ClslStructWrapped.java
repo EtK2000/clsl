@@ -13,7 +13,7 @@ import java.util.Map.Entry;
 // FIXME: this class doesn't update the wrapped class yet!!!
 //TODO: create a non-const version of this class that updates the underlying object
 //TODO: allow mapping Java ByteBuffer objects to CLSL Pointers
-public class ClslLStructWrapped<T> extends ClslLStruct {
+public class ClslStructWrapped<T> extends ClslStruct {
 	public static final byte WRAP_FIELDS = 1, WRAP_METHODS = 2,
 
 	// synthetic example: $VALUES in enum
@@ -94,21 +94,21 @@ public class ClslLStructWrapped<T> extends ClslLStruct {
 			return /*constant ? */new ClslArrayConst((String) o)/* : new ClslArray((String) o)*/;
 
 		else
-			return constant ? new ClslLStructConstWrapped<>(o) : new ClslLStructWrapped<>(o);
+			return constant ? new ClslStructConstWrapped<>(o) : new ClslStructWrapped<>(o);
 	}
 
 	public final T wrapped;
 	private final Map<String, ClslValue> members;
 
-	public ClslLStructWrapped(T o) {
+	public ClslStructWrapped(T o) {
 		this(o, DEFAULT_WRAP, false);
 	}
 
-	public ClslLStructWrapped(T o, byte wraptype) {
+	public ClslStructWrapped(T o, byte wraptype) {
 		this(o, wraptype, false);
 	}
 
-	protected ClslLStructWrapped(T o, byte wraptype, boolean constant) {
+	protected ClslStructWrapped(T o, byte wraptype, boolean constant) {
 		members = wrap(o, wraptype, constant);
 		wrapped = o;
 	}
@@ -120,8 +120,8 @@ public class ClslLStructWrapped<T> extends ClslLStruct {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public ClslLStructConstWrapped<T> copy() {
-		return new ClslLStructConstWrapped<>(wrapped);
+	public ClslStructConstWrapped<T> copy() {
+		return new ClslStructConstWrapped<>(wrapped);
 	}
 
 	@Override
@@ -138,7 +138,7 @@ public class ClslLStructWrapped<T> extends ClslLStruct {
 				case VOID:
 					break;
 				case STRUCT:
-					return other instanceof ClslLStructWrapped<?> ? wrapped.equals(((ClslLStructWrapped<?>) other).wrapped) : false;
+					return other instanceof ClslStructWrapped<?> && wrapped.equals(((ClslStructWrapped<?>) other).wrapped);
 			}
 			throw new UnsupportedOperationException(
 					"The operator == is undefined for the argument type(s) " + typeName() + ", " + ((ClslValue) obj).typeName());
@@ -165,7 +165,7 @@ public class ClslLStructWrapped<T> extends ClslLStruct {
 			sb.append("struct { ");
 			for (Entry<String, ClslValue> e : members.entrySet())
 				sb.append(e.getKey()).append(" = ").append(e.getValue()).append(", ");
-			return sb.deleteLast(members.size() > 0 ? 2 : 1).append('}').toString();
+			return sb.deleteLast(members.isEmpty() ? 1 : 2).append('}').toString();
 		}
 	}
 

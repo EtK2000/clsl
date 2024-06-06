@@ -11,10 +11,10 @@ import com.etk2000.clsl.value.ClslArray;
 import com.etk2000.clsl.value.ClslDoubleConst;
 import com.etk2000.clsl.value.ClslInt;
 import com.etk2000.clsl.value.ClslIntConst;
-import com.etk2000.clsl.value.ClslLStruct;
 import com.etk2000.clsl.value.ClslLong;
 import com.etk2000.clsl.value.ClslLongConst;
 import com.etk2000.clsl.value.ClslPointer;
+import com.etk2000.clsl.value.ClslStruct;
 import com.etk2000.clsl.value.ClslValue;
 
 import java.util.Random;
@@ -30,7 +30,7 @@ public class StdlibH extends HeaderBase {
 		}
 	}
 
-	private static class div_t extends ClslLStruct {
+	private static class div_t extends ClslStruct {
 		private final ClslInt quot, rem;
 
 		div_t(int quotient, int remainder) {
@@ -97,7 +97,7 @@ public class StdlibH extends HeaderBase {
 		}
 	}
 
-	private static class ldiv_t extends ClslLStruct {
+	private static class ldiv_t extends ClslStruct {
 		private final ClslLong quot, rem;
 
 		ldiv_t(long quotient, long remainder) {

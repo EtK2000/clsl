@@ -5,9 +5,9 @@ import com.etk2000.clsl.value.ClslChar;
 import com.etk2000.clsl.value.ClslDouble;
 import com.etk2000.clsl.value.ClslFloat;
 import com.etk2000.clsl.value.ClslInt;
-import com.etk2000.clsl.value.ClslLStruct;
 import com.etk2000.clsl.value.ClslLong;
 import com.etk2000.clsl.value.ClslPointer;
+import com.etk2000.clsl.value.ClslStruct;
 import com.etk2000.clsl.value.ClslValue;
 
 public enum ValueType {
@@ -17,7 +17,7 @@ public enum ValueType {
 	// number types
 	CHAR(SubType.NUMBER, ClslChar.class), DOUBLE(SubType.NUMBER, ClslDouble.class), FLOAT(SubType.NUMBER, ClslFloat.class), INT(SubType.NUMBER, ClslInt.class), LONG(SubType.NUMBER, ClslLong.class),
 
-	STRUCT(SubType.STRUCT, ClslLStruct.class),
+	STRUCT(SubType.STRUCT, ClslStruct.class),
 
 	// NULL and void
 	VOID(null, null);

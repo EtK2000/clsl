@@ -4,13 +4,13 @@ import com.etk2000.clsl.Clsl;
 import com.etk2000.clsl.ValueType;
 import com.etk2000.clsl.exception.type.ClslTypeCastException;
 
-public abstract class ClslLStruct extends ClslValue {
-	public ClslLStruct() {
+public abstract class ClslStruct extends ClslValue {
+	public ClslStruct() {
 		super(ValueType.STRUCT);
 	}
 
 	@Override
-	public ClslLStruct set(ClslValue other) {
+	public ClslStruct set(ClslValue other) {
 		switch (other.type) {
 			case ARRAY:
 			case CHAR:

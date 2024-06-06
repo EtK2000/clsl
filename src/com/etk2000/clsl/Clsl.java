@@ -22,8 +22,8 @@ import com.etk2000.clsl.value.ClslDoubleConst;
 import com.etk2000.clsl.value.ClslFloat;
 import com.etk2000.clsl.value.ClslFloatConst;
 import com.etk2000.clsl.value.ClslIntConst;
-import com.etk2000.clsl.value.ClslLStructConstWrapped;
 import com.etk2000.clsl.value.ClslLongConst;
+import com.etk2000.clsl.value.ClslStructConstWrapped;
 import com.etk2000.clsl.value.ClslValue;
 
 import java.io.IOException;
@@ -119,11 +119,11 @@ public class Clsl {
 	}
 
 	public static ClslValue wrap(Object o) {
-		return wrap(o, ClslLStructConstWrapped.DEFAULT_WRAP);
+		return wrap(o, ClslStructConstWrapped.DEFAULT_WRAP);
 	}
 
 	/**
-	 * see {@link ClslLStructConstWrapped} for wrap types
+	 * see {@link ClslStructConstWrapped} for wrap types
 	 */
 	// FIXME: add array support
 	public static ClslValue wrap(Object o, byte wrapType) {
@@ -150,7 +150,7 @@ public class Clsl {
 		if (o instanceof Short)
 			return new ClslIntConst((Short) o);// TODO: add short support
 
-		return new ClslLStructConstWrapped<>(o, wrapType);
+		return new ClslStructConstWrapped<>(o, wrapType);
 	}
 
 	public static ExecutableChunk[] readExecutableChunks(InputStream i) throws IOException {
