@@ -34,6 +34,7 @@ import com.etk2000.clsl.chunk.variable.definition.DefineDouble;
 import com.etk2000.clsl.chunk.variable.definition.DefineFloat;
 import com.etk2000.clsl.chunk.variable.definition.DefineInt;
 import com.etk2000.clsl.chunk.variable.definition.DefineLong;
+import com.etk2000.clsl.chunk.variable.definition.DefineStruct;
 import com.etk2000.clsl.chunk.variable.set.SetVar;
 import com.etk2000.clsl.chunk.variable.set.SetVarAdd;
 import com.etk2000.clsl.chunk.variable.set.SetVarBinAnd;
@@ -72,6 +73,7 @@ public enum ChunkType {
 	DEFINE_FLOAT(DefineFloat.class, DefineFloat::new),
 	DEFINE_INT(DefineInt.class, DefineInt::new),
 	DEFINE_LONG(DefineLong.class, DefineLong::new),
+	DEFINE_STRUCT(DefineStruct.class, DefineStruct::new),
 
 	//
 

@@ -44,6 +44,7 @@ import com.etk2000.clsl.chunk.variable.definition.DefineDouble;
 import com.etk2000.clsl.chunk.variable.definition.DefineFloat;
 import com.etk2000.clsl.chunk.variable.definition.DefineInt;
 import com.etk2000.clsl.chunk.variable.definition.DefineLong;
+import com.etk2000.clsl.chunk.variable.definition.DefineStruct;
 import com.etk2000.clsl.chunk.variable.set.SetVar;
 import com.etk2000.clsl.chunk.variable.set.SetVarAdd;
 import com.etk2000.clsl.chunk.variable.set.SetVarBinAnd;
@@ -1336,6 +1337,8 @@ public class ClslCompiler {
 					case LONG:
 						exec.add(new DefineLong(varName, readValueChunk(i, res, m, true)));
 						break;
+					case STRUCT:
+						throw new IllegalStateException("`struct <structName> <name> = {...}` is not implemented yet");
 				}
 			}
 			else {
@@ -1355,6 +1358,17 @@ public class ClslCompiler {
 					case LONG:
 						exec.add(new DefineLong(varName, new ConstLongChunk(0)));
 						break;
+					case STRUCT: {
+						// note that `varName` here refers to the struct type
+
+						// FIXME: if no variable name is present, we might be defining a new struct type
+						i = m.start() + 1;
+						if (!m.find())
+							throw new ClslCompilerException("expected struct variable name", i, res, m);
+
+						exec.add(new DefineStruct(varName, res.substring(i, m.start())));
+						break;
+					}
 				}
 			}
 		} while (m.group().equals(","));

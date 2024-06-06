@@ -6,9 +6,10 @@ import com.etk2000.clsl.header.ClslExternHeaderFinder;
 import com.etk2000.clsl.value.ClslValue;
 
 public class ClslRuntimeEnv {
-	private final MainScopeLookupContainer headers;
-	private final ClslRuntimeStack stack;
+	public final ClslStructInterop structInterop = new ClslStructInterop();
 	public final ClslExternHeaderFinder headerFinder;
+	private final ClslRuntimeStack stack;
+	private final MainScopeLookupContainer headers;
 
 	public ClslRuntimeEnv(ClslExternHeaderFinder externHeaderFinder, MainScopeLookupContainer headerScopes) {
 		this(externHeaderFinder, headerScopes, ClslRuntimeStack.create(ClslStackType.array_deque));

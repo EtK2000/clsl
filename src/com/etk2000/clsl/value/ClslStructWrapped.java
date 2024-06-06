@@ -25,28 +25,35 @@ public class ClslStructWrapped<T> extends ClslStruct {
 	// enable this to allow accessing inaccessible fields
 	CHANGE_ACCESS = 16,
 
-	WRAP_ALL = WRAP_FIELDS | WRAP_METHODS | WRAP_SYNTHETIC | WRAP_TRANSIENT, DEFAULT_WRAP = WRAP_FIELDS;
+	WRAP_ALL = WRAP_FIELDS | WRAP_METHODS | WRAP_SYNTHETIC | WRAP_TRANSIENT,
 
-	public static Map<String, ClslValue> wrap(Object o, byte wraptype, boolean constant) {
+	DEFAULT_WRAP = WRAP_FIELDS;
+
+	public static Map<String, ClslValue> wrap(Object o, byte wrapType, boolean constant) {
 		Map<String, ClslValue> res = new HashMap<>();
 
 		try {
-			boolean trans = (wraptype & WRAP_TRANSIENT) != 0, synt = (wraptype & WRAP_SYNTHETIC) != 0, acce = (wraptype & CHANGE_ACCESS) != 0;
+			boolean wrapTransient = (wrapType & WRAP_TRANSIENT) != 0,
+					wrapSynthetics = (wrapType & WRAP_SYNTHETIC) != 0,
+					wrapInaccessible = (wrapType & CHANGE_ACCESS) != 0;
 
-			if ((wraptype & WRAP_FIELDS) != 0) {
+			if ((wrapType & WRAP_FIELDS) != 0) {
 				for (Field f : o.getClass().getDeclaredFields()) {
-					if (((f.getModifiers() & Modifier.TRANSIENT) == 0 || trans) && (!f.isSynthetic() || synt) && (f.isAccessible() || acce)) {
+					if (((f.getModifiers() & Modifier.TRANSIENT) == 0 || wrapTransient) &&
+							(!f.isSynthetic() || wrapSynthetics) &&
+							((f.getModifiers() & Modifier.PUBLIC) != 0 || wrapInaccessible)
+					) {
 						f.setAccessible(true);
 						res.put(f.getName(), valueOf(f.get(o), constant));
 					}
 				}
 			}
 
-			if ((wraptype & WRAP_METHODS) != 0) {
+			if ((wrapType & WRAP_METHODS) != 0) {
 				if (Clsl.doWarn)
 					System.err.println("method wrapping is not implemented yet");
 				/*for (Method m : o.getClass().getDeclaredMethods()) {
-					if ((!m.isSynthetic() || synt) && (m.isAccessible() || acce)) {
+					if ((!m.isSynthetic() || wrapSynthetics) && (m.isAccessible() || wrapInaccessible)) {
 						m.setAccessible(true);
 						res.put(m.getName(), valueOf(m.get(o)));
 					}
@@ -104,12 +111,12 @@ public class ClslStructWrapped<T> extends ClslStruct {
 		this(o, DEFAULT_WRAP, false);
 	}
 
-	public ClslStructWrapped(T o, byte wraptype) {
-		this(o, wraptype, false);
+	public ClslStructWrapped(T o, byte wrapType) {
+		this(o, wrapType, false);
 	}
 
-	protected ClslStructWrapped(T o, byte wraptype, boolean constant) {
-		members = wrap(o, wraptype, constant);
+	protected ClslStructWrapped(T o, byte wrapType, boolean constant) {
+		members = wrap(o, wrapType, constant);
 		wrapped = o;
 	}
 
