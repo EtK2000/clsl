@@ -13,7 +13,7 @@ repositories {
 }
 
 group = 'com.etk2000'
-version = '0.0.3'
+version = '0.0.4'
 
 sourceSets.main.java.srcDirs = ['src']
 sourceSets.test.java.srcDirs = ['test']
