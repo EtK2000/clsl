@@ -86,11 +86,9 @@ abstract public class ClslValue {
 	abstract public <T extends ClslValue & ClslConst> T copy();
 
 	// compare
-	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof ClslValue)
-			throw new ClslUnsupportedOperatorException("==", typeName(), ((ClslValue) obj).typeName());
-		return false;
+
+	public boolean eq(ClslValue other) {
+		throw new ClslUnsupportedOperatorException("==", typeName(), other.typeName());
 	}
 
 	public boolean lt(ClslValue other) {

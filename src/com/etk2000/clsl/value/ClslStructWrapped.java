@@ -125,25 +125,22 @@ public class ClslStructWrapped<T> extends ClslStruct {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof ClslValue) {
-			ClslValue other = (ClslValue) obj;
-			switch (other.type) {
-				case ARRAY:
-				case CHAR:
-				case DOUBLE:
-				case FLOAT:
-				case INT:
-				case LONG:
-				case VOID:
-					break;
-				case STRUCT:
-					return other instanceof ClslStructWrapped<?> && wrapped.equals(((ClslStructWrapped<?>) other).wrapped);
-			}
-			throw new UnsupportedOperationException(
-					"The operator == is undefined for the argument type(s) " + typeName() + ", " + ((ClslValue) obj).typeName());
+	public boolean eq(ClslValue other) {
+		switch (other.type) {
+			case ARRAY:
+			case CHAR:
+			case DOUBLE:
+			case FLOAT:
+			case INT:
+			case LONG:
+			case VOID:
+				break;
+			case STRUCT:
+				return other instanceof ClslStructWrapped<?> && wrapped.equals(((ClslStructWrapped<?>) other).wrapped);
 		}
-		return false;
+		throw new UnsupportedOperationException(
+				"The operator == is undefined for the argument type(s) " + typeName() + ", " + other.typeName()
+		);
 	}
 
 	@Override

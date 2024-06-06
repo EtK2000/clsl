@@ -27,21 +27,21 @@ public class ConstArrayChunk extends ConstValueChunk {
 		this.val = new ClslArrayConst(val);
 	}
 
-	private ConstArrayChunk(char... vals) {
+	public ConstArrayChunk(char... vals) {
 		super(ValueType.ARRAY);
 		val = new ClslArrayConst(ValueType.CHAR, (short) vals.length);
 		for (int i = 0; i < vals.length; ++i)
 			val.val[i] = new ClslCharConst(vals[i]);
 	}
 
-	private ConstArrayChunk(float... vals) {
+	public ConstArrayChunk(float... vals) {
 		super(ValueType.ARRAY);
 		val = new ClslArrayConst(ValueType.FLOAT, (short) vals.length);
 		for (int i = 0; i < vals.length; ++i)
 			val.val[i] = new ClslFloatConst(vals[i]);
 	}
 
-	private ConstArrayChunk(int... vals) {
+	public ConstArrayChunk(int... vals) {
 		super(ValueType.ARRAY);
 		val = new ClslArrayConst(ValueType.INT, (short) vals.length);
 		for (int i = 0; i < vals.length; ++i)
@@ -76,6 +76,26 @@ public class ConstArrayChunk extends ConstValueChunk {
 	}
 
 	@Override
+	public ClslArray get(ClslRuntimeEnv env) {
+		return val;
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (this == other)
+			return true;
+		if (other == null || getClass() != other.getClass())
+			return false;
+
+		return val.equals(((ConstArrayChunk) other).val);
+	}
+
+	@Override
+	public String toString() {
+		return val.toString();
+	}
+
+	@Override
 	public void transmit(OutputStream o) throws IOException {
 		StreamUtils.write(o, val.component);
 		o.write(val.val.length);
@@ -101,15 +121,5 @@ public class ConstArrayChunk extends ConstValueChunk {
 					StreamUtils.write(o, val.val[i].toLong());
 				break;
 		}
-	}
-
-	@Override
-	public ClslArray get(ClslRuntimeEnv env) {
-		return val;
-	}
-
-	@Override
-	public String toString() {
-		return val.toString();
 	}
 }

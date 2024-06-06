@@ -56,24 +56,22 @@ public class StdlibH extends HeaderBase {
 		}
 
 		@Override
-		public boolean equals(Object obj) {
-			if (obj instanceof ClslValue) {
-				switch (((ClslValue) obj).type) {
-					case ARRAY:
-					case CHAR:
-					case DOUBLE:
-					case FLOAT:
-					case INT:
-					case LONG:
-					case VOID:
-						break;
-					case STRUCT:
-						return obj instanceof div_t && ((div_t) obj).quot.val == quot.val && ((div_t) obj).rem.val == rem.val;
-				}
-				throw new UnsupportedOperationException(
-						"The operator == is undefined for the argument type(s) " + typeName() + ", " + ((ClslValue) obj).typeName());
+		public boolean eq(ClslValue other) {
+			switch (other.type) {
+				case ARRAY:
+				case CHAR:
+				case DOUBLE:
+				case FLOAT:
+				case INT:
+				case LONG:
+				case VOID:
+					break;
+				case STRUCT:
+					return other instanceof div_t && ((div_t) other).quot.val == quot.val && ((div_t) other).rem.val == rem.val;
 			}
-			return false;
+			throw new UnsupportedOperationException(
+					"The operator == is undefined for the argument type(s) " + typeName() + ", " + other.typeName()
+			);
 		}
 
 		@Override
@@ -123,24 +121,22 @@ public class StdlibH extends HeaderBase {
 		}
 
 		@Override
-		public boolean equals(Object obj) {
-			if (obj instanceof ClslValue) {
-				switch (((ClslValue) obj).type) {
-					case ARRAY:
-					case CHAR:
-					case DOUBLE:
-					case FLOAT:
-					case INT:
-					case LONG:
-					case VOID:
-						break;
-					case STRUCT:
-						return obj instanceof ldiv_t && ((ldiv_t) obj).quot.val == quot.val && ((ldiv_t) obj).rem.val == rem.val;
-				}
-				throw new UnsupportedOperationException(
-						"The operator == is undefined for the argument type(s) " + typeName() + ", " + ((ClslValue) obj).typeName());
+		public boolean eq(ClslValue other) {
+			switch (other.type) {
+				case ARRAY:
+				case CHAR:
+				case DOUBLE:
+				case FLOAT:
+				case INT:
+				case LONG:
+				case VOID:
+					break;
+				case STRUCT:
+					return other instanceof ldiv_t && ((ldiv_t) other).quot.val == quot.val && ((ldiv_t) other).rem.val == rem.val;
 			}
-			return false;
+			throw new UnsupportedOperationException(
+					"The operator == is undefined for the argument type(s) " + typeName() + ", " + other.typeName()
+			);
 		}
 
 		@Override

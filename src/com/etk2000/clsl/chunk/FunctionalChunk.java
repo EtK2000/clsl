@@ -44,7 +44,7 @@ public class FunctionalChunk extends BlockChunk implements ExecutableValueChunk 
 	}
 
 	@SuppressWarnings("unchecked")
-	FunctionalChunk(InputStream i) throws IOException {
+	public FunctionalChunk(InputStream i) throws IOException {
 		if (!ClslUtil.isValidId(name = StreamUtils.readString(i)))
 			throw new ClslInvalidFunctionNameException(name);
 

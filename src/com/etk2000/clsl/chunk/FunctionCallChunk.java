@@ -33,15 +33,20 @@ public class FunctionCallChunk implements ExecutableValueChunk {
 	}
 
 	@Override
-	public void transmit(OutputStream o) throws IOException {
-		StreamUtils.write(o, name);
-		Clsl.writeChunks(o, args);
-	}
-
-	@Override
 	public ReturnChunk execute(ClslRuntimeEnv env) {
 		get(env);
 		return null;
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (this == other)
+			return true;
+		if (other == null || getClass() != other.getClass())
+			return false;
+
+		final FunctionCallChunk that = (FunctionCallChunk) other;
+		return name.equals(that.name) && Arrays.equals(args, that.args);
 	}
 
 	@Override
@@ -63,6 +68,21 @@ public class FunctionCallChunk implements ExecutableValueChunk {
 	}
 
 	@Override
+	public FunctionCallChunk getExecutablePart(OptimizationEnvironment env) {
+		return optimize(env);
+	}
+
+	// TODO: look into the underlying function if supplied?
+	@Override
+	public FunctionCallChunk optimize(OptimizationEnvironment env) {
+		if (env.isFirstPass) {
+			for (short i = 0; i < args.length; ++i)
+				args[i] = (ValueChunk) args[i].optimize(env);
+		}
+		return this;
+	}
+
+	@Override
 	public String toString() {
 		try (StringBuilderPoolable sb = new StringBuilderPoolable()) {
 			sb.append(name).append('(');
@@ -76,17 +96,8 @@ public class FunctionCallChunk implements ExecutableValueChunk {
 	}
 
 	@Override
-	public FunctionCallChunk getExecutablePart(OptimizationEnvironment env) {
-		return optimize(env);
-	}
-
-	// TODO: look into the underlying function if supplied?
-	@Override
-	public FunctionCallChunk optimize(OptimizationEnvironment env) {
-		if (env.isFirstPass) {
-			for (short i = 0; i < args.length; ++i)
-				args[i] = (ValueChunk) args[i].optimize(env);
-		}
-		return this;
+	public void transmit(OutputStream o) throws IOException {
+		StreamUtils.write(o, name);
+		Clsl.writeChunks(o, args);
 	}
 }

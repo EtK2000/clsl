@@ -12,12 +12,12 @@ public class MainScopeLookupTable implements FunctionLookupTable {
 		funcs.clear();
 	}
 
-	public void put(String functionName, FunctionalChunk body) {
-		funcs.put(functionName, body);
-	}
-
 	@Override
 	public FunctionalChunk lookup(String functionName) {
 		return funcs.get(functionName);
+	}
+
+	public void put(String functionName, FunctionalChunk body) {
+		funcs.put(functionName, body);
 	}
 }

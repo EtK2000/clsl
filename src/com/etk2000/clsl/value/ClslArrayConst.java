@@ -7,6 +7,8 @@ import com.etk2000.clsl.exception.type.ClslConstDecrementException;
 import com.etk2000.clsl.exception.type.ClslConstIncrementException;
 import com.etk2000.clsl.exception.type.ClslInvalidArrayComponentTypeException;
 
+import java.util.Arrays;
+
 public class ClslArrayConst extends ClslArray implements ClslConst {
 	public ClslArrayConst(ValueType component, short length) {
 		super(component);
@@ -37,35 +39,35 @@ public class ClslArrayConst extends ClslArray implements ClslConst {
 		super(val);
 	}
 
-	private ClslArrayConst(char[] arr) {
+	public ClslArrayConst(char[] arr) {
 		super(ValueType.CHAR);
 		val = new ClslChar[arr.length];
 		for (int i = 0; i < arr.length; ++i)
 			val[i] = new ClslChar(arr[i]);
 	}
 
-	private ClslArrayConst(double[] arr) {
+	public ClslArrayConst(double[] arr) {
 		super(ValueType.DOUBLE);
 		val = new ClslDouble[arr.length];
 		for (int i = 0; i < arr.length; ++i)
 			val[i] = new ClslDouble(arr[i]);
 	}
 
-	private ClslArrayConst(float[] arr) {
+	public ClslArrayConst(float[] arr) {
 		super(ValueType.FLOAT);
 		val = new ClslFloat[arr.length];
 		for (int i = 0; i < arr.length; ++i)
 			val[i] = new ClslFloat(arr[i]);
 	}
 
-	private ClslArrayConst(int[] arr) {
+	public ClslArrayConst(int[] arr) {
 		super(ValueType.INT);
 		val = new ClslInt[arr.length];
 		for (int i = 0; i < arr.length; ++i)
 			val[i] = new ClslInt(arr[i]);
 	}
 
-	private ClslArrayConst(long[] arr) {
+	public ClslArrayConst(long[] arr) {
 		super(ValueType.LONG);
 		val = new ClslLong[arr.length];
 		for (int i = 0; i < arr.length; ++i)
@@ -83,53 +85,10 @@ public class ClslArrayConst extends ClslArray implements ClslConst {
 	}
 
 	@Override
-	public ClslArray set(ClslValue other) {
-		throw new ClslConstAssignmentException();
-	}
-
-	@Override
-	public ClslValue dec(boolean post) {
-		throw new ClslConstDecrementException();
-	}
-
-	@Override
-	public ClslValue inc(boolean post) {
-		throw new ClslConstIncrementException();
-	}
-
-	@Override
 	public ClslValue add(ClslValue other, boolean set) {
 		if (set)
 			throw new ClslConstAssignmentException();
 		return super.add(other, set);
-	}
-
-	@Override
-	public ClslValue div(ClslValue other, boolean set) {
-		if (set)
-			throw new ClslConstAssignmentException();
-		return super.div(other, set);
-	}
-
-	@Override
-	public ClslValue mod(ClslValue other, boolean set) {
-		if (set)
-			throw new ClslConstAssignmentException();
-		return super.mod(other, set);
-	}
-
-	@Override
-	public ClslValue mul(ClslValue other, boolean set) {
-		if (set)
-			throw new ClslConstAssignmentException();
-		return super.mul(other, set);
-	}
-
-	@Override
-	public ClslValue sub(ClslValue other, boolean set) {
-		if (set)
-			throw new ClslConstAssignmentException();
-		return super.sub(other, set);
 	}
 
 	@Override
@@ -147,6 +106,57 @@ public class ClslArrayConst extends ClslArray implements ClslConst {
 	}
 
 	@Override
+	public ClslArrayConst copy() {
+		return this;
+	}
+
+	@Override
+	public ClslValue dec(boolean post) {
+		throw new ClslConstDecrementException();
+	}
+
+	@Override
+	public ClslValue div(ClslValue other, boolean set) {
+		if (set)
+			throw new ClslConstAssignmentException();
+		return super.div(other, set);
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (this == other)
+			return true;
+		if (other == null || getClass() != other.getClass())
+			return false;
+
+		return Arrays.equals(val, ((ClslArrayConst) other).val);
+	}
+
+	@Override
+	public ClslValue inc(boolean post) {
+		throw new ClslConstIncrementException();
+	}
+
+	@Override
+	public ClslValue mod(ClslValue other, boolean set) {
+		if (set)
+			throw new ClslConstAssignmentException();
+		return super.mod(other, set);
+	}
+
+	@Override
+	public ClslValue mul(ClslValue other, boolean set) {
+		if (set)
+			throw new ClslConstAssignmentException();
+		return super.mul(other, set);
+	}
+
+	@Override
+	public ClslArray set(ClslValue other) {
+		throw new ClslConstAssignmentException();
+	}
+
+	@Override
 	public ClslValue sl(ClslValue other, boolean set) {
 		if (set)
 			throw new ClslConstAssignmentException();
@@ -161,14 +171,16 @@ public class ClslArrayConst extends ClslArray implements ClslConst {
 	}
 
 	@Override
+	public ClslValue sub(ClslValue other, boolean set) {
+		if (set)
+			throw new ClslConstAssignmentException();
+		return super.sub(other, set);
+	}
+
+	@Override
 	public ClslValue xor(ClslValue other, boolean set) {
 		if (set)
 			throw new ClslConstAssignmentException();
 		return super.xor(other, set);
-	}
-
-	@Override
-	public ClslArrayConst copy() {
-		return this;
 	}
 }

@@ -179,11 +179,10 @@ public class ClslPointer extends ClslArray {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof ClslValue)
-			throw new UnsupportedOperationException("The operator == is undefined for the argument type(s) "
-					+ typeName() + ", " + ((ClslValue) obj).typeName());
-		return false;
+	public boolean eq(ClslValue other) {
+		throw new UnsupportedOperationException(
+				"The operator == is undefined for the argument type(s) " + typeName() + ", " + other.typeName()
+		);
 	}
 
 	@Override

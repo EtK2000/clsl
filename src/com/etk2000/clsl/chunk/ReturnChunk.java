@@ -8,6 +8,7 @@ import com.etk2000.clsl.exception.ClslRuntimeException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Objects;
 
 public class ReturnChunk implements ExecutableChunk {
 	public final ValueChunk val;
@@ -16,13 +17,23 @@ public class ReturnChunk implements ExecutableChunk {
 		this.val = val;
 	}
 
-	ReturnChunk(InputStream i) throws IOException {
+	public ReturnChunk(InputStream i) throws IOException {
 		val = Clsl.readValueChunk(i);
 	}
 
 	@Override
 	public ReturnChunk execute(ClslRuntimeEnv env) {
 		throw new ClslRuntimeException("one doesn't simply execute a ReturnChunk");
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (this == other)
+			return true;
+		if (other == null || getClass() != other.getClass())
+			return false;
+
+		return Objects.equals(val, ((ReturnChunk) other).val);
 	}
 
 	@Override

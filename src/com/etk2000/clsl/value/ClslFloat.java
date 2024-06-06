@@ -286,24 +286,20 @@ public class ClslFloat extends ClslValue {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof ClslValue) {
-			ClslValue other = (ClslValue) obj;
-			switch (other.type) {
-				case ARRAY:
-				case STRUCT:
-				case VOID:
-					break;
-				case CHAR:
-				case DOUBLE:
-				case FLOAT:
-				case INT:
-				case LONG:
-					return val == other.toFloat();
-			}
-			return super.equals(obj);
+	public boolean eq(ClslValue other) {
+		switch (other.type) {
+			case ARRAY:
+			case STRUCT:
+			case VOID:
+				break;
+			case CHAR:
+			case DOUBLE:
+			case FLOAT:
+			case INT:
+			case LONG:
+				return val == other.toFloat();
 		}
-		return false;
+		return super.eq(other);
 	}
 
 	@Override

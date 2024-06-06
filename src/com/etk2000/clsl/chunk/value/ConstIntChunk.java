@@ -30,6 +30,7 @@ public class ConstIntChunk extends ConstValueChunk {
 			return true;
 		if (other == null || getClass() != other.getClass())
 			return false;
+
 		return Objects.equals(val, ((ConstIntChunk) other).val);
 	}
 

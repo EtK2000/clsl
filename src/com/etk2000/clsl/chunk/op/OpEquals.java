@@ -34,7 +34,7 @@ public class OpEquals extends OpBinary {
 
 	@Override
 	public ClslInt get(ClslRuntimeEnv env) {
-		return new ClslInt(op1.get(env).equals(op2.get(env)) != not ? 1 : 0);
+		return new ClslInt(op1.get(env).eq(op2.get(env)) != not ? 1 : 0);
 	}
 
 	@Override

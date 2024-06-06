@@ -28,8 +28,13 @@ public class GetVar implements ValueChunk {
 	}
 
 	@Override
-	public void transmit(OutputStream o) throws IOException {
-		StreamUtils.write(o, name);
+	public boolean equals(Object other) {
+		if (this == other)
+			return true;
+		if (other == null || getClass() != other.getClass())
+			return false;
+
+		return name.equals(((GetVar) other).name);
 	}
 
 	@Override
@@ -38,11 +43,6 @@ public class GetVar implements ValueChunk {
 		if (res == null)
 			throw new ClslVariableCannotBeResolvedException(name);
 		return res;
-	}
-
-	@Override
-	public String toString() {
-		return name;
 	}
 
 	@Override
@@ -61,5 +61,15 @@ public class GetVar implements ValueChunk {
 			return this;
 		}
 		return env.unusedVars.contains(name) ? null : this;
+	}
+
+	@Override
+	public String toString() {
+		return name;
+	}
+
+	@Override
+	public void transmit(OutputStream o) throws IOException {
+		StreamUtils.write(o, name);
 	}
 }
