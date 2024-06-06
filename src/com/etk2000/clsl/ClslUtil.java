@@ -9,8 +9,8 @@ public class ClslUtil {
 			"return", "sizeof", "static", "struct", "switch", "typedef", "unsigned", "void", "while"};
 
 	public static final ExecutableChunk[] CHUNK_EXEC = {};
-	static final ValueChunk[] CHUNK_VALUE = {};
-	static final ClslValue[] VALUE = {};
+	public static final ValueChunk[] CHUNK_VALUE = {};
+	public static final ClslValue[] VALUE = {};
 
 	@SafeVarargs
 	public static <T> T[] array(T... args) {

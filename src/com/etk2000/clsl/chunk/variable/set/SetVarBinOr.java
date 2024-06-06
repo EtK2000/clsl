@@ -37,14 +37,14 @@ public class SetVarBinOr extends SetVarAbstract {
 	}
 
 	@Override
-	public String toString() {
-		return name + " |= " + val;
-	}
-
-	@Override
 	public ExecutableChunk optimize(OptimizationEnvironment env) {
 		if (env.isFirstPass)
 			return new SetVarBinOr(name, (ValueChunk) val.optimize(env.forValue()));
 		return env.unusedVars.contains(name) ? val.getExecutablePart(env) : this;
+	}
+
+	@Override
+	public String toString() {
+		return name + " |= " + val;
 	}
 }

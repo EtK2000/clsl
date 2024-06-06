@@ -24,6 +24,7 @@ public class TestIncludeExternalChunk {
 		final IncludeExternalChunk chunk = new IncludeExternalChunk("test");
 
 		headerFinder.add("test", ClslCode.NOP);
+		// FIXME: test that include code is called
 
 		assertDoesNotThrow(() -> chunk.execute(env));
 	}

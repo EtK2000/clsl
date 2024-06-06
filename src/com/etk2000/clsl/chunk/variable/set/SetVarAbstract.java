@@ -38,9 +38,14 @@ public abstract class SetVarAbstract implements ExecutableValueChunk {
 	}
 
 	@Override
-	final public void transmit(OutputStream o) throws IOException {
-		StreamUtils.write(o, name);
-		Clsl.writeChunk(o, val);
+	public boolean equals(Object other) {
+		if (this == other)
+			return true;
+		if (other == null || getClass() != other.getClass())
+			return false;
+
+		final SetVarAbstract that = (SetVarAbstract) other;
+		return name.equals(that.name) && val.equals(that.val);
 	}
 
 	@Override
@@ -49,10 +54,16 @@ public abstract class SetVarAbstract implements ExecutableValueChunk {
 		return null;
 	}
 
-	public abstract ExecutableChunk inline(DefineVar defineVar);
-
 	@Override
 	public final ExecutableChunk getExecutablePart(OptimizationEnvironment env) {
 		return optimize(env);
+	}
+
+	public abstract ExecutableChunk inline(DefineVar defineVar);
+
+	@Override
+	final public void transmit(OutputStream o) throws IOException {
+		StreamUtils.write(o, name);
+		Clsl.writeChunk(o, val);
 	}
 }

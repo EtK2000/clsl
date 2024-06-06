@@ -1,7 +1,7 @@
 package com.etk2000.clsl.header;
 
 import com.etk2000.clsl.ClslCode;
-import com.etk2000.clsl.ClslCompiler;
+import com.etk2000.clsl.compiler.ClslCompiler;
 import com.etk2000.clsl.exception.ClslHeaderImportFailureException;
 import com.etk2000.clsl.exception.ClslRuntimeException;
 import com.etk2000.clsl.exception.include.ClslHeaderNotFoundException;

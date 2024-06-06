@@ -29,7 +29,7 @@ public class StringBuilderPoolable implements AutoCloseable {
 		sb = get(DEFAULT_SIZE);
 	}
 
-	StringBuilderPoolable(int minSize) {
+	public StringBuilderPoolable(int minSize) {
 		sb = get(minSize);
 	}
 

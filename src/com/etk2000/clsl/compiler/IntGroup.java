@@ -1,4 +1,4 @@
-package com.etk2000.clsl;
+package com.etk2000.clsl.compiler;
 
 class IntGroup<A> {
 	public static <T> IntGroup<T> make(T a, int b) {

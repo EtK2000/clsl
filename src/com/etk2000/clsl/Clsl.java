@@ -11,6 +11,7 @@ import com.etk2000.clsl.chunk.value.ConstFloatChunk;
 import com.etk2000.clsl.chunk.value.ConstIntChunk;
 import com.etk2000.clsl.chunk.value.ConstLongChunk;
 import com.etk2000.clsl.chunk.value.ConstValueChunk;
+import com.etk2000.clsl.compiler.ClslCompiler;
 import com.etk2000.clsl.exception.ClslException;
 import com.etk2000.clsl.exception.ClslRuntimeException;
 import com.etk2000.clsl.exception.function.ClslBrokenJavaFunctionException;

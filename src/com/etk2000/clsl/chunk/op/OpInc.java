@@ -26,9 +26,14 @@ public class OpInc implements ExecutableValueChunk {
 	}
 
 	@Override
-	public void transmit(OutputStream o) throws IOException {
-		StreamUtils.write(o, name);
-		o.write(post ? 1 : 0);
+	public boolean equals(Object other) {
+		if (this == other)
+			return true;
+		if (other == null || getClass() != other.getClass())
+			return false;
+
+		final OpInc that = (OpInc) other;
+		return name.equals(that.name) && post == that.post;
 	}
 
 	@Override
@@ -40,11 +45,6 @@ public class OpInc implements ExecutableValueChunk {
 	@Override
 	public ClslValue get(ClslRuntimeEnv env) {
 		return env.getVar(name).inc(post);
-	}
-
-	@Override
-	public String toString() {
-		return post ? name + "++" : ("++" + name);
 	}
 
 	@Override
@@ -63,5 +63,16 @@ public class OpInc implements ExecutableValueChunk {
 			return this;
 		}
 		return !env.unusedVars.contains(name) ? env.forValue || !post ? this : new OpDec(name, false) : null;
+	}
+
+	@Override
+	public String toString() {
+		return post ? name + "++" : ("++" + name);
+	}
+
+	@Override
+	public void transmit(OutputStream o) throws IOException {
+		StreamUtils.write(o, name);
+		o.write(post ? 1 : 0);
 	}
 }

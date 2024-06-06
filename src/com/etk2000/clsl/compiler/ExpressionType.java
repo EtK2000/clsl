@@ -1,4 +1,4 @@
-package com.etk2000.clsl;
+package com.etk2000.clsl.compiler;
 
 enum ExpressionType {
 	// math
@@ -18,7 +18,7 @@ enum ExpressionType {
 
 	// ?:
 	QUESTION, ELSE,
-	
+
 	// function arguments
 	COMMA
 }

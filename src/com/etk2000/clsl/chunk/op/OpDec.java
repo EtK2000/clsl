@@ -26,9 +26,14 @@ public class OpDec implements ExecutableValueChunk {
 	}
 
 	@Override
-	public void transmit(OutputStream o) throws IOException {
-		StreamUtils.write(o, name);
-		o.write(post ? 1 : 0);
+	public boolean equals(Object other) {
+		if (this == other)
+			return true;
+		if (other == null || getClass() != other.getClass())
+			return false;
+
+		final OpDec that = (OpDec) other;
+		return name.equals(that.name) && post == that.post;
 	}
 
 	@Override
@@ -43,13 +48,13 @@ public class OpDec implements ExecutableValueChunk {
 	}
 
 	@Override
-	public String toString() {
-		return post ? name + "--" : ("--" + name);
+	public ExecutableValueChunk getExecutablePart(OptimizationEnvironment env) {
+		return optimize(env);
 	}
 
 	@Override
-	public ExecutableValueChunk getExecutablePart(OptimizationEnvironment env) {
-		return optimize(env);
+	public String toString() {
+		return post ? name + "--" : ("--" + name);
 	}
 
 	@Override
@@ -63,5 +68,11 @@ public class OpDec implements ExecutableValueChunk {
 			return this;
 		}
 		return !env.unusedVars.contains(name) ? env.forValue || !post ? this : new OpDec(name, false) : null;
+	}
+
+	@Override
+	public void transmit(OutputStream o) throws IOException {
+		StreamUtils.write(o, name);
+		o.write(post ? 1 : 0);
 	}
 }
