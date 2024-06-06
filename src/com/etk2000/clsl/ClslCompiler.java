@@ -980,33 +980,38 @@ public class ClslCompiler {
 		if (arr.get(start) != ExpressionType.PARENTHESIS_OPEN && arr.get(start) != ExpressionType.COMMA)
 			throw new ClslCompilerException("expected parentheses; near: " + arr.get(start));
 
-		List<Object> res = new ArrayList<>();
-		List<ValueChunk> args = new ArrayList<>();
-		int n = 1;
-		IntGroup<ValueChunk> h;
-		while (arr.get(start + n) != ExpressionType.PARENTHESIS_CLOSE && arr.get(start + n) != ExpressionType.COMMA) {
-			if (arr.get(start + n) == ExpressionType.PARENTHESIS_OPEN) {
-				if (res.size() > 0 && res.get(res.size() - 1) instanceof GetVar) {// function
-					// call
-					args.clear();
-					do {
-						args.add((h = getBlock(arr, start + n)).a);
-						n += h.b;
-					} while (arr.get(start + n) == ExpressionType.COMMA);
+		final List<Object> res = new ArrayList<>();
+		final List<ValueChunk> args = new ArrayList<>();
+		int index = 1;
+		IntGroup<ValueChunk> block;
+
+		while (arr.get(start + index) != ExpressionType.PARENTHESIS_CLOSE && arr.get(start + index) != ExpressionType.COMMA) {
+			if (arr.get(start + index) == ExpressionType.PARENTHESIS_OPEN) {
+				if (!res.isEmpty() && res.get(res.size() - 1) instanceof GetVar) {// function call
+
+					// parse parameters of any are supplied
+					if (arr.get(start + index + 1) != ExpressionType.PARENTHESIS_CLOSE) {
+						do {
+							args.add((block = getBlock(arr, start + index)).a);
+							index += block.b;
+						} while (arr.get(start + index) == ExpressionType.COMMA);
+					}
+
 					res.add(new FunctionCallChunk(((GetVar) res.remove(res.size() - 1)).name, args.toArray(ClslUtil.CHUNK_VALUE)));
-					++n;
+					args.clear();
+					++index;
 				}
 				else {
-					res.add((h = getBlock(arr, start + n)).a);
-					n += h.b + 1;
+					res.add((block = getBlock(arr, start + index)).a);
+					index += block.b + 1;
 				}
 			}
 			else {
-				if (arr.get(start + n) instanceof ExpressionType)
-					res.add(arr.get(start + n));
+				if (arr.get(start + index) instanceof ExpressionType)
+					res.add(arr.get(start + index));
 				else
-					res.add(toValue((String) arr.get(start + n)));
-				++n;
+					res.add(toValue((String) arr.get(start + index)));
+				++index;
 			}
 		}
 
@@ -1052,12 +1057,25 @@ public class ClslCompiler {
 
 		// fourth pass (i.e. addition, subtraction)
 		for (int i = 0; i < res.size(); ++i) {
-			// x + y
-			if (res.get(i) == ExpressionType.ADD)
-				res.set(--i, new OpAdd((ValueChunk) res.remove(i), (ValueChunk) res.remove(i + 1)));
-				// x - y
-			else if (res.get(i) == ExpressionType.SUBTRACT)
-				res.set(--i, new OpSubtract((ValueChunk) res.remove(i), (ValueChunk) res.remove(i + 1)));
+			if (res.get(i) == ExpressionType.ADD) {
+				// +x
+				if (i == 0)
+					res.set(0, new OpAdd(new ConstIntChunk(0), (ValueChunk) res.remove(i + 1)));
+
+					// x + y
+				else
+					res.set(--i, new OpAdd((ValueChunk) res.remove(i), (ValueChunk) res.remove(i + 1)));
+			}
+
+			else if (res.get(i) == ExpressionType.SUBTRACT) {
+				// -x
+				if (i == 0)
+					res.set(0, new OpSubtract(new ConstIntChunk(0), (ValueChunk) res.remove(i + 1)));
+
+					// x - y
+				else
+					res.set(--i, new OpSubtract((ValueChunk) res.remove(i), (ValueChunk) res.remove(i + 1)));
+			}
 		}
 
 		// fifth pass (i.e. shift left, shift right)
@@ -1160,7 +1178,7 @@ public class ClslCompiler {
 
 		if (res.size() != 1)
 			throw new ClslCompilerException("invalid cause: " + res);
-		return IntGroup.make((ValueChunk) res.get(0), n);
+		return IntGroup.make((ValueChunk) res.get(0), index);
 	}
 
 	private static List<ValueChunk> readArguments(String res, Matcher m) {
