@@ -52,11 +52,9 @@ import com.etk2000.clsl.chunk.variable.definition.DefineLong;
 import com.etk2000.clsl.chunk.variable.definition.DefineStruct;
 import com.etk2000.clsl.chunk.variable.set.SetVar;
 import com.etk2000.clsl.exception.ClslCompilerException;
-import com.etk2000.clsl.value.ClslValue;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ClslCompiler {
@@ -416,13 +414,13 @@ public class ClslCompiler {
 					if (group.equals("<"))
 						builtin = true;
 					else if (!group.equals("\""))
-						throw new ClslCompilerException("#include expects \"FILENAME\" or <FILENAME>", env.indexInSource, res, env.matcher);
+						throw new ClslCompilerException(env, "#include expects \"FILENAME\" or <FILENAME>");
 					String terminating = builtin ? ">" : "\"";
 
 					env.indexInSource = env.matcher.start() + 1;
 					do {
 						if (!env.matcher.find())
-							throw new ClslCompilerException("missing terminating " + terminating + " character", env.indexInSource, res, env.matcher);
+							throw new ClslCompilerException(env, "missing terminating " + terminating + " character");
 					} while (!env.matcher.group().equals(terminating));
 					// FIXME: include code here
 					System.err.println("include " + res.substring(env.indexInSource, env.matcher.start()) + (builtin ? " builtin" : ""));
@@ -448,53 +446,53 @@ public class ClslCompiler {
 				// variable definitions
 				case "char":
 					System.err.println("validate group: char");
-					readDefinition(ValueType.CHAR, allowFunctions, env.exec, res, env.matcher);
+					readDefinition(env, ValueType.CHAR, allowFunctions);
 					_const = _unsigned = false;
 					break;
 				case "double":
 					System.err.println("validate group: double");
-					readDefinition(ValueType.DOUBLE, allowFunctions, env.exec, res, env.matcher);
+					readDefinition(env, ValueType.DOUBLE, allowFunctions);
 					_const = _unsigned = false;
 					break;
 				case "float":
 					System.err.println("validate group: float");
-					readDefinition(ValueType.FLOAT, allowFunctions, env.exec, res, env.matcher);
+					readDefinition(env, ValueType.FLOAT, allowFunctions);
 					_const = _unsigned = false;
 					break;
 				case "int":
 					System.err.println("validate group: int");
-					readDefinition(ValueType.INT, allowFunctions, env.exec, res, env.matcher);
+					readDefinition(env, ValueType.INT, allowFunctions);
 					_const = _unsigned = false;
 					break;
 				case "long":
 					System.err.println("validate group: long");
-					readDefinition(ValueType.LONG, allowFunctions, env.exec, res, env.matcher);
+					readDefinition(env, ValueType.LONG, allowFunctions);
 					_const = _unsigned = false;
 					break;
 				case "struct":
 					System.err.println("validate group: struct");
 					// LOW: support "<type> <var>" syntax
-					readDefinition(ValueType.STRUCT, allowFunctions, env.exec, res, env.matcher);
+					readDefinition(env, ValueType.STRUCT, allowFunctions);
 					_const = _unsigned = false;
 					break;
 				case "void":
 					System.err.println("validate group: void");
 					env.indexInSource = env.matcher.start() + 1;
 					if (!env.matcher.find())
-						throw new ClslCompilerException("expected variable name", env.indexInSource, res, env.matcher);
+						throw new ClslCompilerException(env, "expected variable name");
 
 					if (_unsigned)
-						throw new ClslCompilerException("both `unsigned` and `void` in declaration specifiers", env.indexInSource, expression, env.matcher);
+						throw new ClslCompilerException(env, "both `unsigned` and `void` in declaration specifiers");
 
 					String varName = res.substring(env.indexInSource, env.matcher.start());
 					if (env.matcher.group().equals("(")) {
 						if (!allowFunctions)
-							throw new ClslCompilerException("cannot define a function here", env.indexInSource, res, env.matcher);
-						env.exec.add(readFunction(ValueType.VOID, varName, res, env.matcher));
+							throw new ClslCompilerException(env, "cannot define a function here");
+						env.exec.add(readFunction(env, ValueType.VOID, varName));
 						_const = false;
 					}
 					else
-						throw new ClslCompilerException("variable or field `" + varName + "` declared void", env.indexInSource, res, env.matcher);
+						throw new ClslCompilerException(env, "variable or field `" + varName + "` declared void");
 					break;
 
 				// flow control
@@ -509,20 +507,20 @@ public class ClslCompiler {
 						case "{":
 							break;
 						default:
-							throw new ClslCompilerException("expected expression before `" + group + "` token", env.indexInSource, res, env.matcher);
+							throw new ClslCompilerException(env, "expected expression before `" + group + "` token");
 					}
-					ExecutableChunk[] effect = readEffect(res, env.matcher, group.equals(" ") || group.equals("{") ? "" : group);
+					ExecutableChunk[] effect = readEffect(env, group.equals(" ") || group.equals("{") ? "" : group);
 
 					if (group.equals("{") && (!env.matcher.find() || !env.matcher.group().equals("}")))
-						throw new ClslCompilerException("missing curly bracket before while", env.indexInSource, res, env.matcher);
+						throw new ClslCompilerException(env, "missing curly bracket before while");
 
 					env.indexInSource = env.matcher.start() + 1;
 					if (!env.matcher.find() || !res.substring(env.indexInSource, env.matcher.start()).equals("while"))
-						throw new ClslCompilerException("expected while", env.indexInSource, res, env.matcher);
+						throw new ClslCompilerException(env, "expected while");
 
-					env.exec.add(new DoWhileChunk(effect, readValueChunk(env.indexInSource, res, env.matcher, false)));
+					env.exec.add(new DoWhileChunk(effect, readValueChunk(env, false)));
 					if (!env.matcher.find() || !env.matcher.group().equals(";"))
-						throw new ClslCompilerException("expected `;`", env.indexInSource, res, env.matcher);
+						throw new ClslCompilerException(env, "expected `;`");
 
 					break;
 				}
@@ -530,27 +528,31 @@ public class ClslCompiler {
 					System.err.println("validate group: else");
 					env.indexInSource = env.matcher.start() + 1;
 					if (!env.matcher.find())
-						throw new ClslCompilerException("expected expression", env.indexInSource, res, env.matcher);
+						throw new ClslCompilerException(env, "expected expression");
 
 					if (res.substring(env.indexInSource, env.matcher.start()).equals("if")) {
 						if (!(env.exec.get(env.exec.size() - 1) instanceof IfChunk))
-							throw new ClslCompilerException("else-if only allowed after if", env.indexInSource, res, env.matcher);
+							throw new ClslCompilerException(env, "else-if only allowed after if");
 
-						((IfChunk) env.exec.get(env.exec.size() - 1)).addElse(readCauseEffect(env.indexInSource, res, env.matcher));
+						((IfChunk) env.exec.get(env.exec.size() - 1)).addElse(readCauseEffect(env));
 					}
 					else {
 						env.matcher.find(env.indexInSource - 1);
-						((IfChunk) env.exec.get(env.exec.size() - 1)).addElse(new Group<>(null, readEffect(res, env.matcher, "")));
+						((IfChunk) env.exec.get(env.exec.size() - 1)).addElse(new Group<>(null, readEffect(env, "")));
 					}
 					break;
 				case "for":
 					System.err.println("validate group: for");
-					env.exec.add(new ForChunk(readExecutable(res, env.matcher, true), readValueChunk(env.indexInSource, res, env.matcher, false), readExecutable(res, env.matcher, false),
-							readEffect(res, env.matcher, "")));
+					env.exec.add(new ForChunk(
+							readExecutable(env, true),
+							readValueChunk(env, false),
+							readExecutable(env, false),
+							readEffect(env, "")
+					));
 					break;
 				case "if": {
 					System.err.println("validate group: if");
-					Group<ValueChunk, ExecutableChunk[]> g = readCauseEffect(env.indexInSource, res, env.matcher);
+					Group<ValueChunk, ExecutableChunk[]> g = readCauseEffect(env);
 					env.exec.add(new IfChunk(g.a, g.b));
 					break;
 				}
@@ -564,15 +566,15 @@ public class ClslCompiler {
 						case "(":
 							break;
 						default:
-							throw new ClslCompilerException("expected expression before `" + group + "` token", env.indexInSource, res, env.matcher);
+							throw new ClslCompilerException(env, "expected expression before `" + group + "` token");
 					}
 					// FIXME: ensure return is in function and can be casted to
 					// return type
-					env.exec.add(new ReturnChunk(group.equals(";") ? null : readValueChunk(env.indexInSource, res, env.matcher, false, group.equals(" ") ? "" : group)));
+					env.exec.add(new ReturnChunk(group.equals(";") ? null : readValueChunk(env, false, group.equals(" ") ? "" : group)));
 					break;
 				case "while": {
 					System.err.println("validate group: while");
-					Group<ValueChunk, ExecutableChunk[]> g = readCauseEffect(env.indexInSource, res, env.matcher);
+					Group<ValueChunk, ExecutableChunk[]> g = readCauseEffect(env);
 					env.exec.add(new WhileChunk(g.a, g.b));
 					break;
 				}
@@ -797,30 +799,30 @@ public class ClslCompiler {
 		return IntGroup.make((ValueChunk) res.get(0), index);
 	}
 
-	static List<ValueChunk> readArguments(String res, Matcher m) {
+	static List<ValueChunk> readArguments(ClslCompilationEnv env) {
 		List<ValueChunk> arr = new ArrayList<>();
 
-		int i = m.start() + 1;
-		if (!m.find())
-			throw new ClslCompilerException("expected expression", i, res, m);
+		env.indexInSource = env.matcher.start() + 1;
+		if (!env.matcher.find())
+			throw new ClslCompilerException(env, "expected expression");
 
 		int blocks = 1;
 		boolean inChr = false, inStr = false;
 		ValueChunk wip = null;
 		out:
 		do {
-			switch (m.group()) {
+			switch (env.matcher.group()) {
 				case ";":
-					throw new ClslCompilerException("illegal token", i, res, m);
+					throw new ClslCompilerException(env, "illegal token");
 				case ",":
 					if (!inChr && !inStr) {
-						if (i == m.start()) {
+						if (env.indexInSource == env.matcher.start()) {
 							arr.add(wip);
 							wip = null;
 						}
 						else
-							arr.add(buildExpression(res.substring(i, m.start())));
-						i = m.start() + 1;
+							arr.add(buildExpression(env.source.substring(env.indexInSource, env.matcher.start())));
+						env.indexInSource = env.matcher.start() + 1;
 					}
 					break;
 				case "'":
@@ -833,11 +835,11 @@ public class ClslCompiler {
 					break;
 				case "(":
 					if (!inChr && !inStr) {
-						if (BLOCK_CHARS.indexOf(res.charAt(m.start() - 1)) != -1)
+						if (BLOCK_CHARS.indexOf(env.source.charAt(env.matcher.start() - 1)) != -1)
 							++blocks;// just parenthesis
 						else {
-							wip = new FunctionCallChunk(res.substring(i, m.start()), readArguments(res, m).toArray(ClslUtil.CHUNK_VALUE));
-							i = m.start() + 1;
+							wip = new FunctionCallChunk(env.source.substring(env.indexInSource, env.matcher.start()), readArguments(env).toArray(ClslUtil.CHUNK_VALUE));
+							env.indexInSource = env.matcher.start() + 1;
 						}
 					}
 					break;
@@ -848,34 +850,34 @@ public class ClslCompiler {
 					}
 					break;
 			}
-		} while (m.find());
+		} while (env.matcher.find());
 
 		// add the last arg (if it exists)
-		if (i != m.start())
-			arr.add(buildExpression(res.substring(i, m.start())));
+		if (env.indexInSource != env.matcher.start())
+			arr.add(buildExpression(env.source.substring(env.indexInSource, env.matcher.start())));
 		else if (wip != null)
 			arr.add(wip);
 		return arr;
 	}
 
-	static ValueChunk readValueChunk(int i, String res, Matcher m, boolean untilComma) {
-		return readValueChunk(i, res, m, untilComma, "");
+	static ValueChunk readValueChunk(ClslCompilationEnv env, boolean untilComma) {
+		return readValueChunk(env, untilComma, "");
 	}
 
-	private static ValueChunk readValueChunk(int i, String res, Matcher m, boolean untilComma, String prefix) {
+	private static ValueChunk readValueChunk(ClslCompilationEnv env, boolean untilComma, String prefix) {
 		if (!untilComma) {
-			i = m.start() + 1;
-			if (!m.find())
-				throw new ClslCompilerException("expected expression", i, res, m);
+			env.indexInSource = env.matcher.start() + 1;
+			if (!env.matcher.find())
+				throw new ClslCompilerException(env, "expected expression");
 		}
 
 		int blocks = prefix.equals("(") ? 2 : 1;
 		out:
 		do {
-			switch (m.group()) {
+			switch (env.matcher.group()) {
 				case ";":
 					if (blocks > 1)
-						throw new ClslCompilerException("illegal token", i, res, m);
+						throw new ClslCompilerException(env, "illegal token");
 					break out;// assume it's a for(;X;) or variable definition
 				case "(":
 					++blocks;
@@ -889,68 +891,67 @@ public class ClslCompiler {
 						break out;
 					break;
 			}
-		} while (m.find());
+		} while (env.matcher.find());
 
-		if (i == m.start())
+		if (env.indexInSource == env.matcher.start())
 			return null;
-		return buildExpression(prefix + res.substring(i, m.start()));
+		return buildExpression(prefix + env.source.substring(env.indexInSource, env.matcher.start()));
 	}
 
 	@Deprecated
-	private static Group<ValueChunk, ExecutableChunk[]> readCauseEffect(int i, String res, Matcher m) {
-		return new Group<>(readValueChunk(i, res, m, false), readEffect(res, m, ""));
+	private static Group<ValueChunk, ExecutableChunk[]> readCauseEffect(ClslCompilationEnv env) {
+		return new Group<>(readValueChunk(env, false), readEffect(env, ""));
 	}
 
 	// TODO: look into how this flows and see how to make this more supportive
-	private static void readDefinition(ValueType type, boolean allowFunctions, List<ExecutableChunk> exec, String res, Matcher m) {
+	private static void readDefinition(ClslCompilationEnv env, ValueType type, boolean allowFunctions) {
 		do {
-			int i = m.start() + 1;
-			if (!m.find())
-				throw new ClslCompilerException("expected variable name", i, res, m);
+			env.indexInSource = env.matcher.start() + 1;
+			if (!env.matcher.find())
+				throw new ClslCompilerException(env, "expected variable name");
 
-			String varName = res.substring(i, m.start());
-			if (m.group().equals("(")) {
+			String varName = env.source.substring(env.indexInSource, env.matcher.start());
+			if (env.matcher.group().equals("(")) {
 				if (!allowFunctions)
-					throw new ClslCompilerException("cannot define a function here", i, res, m);
-				exec.add(readFunction(type, varName, res, m));
+					throw new ClslCompilerException(env, "cannot define a function here");
+				env.exec.add(readFunction(env, type, varName));
 				break;
 			}
-			if (m.group().equals("[")) {// FIXME: support reading <type>
+			if (env.matcher.group().equals("[")) {// FIXME: support reading <type>
 				// <name>[]=...
-				i = m.start() + 1;
-				if (!m.find())
-					throw new ClslCompilerException("expected value", i, res, m);
-				exec.add(new DefineArray(varName, type, (short) Integer.parseInt(res.substring(i, m.start()))));
+				env.indexInSource = env.matcher.start() + 1;
+				if (!env.matcher.find())
+					throw new ClslCompilerException(env, "expected value");
+				env.exec.add(new DefineArray(varName, type, (short) Integer.parseInt(env.source.substring(env.indexInSource, env.matcher.start()))));
 				break;
 			}
-			if (m.group().equals("=")) {
-				i = m.start() + 1;
-				if (!m.find())
-					throw new ClslCompilerException("expected value", i, res, m);
+			if (env.matcher.group().equals("=")) {
+				env.indexInSource = env.matcher.start() + 1;
+				if (!env.matcher.find())
+					throw new ClslCompilerException(env, "expected value");
 
 				// TODO: test: char c = '.';
-				if (type == ValueType.CHAR && m.group().equals("'") && (!m.find() || !m.group().equals("'")))
-					throw new ClslCompilerException("invalid character constant", i, res, m);
-				else if ((type == ValueType.FLOAT || type == ValueType.LONG) && m.group().equals(".") && !m.find())
-					throw new ClslCompilerException("expected decimal", i, res, m);
+				if (type == ValueType.CHAR && env.matcher.group().equals("'") && (!env.matcher.find() || !env.matcher.group().equals("'")))
+					throw new ClslCompilerException(env, "invalid character constant");
+				else if ((type == ValueType.FLOAT || type == ValueType.LONG) && env.matcher.group().equals(".") && !env.matcher.find())
+					throw new ClslCompilerException(env, "expected decimal");
 
-				// m.group().equals(";") ? toValue(res.substring(i, m.start()))
-				// : readValueChunk(i, res, m, true)
+				// env.matcher.group().equals(";") ? toValue(env.source.substring(env.indexInSource, env.matcher.start())) : readValueChunk(env, true)
 				switch (type) {
 					case CHAR:
-						exec.add(new DefineChar(varName, readValueChunk(i, res, m, true)));
+						env.exec.add(new DefineChar(varName, readValueChunk(env, true)));
 						break;
 					case DOUBLE:
-						exec.add(new DefineDouble(varName, readValueChunk(i, res, m, true)));
+						env.exec.add(new DefineDouble(varName, readValueChunk(env, true)));
 						break;
 					case FLOAT:
-						exec.add(new DefineFloat(varName, readValueChunk(i, res, m, true)));
+						env.exec.add(new DefineFloat(varName, readValueChunk(env, true)));
 						break;
 					case INT:
-						exec.add(new DefineInt(varName, readValueChunk(i, res, m, true)));
+						env.exec.add(new DefineInt(varName, readValueChunk(env, true)));
 						break;
 					case LONG:
-						exec.add(new DefineLong(varName, readValueChunk(i, res, m, true)));
+						env.exec.add(new DefineLong(varName, readValueChunk(env, true)));
 						break;
 					case STRUCT:
 						throw new IllegalStateException("`struct <structName> <name> = {...}` is not implemented yet");
@@ -959,51 +960,51 @@ public class ClslCompiler {
 			else {
 				switch (type) {
 					case CHAR:
-						exec.add(new DefineChar(varName, new ConstCharChunk('\0')));
+						env.exec.add(new DefineChar(varName, new ConstCharChunk('\0')));
 						break;
 					case DOUBLE:
-						exec.add(new DefineDouble(varName, new ConstDoubleChunk(Double.NaN)));
+						env.exec.add(new DefineDouble(varName, new ConstDoubleChunk(Double.NaN)));
 						break;
 					case FLOAT:
-						exec.add(new DefineFloat(varName, new ConstFloatChunk(Float.NaN)));
+						env.exec.add(new DefineFloat(varName, new ConstFloatChunk(Float.NaN)));
 						break;
 					case INT:
-						exec.add(new DefineInt(varName, new ConstIntChunk(0)));
+						env.exec.add(new DefineInt(varName, new ConstIntChunk(0)));
 						break;
 					case LONG:
-						exec.add(new DefineLong(varName, new ConstLongChunk(0)));
+						env.exec.add(new DefineLong(varName, new ConstLongChunk(0)));
 						break;
 					case STRUCT: {
 						// note that `varName` here refers to the struct type
 
 						// FIXME: if no variable name is present, we might be defining a new struct type
-						i = m.start() + 1;
-						if (!m.find())
-							throw new ClslCompilerException("expected struct variable name", i, res, m);
+						env.indexInSource = env.matcher.start() + 1;
+						if (!env.matcher.find())
+							throw new ClslCompilerException(env, "expected struct variable name");
 
-						exec.add(new DefineStruct(varName, res.substring(i, m.start())));
+						env.exec.add(new DefineStruct(varName, env.source.substring(env.indexInSource, env.matcher.start())));
 						break;
 					}
 				}
 			}
-		} while (m.group().equals(","));
+		} while (env.matcher.group().equals(","));
 	}
 
 	// TODO: return List<ExecutableChunk> instead?
-	private static ExecutableChunk[] readEffect(String res, Matcher m, String prefix) {
-		int i = m.start() + 1;
-		if (!m.find())
-			throw new ClslCompilerException("expected expression", i, res, m);
+	private static ExecutableChunk[] readEffect(ClslCompilationEnv env, String prefix) {
+		env.indexInSource = env.matcher.start() + 1;
+		if (!env.matcher.find())
+			throw new ClslCompilerException(env, "expected expression");
 
-		boolean isBlock = m.group().equals("{");
+		boolean isBlock = env.matcher.group().equals("{");
 
 		// if it's a block read it all
 		if (isBlock) {
-			i = m.start() + 1;
+			env.indexInSource = env.matcher.start() + 1;
 			int blocks = 1;
 			out:
-			while (m.find()) {
-				switch (m.group()) {
+			while (env.matcher.find()) {
+				switch (env.matcher.group()) {
 					case "{":
 						++blocks;
 						break;
@@ -1016,32 +1017,32 @@ public class ClslCompiler {
 		}
 		// otherwise, read until the semicolon
 		else
-			while (!m.group().equals(";") && m.find()) ;// TODO: fix for for(;;)
+			while (!env.matcher.group().equals(";") && env.matcher.find()) ;// TODO: fix for for(;;)
 
-		if (i == m.start())
+		if (env.indexInSource == env.matcher.start())
 			return ClslUtil.CHUNK_EXEC;
-		return compileInternal(prefix + res.substring(i, isBlock ? m.start() : m.start() + 1), false).toArray(ClslUtil.CHUNK_EXEC);
+		return compileInternal(prefix + env.source.substring(env.indexInSource, isBlock ? env.matcher.start() : env.matcher.start() + 1), false).toArray(ClslUtil.CHUNK_EXEC);
 	}
 
-	private static ExecutableChunk readExecutable(String res, Matcher m, boolean breakAtSemi) {
-		int i = m.start() + 1;
-		if (!m.find())
-			throw new ClslCompilerException("expected expression", i, res, m);
+	private static ExecutableChunk readExecutable(ClslCompilationEnv env, boolean breakAtSemi) {
+		env.indexInSource = env.matcher.start() + 1;
+		if (!env.matcher.find())
+			throw new ClslCompilerException(env, "expected expression");
 
-		if (m.group().equals("{"))// if it's a block throw an error
-			throw new ClslCompilerException("illegal token", i, res, m);
+		if (env.matcher.group().equals("{"))// if it's a block throw an error
+			throw new ClslCompilerException(env, "illegal token");
 
 		// read until the semicolon
 		if (breakAtSemi) {
-			while (!m.group().equals(";") && m.find()) ;
+			while (!env.matcher.group().equals(";") && env.matcher.find()) ;
 		}
 
 		// read until close parentheses
 		else {
 			int blocks = 1;
 			out:
-			while (m.find()) {
-				switch (m.group()) {
+			while (env.matcher.find()) {
+				switch (env.matcher.group()) {
 					case "(":
 						++blocks;
 						break;
@@ -1054,34 +1055,34 @@ public class ClslCompiler {
 		}
 
 		try {
-			if (i == m.start())
+			if (env.indexInSource == env.matcher.start())
 				return null;
 		}
 		catch (IllegalStateException e) {
-			m.find(i);// fix the illegal state
+			env.matcher.find(env.indexInSource);// fix the illegal state
 			return null;
 		}
-		return compileInternal(res.substring(i, m.start() + 1), false).get(0);
+		return compileInternal(env.source.substring(env.indexInSource, env.matcher.start() + 1), false).get(0);
 	}
 
-	private static ExecutableChunk readFunction(ValueType returnType, String name, String res, Matcher m) {
-		int i = m.start() + 1;
-		int start = m.start();
-		if (!m.find())
-			throw new ClslCompilerException("expected expression", i, res, m);
+	private static ExecutableChunk readFunction(ClslCompilationEnv env, ValueType returnType, String name) {
+		env.indexInSource = env.matcher.start() + 1;
+		int start = env.matcher.start();
+		if (!env.matcher.find())
+			throw new ClslCompilerException(env, "expected expression");
 
 		List<Group<String, ValueType>> parameters = new ArrayList<>();
-		if (!m.group().equals(")")) {
+		if (!env.matcher.group().equals(")")) {
 			ValueType type;
 			String varName;
-			m.find(start);
-			while (!m.group().equals(")")) {
-				i = m.start() + 1;
-				if (!m.find())
-					throw new ClslCompilerException("expected expression", i, res, m);
+			env.matcher.find(start);
+			while (!env.matcher.group().equals(")")) {
+				env.indexInSource = env.matcher.start() + 1;
+				if (!env.matcher.find())
+					throw new ClslCompilerException(env, "expected expression");
 
 				// FIXME: add missing types and array/pointer support
-				switch (res.substring(i, m.start())) {
+				switch (env.source.substring(env.indexInSource, env.matcher.start())) {
 					case "char":
 						type = ValueType.CHAR;
 						break;
@@ -1095,80 +1096,40 @@ public class ClslCompiler {
 						type = ValueType.STRUCT;
 						break;
 					default:
-						throw new ClslCompilerException("unsupported parameter type " + res.substring(i, m.start()) + " for function " + name, i, res, m);
+						throw new ClslCompilerException(env, "unsupported parameter type " + env.source.substring(env.indexInSource, env.matcher.start()) + " for function " + name);
 				}
 
-				i = m.start() + 1;
-				if (!m.find())
-					throw new ClslCompilerException("expected expression", i, res, m);
+				env.indexInSource = env.matcher.start() + 1;
+				if (!env.matcher.find())
+					throw new ClslCompilerException(env, "expected expression");
 
-				varName = res.substring(i, m.start());
-				if (m.group().equals("[")) {
-					if (!m.find() || !m.group().equals("]"))
-						throw new ClslCompilerException("expected expression", i, res, m);
+				varName = env.source.substring(env.indexInSource, env.matcher.start());
+				if (env.matcher.group().equals("[")) {
+					if (!env.matcher.find() || !env.matcher.group().equals("]"))
+						throw new ClslCompilerException(env, "expected expression");
 
 					// FIXME: get length of List if it's supplied
 					type = ValueType.ARRAY;// FIXME: make List of type
 
-					if (!m.find())
-						throw new ClslCompilerException("expected expression", i, res, m);
+					if (!env.matcher.find())
+						throw new ClslCompilerException(env, "expected expression");
 				}
 
 				parameters.add(new Group<>(varName, type));
 			}
 		}
 
-		start = m.start();
-		if (!m.find())
-			throw new ClslCompilerException("expected expression", i, res, m);
-		if (m.group().equals(";"))
-			throw new ClslCompilerException("bodyless functions not supported yet", i, res, m);
-		else if (!m.group().equals("{"))
-			throw new ClslCompilerException("expected function body", i, res, m);
+		start = env.matcher.start();
+		if (!env.matcher.find())
+			throw new ClslCompilerException(env, "expected expression");
+		if (env.matcher.group().equals(";"))
+			throw new ClslCompilerException(env, "bodyless functions not supported yet");
+		else if (!env.matcher.group().equals("{"))
+			throw new ClslCompilerException(env, "expected function body");
 
-		m.find(start);
-		return new FunctionalChunk(name, returnType, parameters.toArray(ClslUtil.array()), readEffect(res, m, ""));
+		env.matcher.find(start);
+		return new FunctionalChunk(name, returnType, parameters.toArray(ClslUtil.array()), readEffect(env, ""));
 	}// FIXME: allow to set from any ValueChunk
-
-	public static ClslValue[] toArguments(String res) {
-		Matcher argumentMatcher = SYNTAX_PATTERN.matcher("");
-		List<ClslValue> arr = new ArrayList<>();
-
-		// remove whitespaces
-		res = res.replaceAll("\\s+", " ");
-		for (byte i = 0; i < BLOCK_CHARS.length(); ++i)
-			res = res.replaceAll("\\s*" + Pattern.quote(Character.toString(BLOCK_CHARS.charAt(i))) + "\\s*", Character.toString(BLOCK_CHARS.charAt(i)));
-		argumentMatcher.reset(res);
-
-		int i = 0;
-		if (!argumentMatcher.find())
-			throw new ClslCompilerException("expected expression", i, res, argumentMatcher);
-
-		int blocks = 1;
-		out:
-		do {
-			switch (argumentMatcher.group()) {
-				case ";":
-					throw new ClslCompilerException("illegal token", i, res, argumentMatcher);
-				case ",":
-					arr.add(toValue(res.substring(i, argumentMatcher.start())).get(null));
-					i = argumentMatcher.start() + 1;
-					break;
-				case "(":
-					++blocks;
-					break;
-				case ")":
-					if (--blocks == 0)
-						break out;
-					break;
-			}
-		} while (argumentMatcher.find());
-
-		// add the last arg (if it exists)
-		if (i != argumentMatcher.start())
-			arr.add(toValue(res.substring(i, argumentMatcher.start())).get(null));
-		return arr.toArray(ClslUtil.VALUE);
-	}
 
 	// TODO: optimize the loading, don't just try and throw exceptions
 	@Deprecated

@@ -6,11 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 
-class ClslCompilationEnv {
-	final List<ExecutableChunk> exec = new ArrayList<>();
-	final Matcher matcher;
-	final String source;
-	int indexInSource;
+public class ClslCompilationEnv {
+	public final List<ExecutableChunk> exec = new ArrayList<>();
+	public final Matcher matcher;
+	public final String source;
+	public int indexInSource;
 
 	ClslCompilationEnv(String source) {
 		this.matcher = ClslCompiler.SYNTAX_PATTERN.matcher(source);

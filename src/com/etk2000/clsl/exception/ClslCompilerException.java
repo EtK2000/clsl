@@ -1,5 +1,7 @@
 package com.etk2000.clsl.exception;
 
+import com.etk2000.clsl.compiler.ClslCompilationEnv;
+
 import java.util.regex.Matcher;
 
 public class ClslCompilerException extends ClslException {
@@ -55,7 +57,7 @@ public class ClslCompilerException extends ClslException {
 	}
 
 	// use this constructor to show the code nearby
-	public ClslCompilerException(String msg, int i, String res, Matcher m) {
-		this(msg + "; near: " + res.substring(Math.max(0, Math.min(i, findPrevRelevantMatch(m))), Math.max(0, findNextRelevantMatch(m))));
+	public ClslCompilerException(ClslCompilationEnv env, String msg) {
+		this(msg + "; near: " + env.source.substring(Math.max(0, Math.min(env.indexInSource, findPrevRelevantMatch(env.matcher))), Math.max(0, findNextRelevantMatch(env.matcher))));
 	}
 }

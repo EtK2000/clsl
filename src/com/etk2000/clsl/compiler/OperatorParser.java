@@ -19,8 +19,6 @@ import com.etk2000.clsl.chunk.variable.set.SetVarSub;
 import com.etk2000.clsl.chunk.variable.set.SetVarXor;
 import com.etk2000.clsl.exception.ClslCompilerException;
 
-import java.util.regex.Matcher;
-
 class OperatorParser {
 	private static final byte MODE_SET = 0,
 			MODE_SET_ADD = 1,
@@ -36,18 +34,18 @@ class OperatorParser {
 
 	private static void assetVariableNameIsValid(ClslCompilationEnv env, String variableName) {
 		if (!ClslUtil.isValidId(variableName))
-			throw new ClslCompilerException("invalid variable name: `" + variableName + '`', env.indexInSource, env.source, env.matcher);
+			throw new ClslCompilerException(env, "invalid variable name: `" + variableName + '`');
 	}
 
-	private static void consumeSemicolon(int i, String res, Matcher m) {
-		if (!m.find())
-			throw new ClslCompilerException("error: expected `;`", i, res, m);
-		if (!m.group().equals(";"))
-			throw new ClslCompilerException("error: expected `;`", i, res, m);
+	private static void consumeSemicolon(ClslCompilationEnv env) {
+		if (!env.matcher.find())
+			throw new ClslCompilerException(env, "error: expected `;`");
+		if (!env.matcher.group().equals(";"))
+			throw new ClslCompilerException(env, "error: expected `;`");
 	}
 
 	static void parseNext(ClslCompilationEnv env) {
-		// FIXME: remove this var, have it in env
+		// FIXME: remove this var, have it in env, also don't have a String, this needs to be a variable reference
 		final String expression = env.source.substring(env.indexInSource, env.matcher.start());
 		if (!expression.isEmpty())
 			assetVariableNameIsValid(env, expression);
@@ -55,15 +53,16 @@ class OperatorParser {
 		switch (env.matcher.group()) {
 			// function call
 			case "(":
-				env.exec.add(new FunctionCallChunk(env.source.substring(env.indexInSource, env.matcher.start()), ClslCompiler.readArguments(env.source, env.matcher).toArray(ClslUtil.CHUNK_VALUE)));
-				consumeSemicolon(env.indexInSource, env.source, env.matcher);
+				env.exec.add(new FunctionCallChunk(env.source.substring(env.indexInSource, env.matcher.start()), ClslCompiler.readArguments(env).toArray(ClslUtil.CHUNK_VALUE)));
+				consumeSemicolon(env);
 				break;
 
 			// index
-			case "[":
+			case "[": {
 				System.err.println("please finish implementing index access");
 				// FIXME: read value until ']'
 				break;
+			}
 
 			// member access
 			case ".": {
@@ -71,7 +70,7 @@ class OperatorParser {
 
 				env.indexInSource = env.matcher.start() + 1;
 				if (!env.matcher.find())
-					throw new ClslCompilerException("expected expression", env.indexInSource, env.source, env.matcher);
+					throw new ClslCompilerException(env, "expected expression");
 
 				/*final String memberName = env.source.substring(env.indexInSource, env.matcher.start());
 
@@ -81,7 +80,7 @@ class OperatorParser {
 				env.indexInSource = env.matcher.start() + 1;
 				/*while (!env.matcher.group().equals(";")) {
 					if (!env.matcher.find())
-						throw new ClslCompilerException("unexpected EOF", env.indexInSource, env.source, env.matcher);
+						throw new ClslCompilerException(env, "unexpected EOF");
 				}
 				env.exec.add(new SetVar(expression, ClslCompiler.buildExpression(env.source.substring(env.indexInSource, env.matcher.start()))));*/
 				parseNext(env);
@@ -91,7 +90,7 @@ class OperatorParser {
 			case "-": {
 				int start = env.matcher.start();
 				if (!env.matcher.find())
-					throw new ClslCompilerException("expected expression", env.indexInSource, env.source, env.matcher);
+					throw new ClslCompilerException(env, "expected expression");
 
 				switch (env.matcher.group()) {
 					// "--"
@@ -101,7 +100,7 @@ class OperatorParser {
 						if (expression.isEmpty()) {
 							int varStart = env.matcher.start() + 1;
 							if (!env.matcher.find())
-								throw new ClslCompilerException("expected expression", env.indexInSource, env.source, env.matcher);
+								throw new ClslCompilerException(env, "expected expression");
 
 							String var = env.source.substring(varStart, env.matcher.start());
 							assetVariableNameIsValid(env, var);
@@ -130,7 +129,7 @@ class OperatorParser {
 			case "+": {
 				int start = env.matcher.start();
 				if (!env.matcher.find())
-					throw new ClslCompilerException("expected expression", env.indexInSource, env.source, env.matcher);
+					throw new ClslCompilerException(env, "expected expression");
 
 				switch (env.matcher.group()) {
 					// "++"
@@ -140,7 +139,7 @@ class OperatorParser {
 						if (expression.isEmpty()) {
 							int varStart = env.matcher.start() + 1;
 							if (!env.matcher.find())
-								throw new ClslCompilerException("expected expression", env.indexInSource, env.source, env.matcher);
+								throw new ClslCompilerException(env, "expected expression");
 
 							String var = env.source.substring(varStart, env.matcher.start());
 							assetVariableNameIsValid(env, var);
@@ -169,7 +168,7 @@ class OperatorParser {
 			case "/": {
 				int start = env.matcher.start();
 				if (!env.matcher.find())
-					throw new ClslCompilerException("expected expression", env.indexInSource, env.source, env.matcher);
+					throw new ClslCompilerException(env, "expected expression");
 
 				switch (env.matcher.group()) {
 					// "/="
@@ -189,7 +188,7 @@ class OperatorParser {
 			case "*": {
 				int start = env.matcher.start();
 				if (!env.matcher.find())
-					throw new ClslCompilerException("expected expression", env.indexInSource, env.source, env.matcher);
+					throw new ClslCompilerException(env, "expected expression");
 
 				switch (env.matcher.group()) {
 					// "*="
@@ -210,7 +209,7 @@ class OperatorParser {
 			case "%": {
 				int start = env.matcher.start();
 				if (!env.matcher.find())
-					throw new ClslCompilerException("expected expression", env.indexInSource, env.source, env.matcher);
+					throw new ClslCompilerException(env, "expected expression");
 
 				switch (env.matcher.group()) {
 					// "%="
@@ -230,7 +229,7 @@ class OperatorParser {
 			case "^": {
 				int start = env.matcher.start();
 				if (!env.matcher.find())
-					throw new ClslCompilerException("expected expression", env.indexInSource, env.source, env.matcher);
+					throw new ClslCompilerException(env, "expected expression");
 
 				switch (env.matcher.group()) {
 					// "^="
@@ -250,7 +249,7 @@ class OperatorParser {
 			case "&": {
 				int start = env.matcher.start();
 				if (!env.matcher.find())
-					throw new ClslCompilerException("expected expression", env.indexInSource, env.source, env.matcher);
+					throw new ClslCompilerException(env, "expected expression");
 
 				switch (env.matcher.group()) {
 					// "&="
@@ -270,7 +269,7 @@ class OperatorParser {
 			case "|": {
 				int start = env.matcher.start();
 				if (!env.matcher.find())
-					throw new ClslCompilerException("expected expression", env.indexInSource, env.source, env.matcher);
+					throw new ClslCompilerException(env, "expected expression");
 
 				switch (env.matcher.group()) {
 					// "|="
@@ -290,14 +289,14 @@ class OperatorParser {
 			case "<": {
 				int start = env.matcher.start();
 				if (!env.matcher.find())
-					throw new ClslCompilerException("expected expression", env.indexInSource, env.source, env.matcher);
+					throw new ClslCompilerException(env, "expected expression");
 
 				switch (env.matcher.group()) {
 					// "<<"
 					case "<": {
 						System.err.println("handle group in <<");
 						if (!env.matcher.find())
-							throw new ClslCompilerException("expected expression", env.indexInSource, env.source, env.matcher);
+							throw new ClslCompilerException(env, "expected expression");
 
 						switch (env.matcher.group()) {
 							// <<=
@@ -331,14 +330,14 @@ class OperatorParser {
 			case ">": {
 				int start = env.matcher.start();
 				if (!env.matcher.find())
-					throw new ClslCompilerException("expected expression", env.indexInSource, env.source, env.matcher);
+					throw new ClslCompilerException(env, "expected expression");
 
 				switch (env.matcher.group()) {
 					// ">>"
 					case ">": {
 						System.err.println("handle group in >>");
 						if (!env.matcher.find())
-							throw new ClslCompilerException("expected expression", env.indexInSource, env.source, env.matcher);
+							throw new ClslCompilerException(env, "expected expression");
 
 						switch (env.matcher.group()) {
 							// >>=
@@ -375,12 +374,12 @@ class OperatorParser {
 				break;
 
 			default:
-				throw new ClslCompilerException("expected expression", env.indexInSource, env.source, env.matcher);
+				throw new ClslCompilerException(env, "expected expression");
 		}
 	}
 
 	private static ExecutableValueChunk readValueSet(ClslCompilationEnv env, String varName, byte mode) {
-		final ValueChunk val = ClslCompiler.readValueChunk(env.indexInSource, env.source, env.matcher, false);
+		final ValueChunk val = ClslCompiler.readValueChunk(env, false);
 
 		switch (mode) {
 			case MODE_SET:
@@ -406,7 +405,7 @@ class OperatorParser {
 			case MODE_SET_XOR:
 				return new SetVarXor(varName, val);
 			default:
-				throw new ClslCompilerException("invalid mode: " + mode, env.indexInSource, env.source, env.matcher);
+				throw new ClslCompilerException(env, "invalid mode: " + mode);
 		}
 	}
 
