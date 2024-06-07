@@ -1,8 +1,10 @@
 package com.etk2000.clsl.header;
 
 import com.etk2000.clsl.Clsl;
+import com.etk2000.clsl.ClslRuntimeEnv;
 import com.etk2000.clsl.ValueType;
 import com.etk2000.clsl.chunk.FunctionalChunk;
+import com.etk2000.clsl.chunk.ReturnChunk;
 import com.etk2000.clsl.exception.function.ClslIncompatibleArgumentTypeException;
 import com.etk2000.clsl.exception.function.ClslInvalidNumberOfArgumentsException;
 import com.etk2000.clsl.value.ClslArray;
@@ -98,55 +100,32 @@ public class MathH extends HeaderBase {
 	private static final FunctionalChunk tanh = Clsl.createFunctionalChunk(ValueType.DOUBLE,
 			(env, args) -> new ClslDoubleConst(Math.tanh(assertAndGet(args, 1, 0).toDouble())));
 
-	@Override
-	public FunctionalChunk lookup(String functionName) {
-		switch (functionName) {
-			case "acos":
-				return acos;
-			case "asin":
-				return asin;
-			case "atan":
-				return atan;
-			case "atan2":
-				return atan2;
-			case "ceil":
-				return ceil;
-			case "cos":
-				return cos;
-			case "cosh":
-				return cosh;
-			case "exp":
-				return exp;
-			case "fabs":
-				return fabs;
-			case "floor":
-				return floor;
-			case "fmod":
-				return fmod;
-			case "ldexp":
-				return ldexp;
-			case "log":
-				return log;
-			case "log10":
-				return log10;
-			case "modf":
-				return modf;
-			case "pow":
-				return pow;
-			case "sin":
-				return sin;
-			case "sinh":
-				return sinh;
-			case "sqrt":
-				return sqrt;
-			case "tan":
-				return tan;
-			case "tanh":
-				return tanh;
-		}
-		return null;
+	private MathH() {
 	}
 
-	private MathH() {
+	@Override
+	public ReturnChunk execute(ClslRuntimeEnv env) {
+		env.defineVar("acos", acos.access());
+		env.defineVar("asin", asin.access());
+		env.defineVar("atan", atan.access());
+		env.defineVar("atan2", atan2.access());
+		env.defineVar("ceil", ceil.access());
+		env.defineVar("cos", cos.access());
+		env.defineVar("cosh", cosh.access());
+		env.defineVar("exp", exp.access());
+		env.defineVar("fabs", fabs.access());
+		env.defineVar("floor", floor.access());
+		env.defineVar("fmod", fmod.access());
+		env.defineVar("ldexp", ldexp.access());
+		env.defineVar("log", log.access());
+		env.defineVar("log10", log10.access());
+		env.defineVar("modf", modf.access());
+		env.defineVar("pow", pow.access());
+		env.defineVar("sin", sin.access());
+		env.defineVar("sinh", sinh.access());
+		env.defineVar("sqrt", sqrt.access());
+		env.defineVar("tan", tan.access());
+		env.defineVar("tanh", tanh.access());
+		return null;
 	}
 }

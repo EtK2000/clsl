@@ -615,7 +615,7 @@ public class ClslCompiler {
 						} while (arr.get(start + index) == ExpressionType.COMMA);
 					}
 
-					res.add(new FunctionCallChunk(((GetVar) res.remove(res.size() - 1)).name, args.toArray(ClslUtil.CHUNK_VALUE)));
+					res.add(new FunctionCallChunk(((GetVar) res.remove(res.size() - 1)), args.toArray(ClslUtil.CHUNK_VALUE)));
 					args.clear();
 					++index;
 				}
@@ -838,7 +838,7 @@ public class ClslCompiler {
 						if (BLOCK_CHARS.indexOf(env.source.charAt(env.matcher.start() - 1)) != -1)
 							++blocks;// just parenthesis
 						else {
-							wip = new FunctionCallChunk(env.source.substring(env.indexInSource, env.matcher.start()), readArguments(env).toArray(ClslUtil.CHUNK_VALUE));
+							wip = new FunctionCallChunk(new GetVar(env.source.substring(env.indexInSource, env.matcher.start())), readArguments(env).toArray(ClslUtil.CHUNK_VALUE));
 							env.indexInSource = env.matcher.start() + 1;
 						}
 					}

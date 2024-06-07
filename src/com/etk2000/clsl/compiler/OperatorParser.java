@@ -6,6 +6,9 @@ import com.etk2000.clsl.chunk.FunctionCallChunk;
 import com.etk2000.clsl.chunk.ValueChunk;
 import com.etk2000.clsl.chunk.op.OpDec;
 import com.etk2000.clsl.chunk.op.OpInc;
+import com.etk2000.clsl.chunk.op.OpIndex;
+import com.etk2000.clsl.chunk.op.OpMember;
+import com.etk2000.clsl.chunk.variable.GetVar;
 import com.etk2000.clsl.chunk.variable.set.SetVar;
 import com.etk2000.clsl.chunk.variable.set.SetVarAdd;
 import com.etk2000.clsl.chunk.variable.set.SetVarBinAnd;
@@ -45,21 +48,27 @@ class OperatorParser {
 	}
 
 	static void parseNext(ClslCompilationEnv env) {
-		// FIXME: remove this var, have it in env, also don't have a String, this needs to be a variable reference
+		// FIXME: remove this var, replace with `env.currentValueAccess`
 		final String expression = env.source.substring(env.indexInSource, env.matcher.start());
-		if (!expression.isEmpty())
+
+		if (!expression.isEmpty()) {
 			assetVariableNameIsValid(env, expression);
+			env.currentValueAccess = new GetVar(expression);
+		}
 
 		switch (env.matcher.group()) {
 			// function call
 			case "(":
-				env.exec.add(new FunctionCallChunk(env.source.substring(env.indexInSource, env.matcher.start()), ClslCompiler.readArguments(env).toArray(ClslUtil.CHUNK_VALUE)));
+				env.exec.add(new FunctionCallChunk(env.currentValueAccess, ClslCompiler.readArguments(env).toArray(ClslUtil.CHUNK_VALUE)));
 				consumeSemicolon(env);
 				break;
 
 			// index
 			case "[": {
+				env.currentValueAccess = new OpIndex(env.currentValueAccess, ClslCompiler.readValueChunk(env, false));
+
 				System.err.println("please finish implementing index access");
+				parseNext(env);
 				// FIXME: read value until ']'
 				break;
 			}
@@ -72,17 +81,12 @@ class OperatorParser {
 				if (!env.matcher.find())
 					throw new ClslCompilerException(env, "expected expression");
 
-				/*final String memberName = env.source.substring(env.indexInSource, env.matcher.start());
-
-				// new OpMember(new GetVar(expression), env.source.substring(env.index, env.matcher.start()));
-				// FIXME: finish OOP, support operations on above
+				env.currentValueAccess = new OpMember(env.currentValueAccess, env.source.substring(env.indexInSource, env.matcher.start()));
 
 				env.indexInSource = env.matcher.start() + 1;
-				/*while (!env.matcher.group().equals(";")) {
-					if (!env.matcher.find())
-						throw new ClslCompilerException(env, "unexpected EOF");
-				}
-				env.exec.add(new SetVar(expression, ClslCompiler.buildExpression(env.source.substring(env.indexInSource, env.matcher.start()))));*/
+				if (!env.matcher.find())
+					throw new ClslCompilerException(env, "expected expression");
+
 				parseNext(env);
 				break;
 			}

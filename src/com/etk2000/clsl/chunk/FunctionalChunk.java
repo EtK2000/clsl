@@ -13,6 +13,7 @@ import com.etk2000.clsl.exception.function.ClslFunctionDidntReturnAValueExceptio
 import com.etk2000.clsl.exception.function.ClslFunctionNotApplicableForArgumentsException;
 import com.etk2000.clsl.exception.function.ClslInvalidFunctionNameException;
 import com.etk2000.clsl.exception.function.ClslInvalidNumberOfArgumentsException;
+import com.etk2000.clsl.value.ClslFunctionAccess;
 import com.etk2000.clsl.value.ClslValue;
 
 import java.io.IOException;
@@ -71,53 +72,11 @@ public class FunctionalChunk extends BlockChunk implements ExecutableValueChunk 
 		modifiers = StreamUtils.readByte(i);
 	}
 
-	@Override
-	public void transmit(OutputStream o) throws IOException {
-		if (parameters.length > 255)
-			throw new IOException("cannot stream function with more than 255 parameters");
-
-		StreamUtils.write(o, name);
-		StreamUtils.write(o, returnType);
-
-		if (parameters == null) {// varargs
-			o.write(1);
-			StreamUtils.write(o, (String) null);
-		}
-		else {
-			o.write(parameters.length);
-			for (short i = 0; i < parameters.length; ++i) {
-				StreamUtils.write(o, parameters[i].a);
-				StreamUtils.write(o, parameters[i].b);
-			}
-		}
-
-		Clsl.writeChunks(o, effect);
-		o.write(modifiers);
+	public ClslFunctionAccess access() {
+		return new ClslFunctionAccess(this);
 	}
 
-	// execute the function, assumes args have been setup already
-	private ClslValue exec(ClslRuntimeEnv env) {
-		ReturnChunk ret;
-		for (ExecutableChunk e : effect) {
-			if (e instanceof ReturnChunk)
-				return ((ReturnChunk) e).val.get(env);
-			if ((ret = e.execute(env)) != null)
-				return ret.val.get(env);
-		}
-
-		throw new ClslFunctionDidntReturnAValueException(name);
-	}
-
-	// execute the function, assumes args have been setup already
-	// HIGH: merge this and the above
-	private void execVoid(ClslRuntimeEnv env) {
-		for (ExecutableChunk e : effect) {
-			if (e instanceof ReturnChunk || e.execute(env) != null)
-				return;
-		}
-	}
-
-	final public ClslValue call(ClslRuntimeEnv env) {
+	public final ClslValue call(ClslRuntimeEnv env) {
 		env.pushStack(true);
 		try {
 			switch (returnType) {
@@ -185,15 +144,50 @@ public class FunctionalChunk extends BlockChunk implements ExecutableValueChunk 
 		}
 	}
 
+	// execute the function, assumes args have been setup already
+	private ClslValue exec(ClslRuntimeEnv env) {
+		ReturnChunk ret;
+		for (ExecutableChunk e : effect) {
+			if (e instanceof ReturnChunk)
+				return ((ReturnChunk) e).val.get(env);
+			if ((ret = e.execute(env)) != null)
+				return ret.val.get(env);
+		}
+
+		throw new ClslFunctionDidntReturnAValueException(name);
+	}
+
+	// execute the function, assumes args have been setup already
+	// HIGH: merge this and the above
+	private void execVoid(ClslRuntimeEnv env) {
+		for (ExecutableChunk e : effect) {
+			if (e instanceof ReturnChunk || e.execute(env) != null)
+				return;
+		}
+	}
+
 	@Override
 	public ReturnChunk execute(ClslRuntimeEnv env) {
-		env.addFunction(name, this);
+		env.defineVar(name, access());
 		return null;
 	}
 
 	@Override
 	public ClslValue get(ClslRuntimeEnv env) {
 		throw new UnsupportedOperationException("Cannot call a function like that");
+	}
+
+	@Override
+	public FunctionalChunk getExecutablePart(OptimizationEnvironment env) {
+		return optimize(env);
+	}
+
+	// FIXME: if MODIF_CONSISTANT is set optimize for it,
+	// if it isn't check if it's implied
+	@Override
+	public FunctionalChunk optimize(OptimizationEnvironment env) {
+		ExecutableChunk[] newEffect = optimize(effect, env);
+		return effect != newEffect ? new FunctionalChunk(name, returnType, parameters, newEffect) : this;
 	}
 
 	@Override
@@ -219,15 +213,26 @@ public class FunctionalChunk extends BlockChunk implements ExecutableValueChunk 
 	}
 
 	@Override
-	public FunctionalChunk getExecutablePart(OptimizationEnvironment env) {
-		return optimize(env);
-	}
+	public void transmit(OutputStream o) throws IOException {
+		if (parameters.length > 255)
+			throw new IOException("cannot stream function with more than 255 parameters");
 
-	// FIXME: if MODIF_CONSISTANT is set optimize for it,
-	// if it isn't check if it's implied
-	@Override
-	public FunctionalChunk optimize(OptimizationEnvironment env) {
-		ExecutableChunk[] newEffect = optimize(effect, env);
-		return effect != newEffect ? new FunctionalChunk(name, returnType, parameters, newEffect) : this;
+		StreamUtils.write(o, name);
+		StreamUtils.write(o, returnType);
+
+		if (parameters == null) {// varargs
+			o.write(1);
+			StreamUtils.write(o, (String) null);
+		}
+		else {
+			o.write(parameters.length);
+			for (short i = 0; i < parameters.length; ++i) {
+				StreamUtils.write(o, parameters[i].a);
+				StreamUtils.write(o, parameters[i].b);
+			}
+		}
+
+		Clsl.writeChunks(o, effect);
+		o.write(modifiers);
 	}
 }

@@ -13,7 +13,6 @@ import com.etk2000.clsl.chunk.value.ConstLongChunk;
 import com.etk2000.clsl.chunk.value.ConstValueChunk;
 import com.etk2000.clsl.compiler.ClslCompiler;
 import com.etk2000.clsl.exception.ClslException;
-import com.etk2000.clsl.exception.ClslRuntimeException;
 import com.etk2000.clsl.exception.function.ClslBrokenJavaFunctionException;
 import com.etk2000.clsl.header.DirectoryHeaderFinder;
 import com.etk2000.clsl.value.ClslArray;
@@ -32,6 +31,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Clsl {
 	public static boolean doWarn = true;
@@ -323,21 +323,15 @@ public class Clsl {
 
 		// setup our execution environment
 		DirectoryHeaderFinder headerFinder = new DirectoryHeaderFinder();
-		ClslRuntimeEnv env = new ClslRuntimeEnv(headerFinder, new MainScopeLookupContainer());
+		ClslRuntimeEnv env = new ClslRuntimeEnv(headerFinder);
 
 		headerFinder.addDirectory(".");
 		env.defineVar("gl_ClearColor", new ClslFloat());
 
 		start = System.nanoTime();
 		code.execute(env);
-		env.lookupFunction("main").call(env);
+		env.getVar("main").call(env);
 
-		try {
-			env.lookupFunction("main").call(env, new ClslValue[0]);
-		}
-		catch (ClslRuntimeException e) {
-			System.err.println(e.getMessage());
-		}
 		System.out.println("ran in " + ((System.nanoTime() - start) / 1000) + " μs");
 
 		System.out.println(env.getVar("gl_ClearColor"));
@@ -366,17 +360,12 @@ public class Clsl {
 			}
 
 			// remove any null references (i.e. removed lines)
-			func.chunks.removeIf(line -> line == null);
+			func.chunks.removeIf(Objects::isNull);
 		}
 	}
 
 	public static ClslValue execute(String function, ClslValue[] args, ClslCode code, ClslRuntimeEnv env) {
 		code.execute(env);
-
-		FunctionalChunk f = env.lookupFunction(function);
-		if (f != null)
-			return f.call(env, args);
-		System.err.println("[clslMgr] couldn't find function: " + function);
-		return null;
+		return env.getVar(function).call(env, args);
 	}
 }

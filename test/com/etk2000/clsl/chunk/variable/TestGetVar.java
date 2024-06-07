@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.etk2000.clsl.ClslRuntimeEnv;
-import com.etk2000.clsl.MainScopeLookupContainer;
 import com.etk2000.clsl.OptimizationEnvironment;
 import com.etk2000.clsl.exception.variable.ClslVariableCannotBeResolvedException;
 import com.etk2000.clsl.header.DirectoryHeaderFinder;
@@ -24,7 +23,7 @@ public class TestGetVar {
 
 	@Test
 	void testGet() {
-		final ClslRuntimeEnv env = new ClslRuntimeEnv(new DirectoryHeaderFinder(), new MainScopeLookupContainer());
+		final ClslRuntimeEnv env = new ClslRuntimeEnv(new DirectoryHeaderFinder());
 		final GetVar chunk = new GetVar(VARIABLE_NAME);
 
 		final ClslValue expected = new ClslIntConst(42069);
@@ -36,7 +35,7 @@ public class TestGetVar {
 
 	@Test
 	void testGetUnresolvedVariable() {
-		final ClslRuntimeEnv env = new ClslRuntimeEnv(new DirectoryHeaderFinder(), new MainScopeLookupContainer());
+		final ClslRuntimeEnv env = new ClslRuntimeEnv(new DirectoryHeaderFinder());
 		final GetVar chunk = new GetVar(VARIABLE_NAME);
 
 		env.defineVar(VARIABLE_NAME + 1, new ClslCharConst('a'));

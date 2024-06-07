@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.etk2000.clsl.ClslCode;
 import com.etk2000.clsl.ClslRuntimeEnv;
-import com.etk2000.clsl.MainScopeLookupContainer;
 import com.etk2000.clsl.exception.include.ClslHeaderNotFoundException;
 import com.etk2000.clsl.header.DirectoryHeaderFinder;
 import com.etk2000.clsl.test.TestingExternalHeaderFinder;
@@ -20,7 +19,7 @@ public class TestIncludeExternalChunk {
 	@Test
 	void testExecute() {
 		final TestingExternalHeaderFinder headerFinder = new TestingExternalHeaderFinder();
-		final ClslRuntimeEnv env = new ClslRuntimeEnv(headerFinder, new MainScopeLookupContainer());
+		final ClslRuntimeEnv env = new ClslRuntimeEnv(headerFinder);
 		final IncludeExternalChunk chunk = new IncludeExternalChunk("test");
 
 		headerFinder.add("test", ClslCode.NOP);
@@ -31,7 +30,7 @@ public class TestIncludeExternalChunk {
 
 	@Test
 	void testExecuteHeaderNotFound() {
-		final ClslRuntimeEnv env = new ClslRuntimeEnv(new DirectoryHeaderFinder(), new MainScopeLookupContainer());
+		final ClslRuntimeEnv env = new ClslRuntimeEnv(new DirectoryHeaderFinder());
 		final IncludeExternalChunk chunk = new IncludeExternalChunk("missing");
 
 		assertThrows(ClslHeaderNotFoundException.class, () -> chunk.execute(env));

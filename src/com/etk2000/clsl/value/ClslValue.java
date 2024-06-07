@@ -1,7 +1,9 @@
 package com.etk2000.clsl.value;
 
 import com.etk2000.clsl.Clsl;
+import com.etk2000.clsl.ClslRuntimeEnv;
 import com.etk2000.clsl.ValueType;
+import com.etk2000.clsl.exception.type.ClslNotAFunctionException;
 import com.etk2000.clsl.exception.type.ClslNotAStructureOrUnionException;
 import com.etk2000.clsl.exception.type.ClslTypeCastException;
 import com.etk2000.clsl.exception.type.ClslUnsupportedOperatorException;
@@ -13,43 +15,9 @@ abstract public class ClslValue {
 		this.type = type;
 	}
 
-	// solo setters
-
-	public ClslValue set(ClslValue other) {
-		throw new ClslUnsupportedOperatorException("=", typeName(), other.typeName());
-	}
-
-	public ClslValue dec(boolean post) {
-		throw new ClslUnsupportedOperatorException(post ? "()--" : "--()", typeName());
-	}
-
-	public ClslValue inc(boolean post) {
-		throw new ClslUnsupportedOperatorException(post ? "()++" : "++()", typeName());
-	}
-
-	// math [setters]
-
 	public ClslValue add(ClslValue other, boolean set) {
 		throw new ClslUnsupportedOperatorException(set ? "+=" : "+", typeName(), other.typeName());
 	}
-
-	public ClslValue div(ClslValue other, boolean set) {
-		throw new ClslUnsupportedOperatorException(set ? "/=" : "/", typeName(), other.typeName());
-	}
-
-	public ClslValue mod(ClslValue other, boolean set) {
-		throw new ClslUnsupportedOperatorException(set ? "%=" : "%", typeName(), other.typeName());
-	}
-
-	public ClslValue mul(ClslValue other, boolean set) {
-		throw new ClslUnsupportedOperatorException(set ? "*=" : "*", typeName(), other.typeName());
-	}
-
-	public ClslValue sub(ClslValue other, boolean set) {
-		throw new ClslUnsupportedOperatorException(set ? "-=" : "-", typeName(), other.typeName());
-	}
-
-	// binary ops (don't work on floats) [setters]
 
 	public ClslValue band(ClslValue other, boolean set) {
 		throw new ClslUnsupportedOperatorException(set ? "&=" : "&", typeName(), other.typeName());
@@ -59,36 +27,40 @@ abstract public class ClslValue {
 		throw new ClslUnsupportedOperatorException(set ? "|=" : "|", typeName(), other.typeName());
 	}
 
-	public ClslValue sl(ClslValue other, boolean set) {
-		throw new ClslUnsupportedOperatorException(set ? "<<=" : "<<", typeName(), other.typeName());
+	// TODO: look into using template like what copy() does for its return type
+	// LOW: try to change return type to something like: <T extends ClslValue & ClslConst>
+	public ClslConst cast(ValueType to) {
+		throw new ClslTypeCastException(typeName(), Clsl.typeName(to));
 	}
 
-	public ClslValue sr(ClslValue other, boolean set) {
-		throw new ClslUnsupportedOperatorException(set ? ">>=" : ">>", typeName(), other.typeName());
+	public ClslValue call(ClslRuntimeEnv env, ClslValue... args) {
+		throw new ClslNotAFunctionException();
 	}
 
-	public ClslValue xor(ClslValue other, boolean set) {
-		throw new ClslUnsupportedOperatorException(set ? "^=" : "^", typeName(), other.typeName());
+	abstract public <T extends ClslValue & ClslConst> T copy();
+
+	public ClslValue dec(boolean post) {
+		throw new ClslUnsupportedOperatorException(post ? "()--" : "--()", typeName());
 	}
 
-	// other ops
+	public ClslValue div(ClslValue other, boolean set) {
+		throw new ClslUnsupportedOperatorException(set ? "/=" : "/", typeName(), other.typeName());
+	}
 
 	public ClslValue dot(String member) {
 		throw new ClslNotAStructureOrUnionException(member);
 	}
 
-	public ClslValue index(ClslValue index) {
-		throw new ClslUnsupportedOperatorException("[]", typeName(), index.typeName());
-	}
-
-	// duplicate this
-
-	abstract public <T extends ClslValue & ClslConst> T copy();
-
-	// compare
-
 	public boolean eq(ClslValue other) {
 		throw new ClslUnsupportedOperatorException("==", typeName(), other.typeName());
+	}
+
+	public ClslValue inc(boolean post) {
+		throw new ClslUnsupportedOperatorException(post ? "()++" : "++()", typeName());
+	}
+
+	public ClslValue index(ClslValue index) {
+		throw new ClslUnsupportedOperatorException("[]", typeName(), index.typeName());
 	}
 
 	public boolean lt(ClslValue other) {
@@ -99,21 +71,31 @@ abstract public class ClslValue {
 		throw new ClslUnsupportedOperatorException("<=", typeName(), other.typeName());
 	}
 
-	// other useful operations
-	abstract public ClslIntConst sizeof();
-
-	abstract public String typeName();
-
-	// TODO: look into using template like what copy() does for its return type
-	// LOW: try to change return type to something like: <T extends ClslValue & ClslConst>
-	public ClslConst cast(ValueType to) {
-		throw new ClslTypeCastException(typeName(), Clsl.typeName(to));
+	public ClslValue mod(ClslValue other, boolean set) {
+		throw new ClslUnsupportedOperatorException(set ? "%=" : "%", typeName(), other.typeName());
 	}
 
-	@Override
-	public abstract String toString();
+	public ClslValue mul(ClslValue other, boolean set) {
+		throw new ClslUnsupportedOperatorException(set ? "*=" : "*", typeName(), other.typeName());
+	}
 
-	abstract public Object toJava();
+	public ClslValue set(ClslValue other) {
+		throw new ClslUnsupportedOperatorException("=", typeName(), other.typeName());
+	}
+
+	abstract public ClslIntConst sizeof();
+
+	public ClslValue sl(ClslValue other, boolean set) {
+		throw new ClslUnsupportedOperatorException(set ? "<<=" : "<<", typeName(), other.typeName());
+	}
+
+	public ClslValue sr(ClslValue other, boolean set) {
+		throw new ClslUnsupportedOperatorException(set ? ">>=" : ">>", typeName(), other.typeName());
+	}
+
+	public ClslValue sub(ClslValue other, boolean set) {
+		throw new ClslUnsupportedOperatorException(set ? "-=" : "-", typeName(), other.typeName());
+	}
 
 	public boolean toBoolean() {
 		throw new UnsupportedOperationException(typeName() + " has no boolean value");
@@ -135,7 +117,18 @@ abstract public class ClslValue {
 		throw new UnsupportedOperationException(typeName() + " has no int value");
 	}
 
+	abstract public Object toJava();
+
 	public long toLong() {
 		throw new UnsupportedOperationException(typeName() + " has no long value");
+	}
+
+	@Override
+	public abstract String toString();
+
+	abstract public String typeName();
+
+	public ClslValue xor(ClslValue other, boolean set) {
+		throw new ClslUnsupportedOperatorException(set ? "^=" : "^", typeName(), other.typeName());
 	}
 }

@@ -2,12 +2,9 @@ package com.etk2000.clsl.header;
 
 import com.etk2000.clsl.Clsl;
 import com.etk2000.clsl.ClslCode;
-import com.etk2000.clsl.ClslRuntimeEnv;
-import com.etk2000.clsl.FunctionLookupTable;
 import com.etk2000.clsl.OptimizationEnvironment;
 import com.etk2000.clsl.ValueType;
 import com.etk2000.clsl.chunk.ExecutableChunk;
-import com.etk2000.clsl.chunk.ReturnChunk;
 import com.etk2000.clsl.exception.function.ClslIncompatibleArgumentTypeException;
 import com.etk2000.clsl.exception.function.ClslInvalidNumberOfArgumentsException;
 import com.etk2000.clsl.value.ClslArray;
@@ -17,7 +14,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collections;
 
-public abstract class HeaderBase implements ExecutableChunk, FunctionLookupTable {
+public abstract class HeaderBase implements ExecutableChunk {
 	// helper functions to save repetitive lines of code
 
 	protected static ClslValue assertAndGet(ClslValue[] args, int expected, int resultIndex) {
@@ -57,12 +54,6 @@ public abstract class HeaderBase implements ExecutableChunk, FunctionLookupTable
 	@Override
 	final public void transmit(OutputStream o) throws IOException {
 		throw new IllegalAccessError("can't be transmitted");
-	}
-
-	@Override
-	public ReturnChunk execute(ClslRuntimeEnv env) {
-		env.addHeader(this);
-		return null;
 	}
 
 	@Override

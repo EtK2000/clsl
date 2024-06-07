@@ -2,13 +2,10 @@ package com.etk2000.clsl.chunk;
 
 import com.etk2000.clsl.Clsl;
 import com.etk2000.clsl.ClslRuntimeEnv;
-import com.etk2000.clsl.ClslUtil;
 import com.etk2000.clsl.OptimizationEnvironment;
-import com.etk2000.clsl.StreamUtils;
 import com.etk2000.clsl.StringBuilderPoolable;
 import com.etk2000.clsl.exception.ClslRuntimeException;
 import com.etk2000.clsl.exception.function.ClslFunctionCallException;
-import com.etk2000.clsl.exception.function.ClslInvalidFunctionNameException;
 import com.etk2000.clsl.value.ClslValue;
 
 import java.io.IOException;
@@ -17,19 +14,18 @@ import java.io.OutputStream;
 import java.util.Arrays;
 
 public class FunctionCallChunk implements ExecutableValueChunk {
-	private final String name;
+	private final ValueChunk function;
 	private final ValueChunk[] args;
 
-	public FunctionCallChunk(String name, ValueChunk... args) {
-		if (!ClslUtil.isValidId(this.name = name))
-			throw new ClslInvalidFunctionNameException("invalid func name: " + name);
+	// FIXME: go ver calls tho this and ensure they support more complicated lookups, example: `a.b[i]()`
+	public FunctionCallChunk(ValueChunk function, ValueChunk... args) {
 		this.args = args;
+		this.function = function;
 	}
 
-	FunctionCallChunk(InputStream i) throws IOException {
-		if (!ClslUtil.isValidId(name = StreamUtils.readString(i)))
-			throw new ClslInvalidFunctionNameException("invalid func name: " + name);
-		args = Clsl.readValueChunks(i);
+	public FunctionCallChunk(InputStream i) throws IOException {
+		this.function = Clsl.readValueChunk(i);
+		this.args = Clsl.readValueChunks(i);
 	}
 
 	@Override
@@ -46,24 +42,28 @@ public class FunctionCallChunk implements ExecutableValueChunk {
 			return false;
 
 		final FunctionCallChunk that = (FunctionCallChunk) other;
-		return name.equals(that.name) && Arrays.equals(args, that.args);
+		return function.equals(that.function) && Arrays.equals(args, that.args);
 	}
 
 	@Override
 	public ClslValue get(ClslRuntimeEnv env) {
-		FunctionalChunk f = env.lookupFunction(name);
-		if (f == null)
-			throw new ClslFunctionCallException(name + " cannot be resolved to a function");
-
-		ClslValue[] vals = new ClslValue[args.length];
+		final ClslValue[] vals = new ClslValue[args.length];
 		for (short i = 0; i < args.length; ++i)
 			vals[i] = args[i].get(env);
 
+		final ClslValue functionAccess;
 		try {
-			return f.call(env, vals);
+			functionAccess = function.get(env);
 		}
 		catch (ClslRuntimeException e) {
-			throw new ClslRuntimeException(name + '(' + Arrays.toString(vals) + "): " + e.getMessage());
+			throw new ClslFunctionCallException(function + " cannot be resolved to a function");
+		}
+
+		try {
+			return functionAccess.call(env, vals);
+		}
+		catch (ClslRuntimeException e) {
+			throw new ClslRuntimeException(function.toString() + '(' + Arrays.toString(vals) + "): " + e.getMessage());
 		}
 	}
 
@@ -85,7 +85,7 @@ public class FunctionCallChunk implements ExecutableValueChunk {
 	@Override
 	public String toString() {
 		try (StringBuilderPoolable sb = new StringBuilderPoolable()) {
-			sb.append(name).append('(');
+			sb.append(function).append('(');
 			if (args.length > 0) {
 				for (ValueChunk arg : args)
 					sb.append(arg).append(", ");
@@ -97,7 +97,7 @@ public class FunctionCallChunk implements ExecutableValueChunk {
 
 	@Override
 	public void transmit(OutputStream o) throws IOException {
-		StreamUtils.write(o, name);
+		Clsl.writeChunk(o, function);
 		Clsl.writeChunks(o, args);
 	}
 }

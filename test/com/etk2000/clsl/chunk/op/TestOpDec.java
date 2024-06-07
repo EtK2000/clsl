@@ -4,7 +4,6 @@ import static com.etk2000.clsl.test.TestingUtils.transmitAndReceive;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.etk2000.clsl.ClslRuntimeEnv;
-import com.etk2000.clsl.MainScopeLookupContainer;
 import com.etk2000.clsl.header.DirectoryHeaderFinder;
 import com.etk2000.clsl.value.ClslInt;
 import com.etk2000.clsl.value.ClslIntConst;
@@ -21,7 +20,7 @@ public class TestOpDec {
 	@Test
 	void testGetPostfix() {
 		final int initialValue = 5;
-		final ClslRuntimeEnv env = new ClslRuntimeEnv(new DirectoryHeaderFinder(), new MainScopeLookupContainer());
+		final ClslRuntimeEnv env = new ClslRuntimeEnv(new DirectoryHeaderFinder());
 		final OpDec chunk = new OpDec(VARIABLE_NAME, true);
 
 		env.defineVar(VARIABLE_NAME, new ClslInt(initialValue));
@@ -32,7 +31,7 @@ public class TestOpDec {
 	@Test
 	void testGetPrefix() {
 		final int initialValue = 5;
-		final ClslRuntimeEnv env = new ClslRuntimeEnv(new DirectoryHeaderFinder(), new MainScopeLookupContainer());
+		final ClslRuntimeEnv env = new ClslRuntimeEnv(new DirectoryHeaderFinder());
 		final OpDec chunk = new OpDec(VARIABLE_NAME, false);
 		final ClslInt subtracted = new ClslInt(initialValue - 1);
 

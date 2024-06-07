@@ -48,7 +48,7 @@ public class TestOperatorParser {
 
 	@Test
 	void testParsingFunctionCall() {
-		final FunctionCallChunk expected = new FunctionCallChunk(VARIABLE_0);
+		final FunctionCallChunk expected = new FunctionCallChunk(new GetVar(VARIABLE_0));
 		final ClslCompilationEnv env = new ClslCompilationEnv(VARIABLE_0 + "();");
 		assertTrue(env.matcher.find());
 

@@ -1,9 +1,11 @@
 package com.etk2000.clsl.header;
 
 import com.etk2000.clsl.Clsl;
+import com.etk2000.clsl.ClslRuntimeEnv;
 import com.etk2000.clsl.ValueType;
 import com.etk2000.clsl.ValueType.SubType;
 import com.etk2000.clsl.chunk.FunctionalChunk;
+import com.etk2000.clsl.chunk.ReturnChunk;
 import com.etk2000.clsl.exception.ClslRuntimeException;
 import com.etk2000.clsl.exception.function.ClslIncompatibleArgumentTypeException;
 import com.etk2000.clsl.exception.function.ClslInvalidNumberOfArgumentsException;
@@ -259,39 +261,23 @@ public class StdlibH extends HeaderBase {
 		srand = Clsl.createFunctionalChunk((env, args) -> r.setSeed(assertAndGet(args, 1, 0).toInt() & 0xffffffffL));
 	}
 
-	@Override
-	public FunctionalChunk lookup(String functionName) {
-		switch (functionName) {
-			case "abort":
-				return abort;
-			case "abs":
-				return abs;
-			case "atof":
-				return atof;
-			case "atoi":
-				return atoi;
-			case "atol":
-				return atol;
-			case "div":
-				return div;
-			case "free":
-				return free;
-			case "itoa":
-				return itoa;
-			case "labs":
-				return labs;
-			case "ldiv":
-				return ldiv;
-			case "malloc":
-				return malloc;
-			case "rand":
-				return rand;
-			case "srand":
-				return srand;
-		}
-		return null;
+	private StdlibH() {
 	}
 
-	private StdlibH() {
+	@Override
+	public ReturnChunk execute(ClslRuntimeEnv env) {
+		env.defineVar("abort", abort.access());
+		env.defineVar("atof", atof.access());
+		env.defineVar("atoi", atoi.access());
+		env.defineVar("atol", atol.access());
+		env.defineVar("div", div.access());
+		env.defineVar("free", free.access());
+		env.defineVar("itoa", itoa.access());
+		env.defineVar("labs", labs.access());
+		env.defineVar("ldiv", ldiv.access());
+		env.defineVar("malloc", malloc.access());
+		env.defineVar("rand", rand.access());
+		env.defineVar("srand", srand.access());
+		return null;
 	}
 }

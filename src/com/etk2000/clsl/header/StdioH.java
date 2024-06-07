@@ -1,8 +1,10 @@
 package com.etk2000.clsl.header;
 
 import com.etk2000.clsl.Clsl;
+import com.etk2000.clsl.ClslRuntimeEnv;
 import com.etk2000.clsl.ValueType;
 import com.etk2000.clsl.chunk.FunctionalChunk;
+import com.etk2000.clsl.chunk.ReturnChunk;
 import com.etk2000.clsl.exception.ClslRuntimeException;
 import com.etk2000.clsl.exception.function.ClslIncompatibleArgumentTypeException;
 import com.etk2000.clsl.exception.function.ClslTooFewArgumentsException;
@@ -82,17 +84,13 @@ public class StdioH extends HeaderBase {
 		});
 	}
 
-	@Override
-	public FunctionalChunk lookup(String functionName) {
-		switch (functionName) {
-			case "printf":
-				return printf;
-			case "sprintf":
-				return sprintf;
-		}
-		return null;
+	private StdioH() {
 	}
 
-	private StdioH() {
+	@Override
+	public ReturnChunk execute(ClslRuntimeEnv env) {
+		env.defineVar("printf", printf.access());
+		env.defineVar("sprintf", sprintf.access());
+		return null;
 	}
 }

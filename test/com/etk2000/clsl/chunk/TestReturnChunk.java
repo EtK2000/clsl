@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.etk2000.clsl.ClslRuntimeEnv;
-import com.etk2000.clsl.MainScopeLookupContainer;
 import com.etk2000.clsl.OptimizationEnvironment;
 import com.etk2000.clsl.chunk.value.ConstIntChunk;
 import com.etk2000.clsl.exception.ClslRuntimeException;
@@ -21,7 +20,7 @@ public class TestReturnChunk {
 
 	@Test
 	void testExecute() {
-		final ClslRuntimeEnv env = new ClslRuntimeEnv(new DirectoryHeaderFinder(), new MainScopeLookupContainer());
+		final ClslRuntimeEnv env = new ClslRuntimeEnv(new DirectoryHeaderFinder());
 		final ReturnChunk chunk = new ReturnChunk(RESULT);
 
 		assertThrows(ClslRuntimeException.class, () -> chunk.execute(env));

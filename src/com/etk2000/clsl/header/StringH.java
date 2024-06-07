@@ -1,8 +1,10 @@
 package com.etk2000.clsl.header;
 
 import com.etk2000.clsl.Clsl;
+import com.etk2000.clsl.ClslRuntimeEnv;
 import com.etk2000.clsl.ValueType;
 import com.etk2000.clsl.chunk.FunctionalChunk;
+import com.etk2000.clsl.chunk.ReturnChunk;
 import com.etk2000.clsl.exception.function.ClslIncompatibleArgumentTypeException;
 import com.etk2000.clsl.exception.function.ClslInvalidNumberOfArgumentsException;
 import com.etk2000.clsl.value.ClslArray;
@@ -47,21 +49,15 @@ public class StringH extends HeaderBase {
 
 	private static final FunctionalChunk strlen = Clsl.createFunctionalChunk(ValueType.INT, (env, args) -> new ClslInt(assertString(args, "strlen").strlen()));
 
-	@Override
-	public FunctionalChunk lookup(String functionName) {
-		switch (functionName) {
-			case "strcat":
-				return strcat;
-			case "strcmp":
-				return strcmp;
-			case "strcpy":
-				return strcpy;
-			case "strlen":
-				return strlen;
-		}
-		return null;
+	private StringH() {
 	}
 
-	private StringH() {
+	@Override
+	public ReturnChunk execute(ClslRuntimeEnv env) {
+		env.defineVar("strcat", strcat.access());
+		env.defineVar("strcmp", strcmp.access());
+		env.defineVar("strcpy", strcpy.access());
+		env.defineVar("strlen", strlen.access());
+		return null;
 	}
 }

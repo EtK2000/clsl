@@ -1,7 +1,6 @@
 package com.etk2000.clsl;
 
 import com.etk2000.clsl.ClslRuntimeStack.ClslStackType;
-import com.etk2000.clsl.chunk.FunctionalChunk;
 import com.etk2000.clsl.header.ClslExternHeaderFinder;
 import com.etk2000.clsl.value.ClslValue;
 
@@ -9,26 +8,16 @@ public class ClslRuntimeEnv {
 	public final ClslStructInterop structInterop = new ClslStructInterop();
 	public final ClslExternHeaderFinder headerFinder;
 	private final ClslRuntimeStack stack;
-	private final MainScopeLookupContainer headers;
 
-	public ClslRuntimeEnv(ClslExternHeaderFinder externHeaderFinder, MainScopeLookupContainer headerScopes) {
-		this(externHeaderFinder, headerScopes, ClslRuntimeStack.create(ClslStackType.array_deque));
+	public ClslRuntimeEnv(ClslExternHeaderFinder externHeaderFinder) {
+		this(externHeaderFinder, ClslRuntimeStack.create(ClslStackType.array_deque));
 	}
 
-	public ClslRuntimeEnv(ClslExternHeaderFinder externHeaderFinder, MainScopeLookupContainer headerScopes, ClslRuntimeStack variableScopes) {
+	public ClslRuntimeEnv(ClslExternHeaderFinder externHeaderFinder, ClslRuntimeStack variableScopes) {
 		headerFinder = externHeaderFinder;
-		headers = headerScopes;
 		stack = variableScopes;
 
 		pushStack(true);// add global scope
-	}
-
-	public void addFunction(String name, FunctionalChunk func) {
-		headers.put(name, func);
-	}
-
-	public void addHeader(FunctionLookupTable header) {
-		headers.add(header);
 	}
 
 	public void defineVar(String name, ClslValue value) {
@@ -42,10 +31,6 @@ public class ClslRuntimeEnv {
 		return stack.getVar(name);
 	}
 
-	public FunctionalChunk lookupFunction(String function) {
-		return headers.lookup(function);
-	}
-
 	public void popStack(boolean full) {
 		stack.pop(full);
 	}
@@ -54,11 +39,8 @@ public class ClslRuntimeEnv {
 		stack.push(full);
 	}
 
-	public void resetProgramScope(boolean wipeHeadersAndStack) {
-		headers.empty(wipeHeadersAndStack);
-
-		if (wipeHeadersAndStack)
-			stack.wipe();
+	public void resetProgramScope() {
+		stack.wipe();
 	}
 
 	public ClslRuntimeStack stack() {

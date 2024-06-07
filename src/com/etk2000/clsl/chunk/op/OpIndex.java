@@ -15,7 +15,7 @@ import java.io.OutputStream;
 public class OpIndex implements ValueChunk {
 	private final ValueChunk op, index;
 
-	OpIndex(ValueChunk op, ValueChunk index) {
+	public OpIndex(ValueChunk op, ValueChunk index) {
 		this.op = op;
 		this.index = index;
 	}
