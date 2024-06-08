@@ -14,9 +14,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public abstract class DefineVar implements ExecutableChunk {
-	public final ValueType type;
 	public final String name;
 	public final ValueChunk val;
+	public final ValueType type;
 
 	protected DefineVar(ValueType type, String name, ValueChunk val) {
 		this.type = type;
@@ -29,7 +29,7 @@ public abstract class DefineVar implements ExecutableChunk {
 		this.type = type;
 		if (!ClslUtil.isValidId(name = StreamUtils.readString(i)))
 			throw new ClslInvalidVariableNameException(name);
-		val = Clsl.readValueChunk(i);
+		val = Clsl.readChunk(i);
 	}
 
 	@Override

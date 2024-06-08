@@ -19,9 +19,9 @@ public class TriExecutableChunk implements ExecutableChunk {
 	}
 
 	TriExecutableChunk(InputStream i) throws IOException {
-		ep1 = Clsl.readExecutableChunk(i);
-		ep2 = Clsl.readExecutableChunk(i);
-		ep3 = Clsl.readExecutableChunk(i);
+		ep1 = Clsl.readChunk(i);
+		ep2 = Clsl.readChunk(i);
+		ep3 = Clsl.readChunk(i);
 	}
 
 	@Override

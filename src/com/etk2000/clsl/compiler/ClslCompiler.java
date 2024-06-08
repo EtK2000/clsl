@@ -16,6 +16,7 @@ import com.etk2000.clsl.chunk.IncludeChunk;
 import com.etk2000.clsl.chunk.IncludeExternalChunk;
 import com.etk2000.clsl.chunk.ReturnChunk;
 import com.etk2000.clsl.chunk.ValueChunk;
+import com.etk2000.clsl.chunk.VariableAccess;
 import com.etk2000.clsl.chunk.WhileChunk;
 import com.etk2000.clsl.chunk.op.OpAdd;
 import com.etk2000.clsl.chunk.op.OpAnd;
@@ -62,7 +63,7 @@ public class ClslCompiler {
 	static final Pattern SYNTAX_PATTERN = Pattern.compile("[ " + Pattern.quote(BLOCK_CHARS) + ']');
 
 	@Deprecated
-	// switch to readValueChunk
+	// switch to readChunk
 	static ValueChunk buildExpression(String query) {
 		try {
 			// LOW: change sb length to var name length
@@ -518,7 +519,7 @@ public class ClslCompiler {
 					if (!env.matcher.find() || !res.substring(env.indexInSource, env.matcher.start()).equals("while"))
 						throw new ClslCompilerException(env, "expected while");
 
-					env.exec.add(new DoWhileChunk(effect, readValueChunk(env, false)));
+					env.exec.add(new DoWhileChunk(effect, readChunk(env, false)));
 					if (!env.matcher.find() || !env.matcher.group().equals(";"))
 						throw new ClslCompilerException(env, "expected `;`");
 
@@ -545,7 +546,7 @@ public class ClslCompiler {
 					System.err.println("validate group: for");
 					env.exec.add(new ForChunk(
 							readExecutable(env, true),
-							readValueChunk(env, false),
+							readChunk(env, false),
 							readExecutable(env, false),
 							readEffect(env, "")
 					));
@@ -570,7 +571,7 @@ public class ClslCompiler {
 					}
 					// FIXME: ensure return is in function and can be casted to
 					// return type
-					env.exec.add(new ReturnChunk(group.equals(";") ? null : readValueChunk(env, false, group.equals(" ") ? "" : group)));
+					env.exec.add(new ReturnChunk(group.equals(";") ? null : readChunk(env, false, group.equals(" ") ? "" : group)));
 					break;
 				case "while": {
 					System.err.println("validate group: while");
@@ -637,19 +638,19 @@ public class ClslCompiler {
 		for (int i = 0; i < res.size(); ++i) {
 			if (res.get(i) == ExpressionType.DECREMENT) {
 				// x--
-				if (i > 0 && res.get(i - 1) instanceof ValueChunk)
-					res.set(--i, new OpDec(((GetVar) res.remove(i)).name, true));
+				if (i > 0 && res.get(i - 1) instanceof VariableAccess)
+					res.set(--i, new OpDec((VariableAccess) res.remove(i), true));
 					// --x
 				else
-					res.set(i, new OpDec(((GetVar) res.remove(i + 1)).name, false));
+					res.set(i, new OpDec((VariableAccess) res.remove(i + 1), false));
 			}
 			else if (res.get(i) == ExpressionType.INCREMENT) {
 				// x++
-				if (i > 0 && res.get(i - 1) instanceof ValueChunk)
-					res.set(--i, new OpInc(((GetVar) res.remove(i)).name, true));
+				if (i > 0 && res.get(i - 1) instanceof VariableAccess)
+					res.set(--i, new OpInc((VariableAccess) res.remove(i), true));
 					// ++x
 				else
-					res.set(i, new OpInc(((GetVar) res.remove(i + 1)).name, false));
+					res.set(i, new OpInc((VariableAccess) res.remove(i + 1), false));
 			}
 		}
 
@@ -791,7 +792,7 @@ public class ClslCompiler {
 		for (int i = 0; i < res.size(); ++i) {
 			// x = y
 			if (res.get(i) == ExpressionType.SET)
-				res.set(--i, new SetVar(((GetVar) res.remove(i)).name, (ValueChunk) res.remove(i + 1)));
+				res.set(--i, new SetVar((VariableAccess) res.remove(i), (ValueChunk) res.remove(i + 1)));
 		}
 
 		if (res.size() != 1)
@@ -860,11 +861,11 @@ public class ClslCompiler {
 		return arr;
 	}
 
-	static ValueChunk readValueChunk(ClslCompilationEnv env, boolean untilComma) {
-		return readValueChunk(env, untilComma, "");
+	static ValueChunk readChunk(ClslCompilationEnv env, boolean untilComma) {
+		return readChunk(env, untilComma, "");
 	}
 
-	private static ValueChunk readValueChunk(ClslCompilationEnv env, boolean untilComma, String prefix) {
+	private static ValueChunk readChunk(ClslCompilationEnv env, boolean untilComma, String prefix) {
 		if (!untilComma) {
 			env.indexInSource = env.matcher.start() + 1;
 			if (!env.matcher.find())
@@ -900,7 +901,7 @@ public class ClslCompiler {
 
 	@Deprecated
 	private static Group<ValueChunk, ExecutableChunk[]> readCauseEffect(ClslCompilationEnv env) {
-		return new Group<>(readValueChunk(env, false), readEffect(env, ""));
+		return new Group<>(readChunk(env, false), readEffect(env, ""));
 	}
 
 	// TODO: look into how this flows and see how to make this more supportive
@@ -936,22 +937,22 @@ public class ClslCompiler {
 				else if ((type == ValueType.FLOAT || type == ValueType.LONG) && env.matcher.group().equals(".") && !env.matcher.find())
 					throw new ClslCompilerException(env, "expected decimal");
 
-				// env.matcher.group().equals(";") ? toValue(env.source.substring(env.indexInSource, env.matcher.start())) : readValueChunk(env, true)
+				// env.matcher.group().equals(";") ? toValue(env.source.substring(env.indexInSource, env.matcher.start())) : readChunk(env, true)
 				switch (type) {
 					case CHAR:
-						env.exec.add(new DefineChar(varName, readValueChunk(env, true)));
+						env.exec.add(new DefineChar(varName, readChunk(env, true)));
 						break;
 					case DOUBLE:
-						env.exec.add(new DefineDouble(varName, readValueChunk(env, true)));
+						env.exec.add(new DefineDouble(varName, readChunk(env, true)));
 						break;
 					case FLOAT:
-						env.exec.add(new DefineFloat(varName, readValueChunk(env, true)));
+						env.exec.add(new DefineFloat(varName, readChunk(env, true)));
 						break;
 					case INT:
-						env.exec.add(new DefineInt(varName, readValueChunk(env, true)));
+						env.exec.add(new DefineInt(varName, readChunk(env, true)));
 						break;
 					case LONG:
-						env.exec.add(new DefineLong(varName, readValueChunk(env, true)));
+						env.exec.add(new DefineLong(varName, readChunk(env, true)));
 						break;
 					case STRUCT:
 						throw new IllegalStateException("`struct <structName> <name> = {...}` is not implemented yet");
@@ -1199,7 +1200,7 @@ public class ClslCompiler {
 		{
 			String[] owners = str.split("\\.");
 			if (ClslUtil.isValidId(owners[0])) {
-				ValueChunk res = new GetVar(owners[0]);
+				VariableAccess res = new GetVar(owners[0]);
 				if (owners.length > 1) {
 					for (short i = 1; i < owners.length; ++i)
 						res = new OpMember(res, owners[i]);

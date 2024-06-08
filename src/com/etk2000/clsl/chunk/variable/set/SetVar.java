@@ -4,17 +4,17 @@ import com.etk2000.clsl.ClslRuntimeEnv;
 import com.etk2000.clsl.OptimizationEnvironment;
 import com.etk2000.clsl.chunk.ExecutableChunk;
 import com.etk2000.clsl.chunk.ValueChunk;
+import com.etk2000.clsl.chunk.VariableAccess;
 import com.etk2000.clsl.chunk.variable.GetVar;
 import com.etk2000.clsl.chunk.variable.definition.DefineVar;
-import com.etk2000.clsl.exception.variable.ClslVariableCannotBeResolvedException;
 import com.etk2000.clsl.value.ClslValue;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 public class SetVar extends SetVarAbstract {
-	public SetVar(String name, ValueChunk val) {
-		super(name, val);
+	public SetVar(VariableAccess variableAccess, ValueChunk val) {
+		super(variableAccess, val);
 	}
 
 	public SetVar(InputStream i) throws IOException {
@@ -23,12 +23,7 @@ public class SetVar extends SetVarAbstract {
 
 	@Override
 	public ClslValue get(ClslRuntimeEnv env) {
-		try {
-			return env.getVar(name).set(val.get(env));
-		}
-		catch (NullPointerException e) {
-			throw new ClslVariableCannotBeResolvedException(name);
-		}
+		return variableAccess.get(env).set(val.get(env));
 	}
 
 	@Override
@@ -39,16 +34,20 @@ public class SetVar extends SetVarAbstract {
 	@Override
 	public ExecutableChunk optimize(OptimizationEnvironment env) {
 		if (env.isFirstPass) {
-			ValueChunk newVal = (ValueChunk) val.optimize(env.forValue());
-			if (newVal instanceof GetVar && ((GetVar) newVal).name.equals(name))
+			final ValueChunk newVal = (ValueChunk) val.optimize(env.forValue());
+			final VariableAccess newVariableAccess = variableAccess.optimize(env.forValue());
+
+			// remove `X = X`
+			if (newVal instanceof GetVar && newVal.equals(newVariableAccess))
 				return null;
-			return new SetVar(name, newVal);
+
+			return new SetVar(newVariableAccess, newVal);
 		}
-		return env.unusedVars.contains(name) ? val.getExecutablePart(env) : this;
+		return optimizeSecondPass(env);
 	}
 
 	@Override
 	public String toString() {
-		return name + " = " + val;
+		return variableAccess + " = " + val;
 	}
 }

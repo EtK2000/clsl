@@ -20,8 +20,8 @@ abstract class OpBinary implements ValueChunk {
 	}
 
 	OpBinary(InputStream i) throws IOException {
-		op1 = Clsl.readValueChunk(i);
-		op2 = Clsl.readValueChunk(i);
+		op1 = Clsl.readChunk(i);
+		op2 = Clsl.readChunk(i);
 	}
 
 	@Override

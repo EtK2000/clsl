@@ -5,7 +5,7 @@ import com.etk2000.clsl.ClslUtil;
 import com.etk2000.clsl.OptimizationEnvironment;
 import com.etk2000.clsl.StreamUtils;
 import com.etk2000.clsl.chunk.ExecutableChunk;
-import com.etk2000.clsl.chunk.ValueChunk;
+import com.etk2000.clsl.chunk.VariableAccess;
 import com.etk2000.clsl.exception.variable.ClslInvalidVariableNameException;
 import com.etk2000.clsl.exception.variable.ClslVariableCannotBeResolvedException;
 import com.etk2000.clsl.value.ClslValue;
@@ -14,8 +14,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class GetVar implements ValueChunk {
-	public final String name;
+public class GetVar implements VariableAccess {
+	private final String name;
 
 	public GetVar(String name) {
 		if (!ClslUtil.isValidId(this.name = name))
@@ -48,6 +48,11 @@ public class GetVar implements ValueChunk {
 	@Override
 	public ExecutableChunk getExecutablePart(OptimizationEnvironment env) {
 		return null;
+	}
+
+	@Override
+	public String getVariableName() {
+		return name;
 	}
 
 	// TODO: just because we access its value doesn't mean we use what accessed;

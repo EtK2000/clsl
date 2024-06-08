@@ -1,7 +1,7 @@
 package com.etk2000.clsl.compiler;
 
 import com.etk2000.clsl.chunk.ExecutableChunk;
-import com.etk2000.clsl.chunk.ValueChunk;
+import com.etk2000.clsl.chunk.VariableAccess;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ public class ClslCompilationEnv {
 	public final Matcher matcher;
 	public final String source;
 	public int indexInSource;
-	ValueChunk currentValueAccess;
+	VariableAccess currentValueAccess;
 
 	ClslCompilationEnv(String source) {
 		this.matcher = ClslCompiler.SYNTAX_PATTERN.matcher(source);

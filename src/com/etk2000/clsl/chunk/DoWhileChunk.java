@@ -22,7 +22,7 @@ public class DoWhileChunk extends BlockChunk {
 
 	DoWhileChunk(InputStream i) throws IOException {
 		effect = Clsl.readExecutableChunks(i);
-		cause = Clsl.readValueChunk(i);
+		cause = Clsl.readChunk(i);
 	}
 
 	@Override

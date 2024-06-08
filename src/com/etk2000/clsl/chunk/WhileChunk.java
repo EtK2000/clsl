@@ -21,7 +21,7 @@ public class WhileChunk extends BlockChunk {
 	}
 
 	WhileChunk(InputStream i) throws IOException {
-		cause = Clsl.readValueChunk(i);
+		cause = Clsl.readChunk(i);
 		effect = Clsl.readExecutableChunks(i);
 	}
 

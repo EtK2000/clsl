@@ -4,17 +4,17 @@ import com.etk2000.clsl.ClslRuntimeEnv;
 import com.etk2000.clsl.OptimizationEnvironment;
 import com.etk2000.clsl.chunk.ExecutableChunk;
 import com.etk2000.clsl.chunk.ValueChunk;
+import com.etk2000.clsl.chunk.VariableAccess;
 import com.etk2000.clsl.chunk.op.OpSubtract;
 import com.etk2000.clsl.chunk.variable.definition.DefineVar;
-import com.etk2000.clsl.exception.variable.ClslVariableCannotBeResolvedException;
 import com.etk2000.clsl.value.ClslValue;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 public class SetVarSub extends SetVarAbstract {
-	public SetVarSub(String name, ValueChunk val) {
-		super(name, val);
+	public SetVarSub(VariableAccess variableAccess, ValueChunk val) {
+		super(variableAccess, val);
 	}
 
 	public SetVarSub(InputStream i) throws IOException {
@@ -23,12 +23,7 @@ public class SetVarSub extends SetVarAbstract {
 
 	@Override
 	public ClslValue get(ClslRuntimeEnv env) {
-		try {
-			return env.getVar(name).sub(val.get(env), true);
-		}
-		catch (NullPointerException e) {
-			throw new ClslVariableCannotBeResolvedException(name);
-		}
+		return variableAccess.get(env).sub(val.get(env), true);
 	}
 
 	// TODO: do we need to cast to prevent underflow?
@@ -40,12 +35,12 @@ public class SetVarSub extends SetVarAbstract {
 	@Override
 	public ExecutableChunk optimize(OptimizationEnvironment env) {
 		if (env.isFirstPass)
-			return new SetVarSub(name, (ValueChunk) val.optimize(env.forValue()));
-		return env.unusedVars.contains(name) ? val.getExecutablePart(env) : this;
+			return new SetVarSub(variableAccess.optimize(env.forValue()), (ValueChunk) val.optimize(env.forValue()));
+		return optimizeSecondPass(env);
 	}
 
 	@Override
 	public String toString() {
-		return name + " -= " + val;
+		return variableAccess + " -= " + val;
 	}
 }

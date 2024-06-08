@@ -6,23 +6,25 @@ import com.etk2000.clsl.OptimizationEnvironment;
 import com.etk2000.clsl.chunk.ClslChunk;
 import com.etk2000.clsl.chunk.ExecutableChunk;
 import com.etk2000.clsl.chunk.ValueChunk;
+import com.etk2000.clsl.chunk.VariableAccess;
 import com.etk2000.clsl.value.ClslValue;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class OpIndex implements ValueChunk {
-	private final ValueChunk op, index;
+public class OpIndex implements VariableAccess {
+	private final ValueChunk index;
+	private final VariableAccess op;
 
-	public OpIndex(ValueChunk op, ValueChunk index) {
+	public OpIndex(VariableAccess op, ValueChunk index) {
 		this.op = op;
 		this.index = index;
 	}
 
 	public OpIndex(InputStream i) throws IOException {
-		op = Clsl.readValueChunk(i);
-		index = Clsl.readValueChunk(i);
+		op = Clsl.readChunk(i);
+		index = Clsl.readChunk(i);
 	}
 
 	@Override
@@ -37,23 +39,28 @@ public class OpIndex implements ValueChunk {
 	}
 
 	@Override
-	public String toString() {
-		return "(" + op + '[' + index + "])";
-	}
-
-	@Override
 	public ExecutableChunk getExecutablePart(OptimizationEnvironment env) {
 		return op.getExecutablePart(env);
 	}
 
 	@Override
-	public ValueChunk optimize(OptimizationEnvironment env) {
+	public String getVariableName() {
+		return op.getVariableName();
+	}
+
+	@Override
+	public VariableAccess optimize(OptimizationEnvironment env) {
 		if (env.isFirstPass) {
-			ClslChunk ep = op.optimize(env.forValue());
-			ClslChunk ei = index.optimize(env.forValue());
+			final VariableAccess ep = op.optimize(env.forValue());
+			final ClslChunk ei = index.optimize(env.forValue());
 			if (ep != op || ei != index)
-				return new OpIndex((ValueChunk) ep, (ValueChunk) ei).optimize(env);
+				return new OpIndex(ep, (ValueChunk) ei).optimize(env);
 		}
 		return this;
+	}
+
+	@Override
+	public String toString() {
+		return "(" + op + '[' + index + "])";
 	}
 }

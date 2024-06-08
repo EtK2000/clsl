@@ -24,7 +24,7 @@ public class FunctionCallChunk implements ExecutableValueChunk {
 	}
 
 	public FunctionCallChunk(InputStream i) throws IOException {
-		this.function = Clsl.readValueChunk(i);
+		this.function = Clsl.readChunk(i);
 		this.args = Clsl.readValueChunks(i);
 	}
 

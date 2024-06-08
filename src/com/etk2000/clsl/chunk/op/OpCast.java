@@ -30,7 +30,7 @@ public class OpCast implements ValueChunk {
 	}
 
 	OpCast(InputStream i) throws IOException {
-		var = Clsl.readValueChunk(i);
+		var = Clsl.readChunk(i);
 		to = StreamUtils.read(i, ValueType.class);
 	}
 

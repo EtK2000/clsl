@@ -2,6 +2,7 @@ package com.etk2000.clsl.chunk;
 
 import com.etk2000.clsl.ClslUtil;
 import com.etk2000.clsl.OptimizationEnvironment;
+import com.etk2000.clsl.chunk.variable.GetVar;
 import com.etk2000.clsl.chunk.variable.definition.DefineVar;
 import com.etk2000.clsl.chunk.variable.set.SetVarAbstract;
 
@@ -28,11 +29,13 @@ public abstract class BlockChunk implements ExecutableChunk {
 			// if the last line was a var definition and we changed that var
 			// TODO: allow going back multiple lines if var hasn't been used
 			// TODO: maybe also check if var is in unusedVars?
-			if (i > 0 && effect[i] != null && effect[i] instanceof SetVarAbstract && effect[last] instanceof DefineVar
-					&& ((DefineVar) effect[last]).name.equals(((SetVarAbstract) effect[i]).name)) {
-				effect[last] = ((SetVarAbstract) effect[i]).inline((DefineVar) effect[last]).optimize(env);
-				effect[i] = null;
-				--last;
+			if (i > 0 && effect[i] != null && effect[i] instanceof SetVarAbstract && effect[last] instanceof DefineVar) {
+				final SetVarAbstract setEffect = (SetVarAbstract) effect[i];
+				if (setEffect.variableAccess instanceof GetVar && ((DefineVar) effect[last]).name.equals(setEffect.variableAccess.getVariableName())) {
+					effect[last] = ((SetVarAbstract) effect[i]).inline((DefineVar) effect[last]).optimize(env);
+					effect[i] = null;
+					--last;
+				}
 			}
 		}
 

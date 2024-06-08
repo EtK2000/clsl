@@ -2,8 +2,11 @@ package com.etk2000.clsl.value;
 
 import com.etk2000.clsl.Clsl;
 import com.etk2000.clsl.StringBuilderPoolable;
+import com.etk2000.clsl.ValueType;
+import com.etk2000.clsl.exception.ClslRuntimeException;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.HashMap;
@@ -50,14 +53,38 @@ public class ClslStructWrapped<T> extends ClslStruct {
 			}
 
 			if ((wrapType & WRAP_METHODS) != 0) {
-				if (Clsl.doWarn)
-					System.err.println("method wrapping is not implemented yet");
-				/*for (Method m : o.getClass().getDeclaredMethods()) {
-					if ((!m.isSynthetic() || wrapSynthetics) && (m.isAccessible() || wrapInaccessible)) {
+				for (Method m : o.getClass().getDeclaredMethods()) {
+					if ((!m.isSynthetic() || wrapSynthetics) &&
+							((m.getModifiers() & Modifier.PUBLIC) != 0 || wrapInaccessible)) {
 						m.setAccessible(true);
-						res.put(m.getName(), valueOf(m.get(o)));
+
+						final int parameterCount = m.getParameterCount();
+						if (parameterCount != 0 && parameterCount != 2) {
+							if (Clsl.doWarn)
+								System.out.println("Cannot wrap " + o.getClass().getName() + "::" + m.getName());
+							continue;
+						}
+
+						// FIXME: handle wrapping better
+
+						res.put(
+								m.getName(),
+								Clsl.createFunctionalChunk(
+										ValueType.fromJava(m.getReturnType()),
+										(env, args) -> {
+											try {
+												if (parameterCount == 0)
+													return Clsl.wrap(m.invoke(o));
+												return Clsl.wrap(m.invoke(o, env, args));
+											}
+											catch (ReflectiveOperationException e) {
+												throw new ClslRuntimeException(e.getMessage());
+											}
+										}
+								).access()
+						);
 					}
-				}*/
+				}
 			}
 		}
 		catch (ReflectiveOperationException e) {
@@ -78,18 +105,12 @@ public class ClslStructWrapped<T> extends ClslStruct {
 			return constant ? new ClslCharConst((byte) o) : new ClslChar((byte) o);
 		else if (o instanceof Character)
 			return constant ? new ClslCharConst((char) o) : new ClslChar((char) o);
-
-		/*
-		else if (j instanceof Double)
-			write(o, (double) j);
-		*/
-
+		else if (o instanceof Double)
+			return constant ? new ClslDoubleConst((double) o) : new ClslDouble((double) o);
 		else if (o instanceof Float)
 			return constant ? new ClslFloatConst((float) o) : new ClslFloat((float) o);
-
 		else if (o instanceof Integer)
 			return constant ? new ClslIntConst((int) o) : new ClslInt((int) o);
-
 		else if (o instanceof Long)
 			return constant ? new ClslLongConst((long) o) : new ClslLong((long) o);
 

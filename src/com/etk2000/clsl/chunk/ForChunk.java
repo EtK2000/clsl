@@ -29,9 +29,9 @@ public class ForChunk extends BlockChunk {
 	}
 
 	ForChunk(InputStream i) throws IOException {
-		pre = Clsl.readExecutableChunk(i);
-		cause = Clsl.readValueChunk(i);
-		post = Clsl.readExecutableChunk(i);
+		pre = Clsl.readChunk(i);
+		cause = Clsl.readChunk(i);
+		post = Clsl.readChunk(i);
 		effect = Clsl.readExecutableChunks(i);
 	}
 

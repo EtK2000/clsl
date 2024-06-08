@@ -2,15 +2,14 @@ package com.etk2000.clsl.chunk.variable.set;
 
 import com.etk2000.clsl.Clsl;
 import com.etk2000.clsl.ClslRuntimeEnv;
-import com.etk2000.clsl.ClslUtil;
 import com.etk2000.clsl.OptimizationEnvironment;
-import com.etk2000.clsl.StreamUtils;
 import com.etk2000.clsl.chunk.ExecutableChunk;
 import com.etk2000.clsl.chunk.ExecutableValueChunk;
 import com.etk2000.clsl.chunk.ReturnChunk;
 import com.etk2000.clsl.chunk.ValueChunk;
+import com.etk2000.clsl.chunk.VariableAccess;
+import com.etk2000.clsl.chunk.variable.GetVar;
 import com.etk2000.clsl.chunk.variable.definition.DefineVar;
-import com.etk2000.clsl.exception.variable.ClslInvalidVariableNameException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,22 +18,19 @@ import java.io.OutputStream;
 // HIGH: in child optimize remove pointless sets, for example:
 // X *= 1, X /= 1
 // X -= 0, X += 0
-// X = X
 // etc, can look into Op chunks for examples
 public abstract class SetVarAbstract implements ExecutableValueChunk {
-	public final String name;
 	protected final ValueChunk val;
+	public final VariableAccess variableAccess;
 
-	protected SetVarAbstract(String name, ValueChunk val) {
-		if (!ClslUtil.isValidId(this.name = name))
-			throw new ClslInvalidVariableNameException(name);
+	protected SetVarAbstract(VariableAccess variableAccess, ValueChunk val) {
 		this.val = val;
+		this.variableAccess = variableAccess;
 	}
 
 	protected SetVarAbstract(InputStream i) throws IOException {
-		if (!ClslUtil.isValidId(name = StreamUtils.readString(i)))
-			throw new ClslInvalidVariableNameException(name);
-		val = Clsl.readValueChunk(i);
+		this.variableAccess = Clsl.readChunk(i);
+		this.val = Clsl.readChunk(i);
 	}
 
 	@Override
@@ -45,7 +41,7 @@ public abstract class SetVarAbstract implements ExecutableValueChunk {
 			return false;
 
 		final SetVarAbstract that = (SetVarAbstract) other;
-		return name.equals(that.name) && val.equals(that.val);
+		return val.equals(that.val) && variableAccess.equals(that.variableAccess);
 	}
 
 	@Override
@@ -61,9 +57,16 @@ public abstract class SetVarAbstract implements ExecutableValueChunk {
 
 	public abstract ExecutableChunk inline(DefineVar defineVar);
 
+	protected final ExecutableChunk optimizeSecondPass(OptimizationEnvironment env) {
+		if (variableAccess instanceof GetVar && env.unusedVars.contains(variableAccess.getVariableName()))
+			return val.getExecutablePart(env);
+
+		return this;
+	}
+
 	@Override
-	final public void transmit(OutputStream o) throws IOException {
-		StreamUtils.write(o, name);
+	public final void transmit(OutputStream o) throws IOException {
+		Clsl.writeChunk(o, variableAccess);
 		Clsl.writeChunk(o, val);
 	}
 }

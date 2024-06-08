@@ -106,15 +106,6 @@ public class Clsl {
 	// TODO: combine classes that are similar (for example Op and SetVarOp)
 	// TODO: use CodeBlockChunk, this is {}, don't pop vars beforehand!
 
-	public static ExecutableChunk readExecutableChunk(InputStream i) throws IOException {
-		try {
-			return (ExecutableChunk) StreamUtils.read(i, ChunkType.class).read.apply(i);
-		}
-		catch (EnumConstantNotPresentException e) {
-			return null;
-		}
-	}
-
 	public static boolean isString(ClslValue val) {
 		return val instanceof ClslArray && ((ClslArray) val).component == ValueType.CHAR;
 	}
@@ -128,6 +119,8 @@ public class Clsl {
 	 */
 	// FIXME: add array support
 	public static ClslValue wrap(Object o, byte wrapType) {
+		if (o == null)
+			return null;
 		if (o instanceof ClslValue)
 			return (ClslValue) o;
 
@@ -154,26 +147,27 @@ public class Clsl {
 		return new ClslStructConstWrapped<>(o, wrapType);
 	}
 
-	public static ExecutableChunk[] readExecutableChunks(InputStream i) throws IOException {
-		ExecutableChunk[] res = new ExecutableChunk[StreamUtils.readByteUnsigned(i)];
-		for (short j = 0; j < res.length; ++j)
-			res[j] = Clsl.readExecutableChunk(i);
-		return res;
-	}
-
-	public static ValueChunk readValueChunk(InputStream i) throws IOException {
+	@SuppressWarnings("unchecked")
+	public static <T extends ClslChunk> T readChunk(InputStream i) throws IOException {
 		try {
-			return (ValueChunk) StreamUtils.read(i, ChunkType.class).read.apply(i);
+			return (T) StreamUtils.read(i, ChunkType.class).read.apply(i);
 		}
 		catch (EnumConstantNotPresentException e) {
 			return null;
 		}
 	}
 
-	public static ValueChunk[] readValueChunks(InputStream i) throws IOException {
-		ValueChunk[] res = new ValueChunk[StreamUtils.readByteUnsigned(i)];
+	public static ExecutableChunk[] readExecutableChunks(InputStream i) throws IOException {
+		final ExecutableChunk[] res = new ExecutableChunk[StreamUtils.readByteUnsigned(i)];
 		for (short j = 0; j < res.length; ++j)
-			res[j] = readValueChunk(i);
+			res[j] = Clsl.readChunk(i);
+		return res;
+	}
+
+	public static ValueChunk[] readValueChunks(InputStream i) throws IOException {
+		final ValueChunk[] res = new ValueChunk[StreamUtils.readByteUnsigned(i)];
+		for (short j = 0; j < res.length; ++j)
+			res[j] = readChunk(i);
 		return res;
 	}
 

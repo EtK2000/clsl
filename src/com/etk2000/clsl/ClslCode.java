@@ -24,7 +24,7 @@ public class ClslCode {
 		short sz = StreamUtils.readByteUnsigned(i);
 		chunks = new ArrayList<>(sz);
 		for (short j = 0; j < sz; ++j)
-			chunks.add(Clsl.readExecutableChunk(i));
+			chunks.add(Clsl.readChunk(i));
 	}
 
 	// LOW: look into writing in single operation

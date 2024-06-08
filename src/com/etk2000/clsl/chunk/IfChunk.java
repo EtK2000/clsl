@@ -27,7 +27,7 @@ public class IfChunk extends BlockChunk {
 		short len = StreamUtils.readByteUnsigned(i);
 		causeEffect = new ArrayList<>(len);
 		for (short j = 0; j < len; ++j)
-			causeEffect.add(new Group<>(Clsl.readValueChunk(i), Clsl.readExecutableChunks(i)));
+			causeEffect.add(new Group<>(Clsl.readChunk(i), Clsl.readExecutableChunks(i)));
 	}
 
 	@Override

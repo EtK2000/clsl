@@ -1,10 +1,12 @@
 package com.etk2000.clsl.chunk.op;
 
+import com.etk2000.clsl.Clsl;
 import com.etk2000.clsl.ClslRuntimeEnv;
 import com.etk2000.clsl.OptimizationEnvironment;
 import com.etk2000.clsl.StreamUtils;
 import com.etk2000.clsl.chunk.ExecutableValueChunk;
 import com.etk2000.clsl.chunk.ReturnChunk;
+import com.etk2000.clsl.chunk.VariableAccess;
 import com.etk2000.clsl.value.ClslValue;
 
 import java.io.IOException;
@@ -12,17 +14,17 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class OpInc implements ExecutableValueChunk {
-	private final String name;
 	private final boolean post;
+	private final VariableAccess op;
 
-	public OpInc(String name, boolean post) {
-		this.name = name;
+	public OpInc(VariableAccess op, boolean post) {
+		this.op = op;
 		this.post = post;
 	}
 
 	public OpInc(InputStream i) throws IOException {
-		name = StreamUtils.readString(i);
-		post = StreamUtils.readByte(i) != 0;
+		this.op = Clsl.readChunk(i);
+		this.post = StreamUtils.readByte(i) != 0;
 	}
 
 	@Override
@@ -33,7 +35,7 @@ public class OpInc implements ExecutableValueChunk {
 			return false;
 
 		final OpInc that = (OpInc) other;
-		return name.equals(that.name) && post == that.post;
+		return op.equals(that.op) && post == that.post;
 	}
 
 	@Override
@@ -44,7 +46,7 @@ public class OpInc implements ExecutableValueChunk {
 
 	@Override
 	public ClslValue get(ClslRuntimeEnv env) {
-		return env.getVar(name).inc(post);
+		return op.get(env).inc(post);
 	}
 
 	@Override
@@ -56,23 +58,23 @@ public class OpInc implements ExecutableValueChunk {
 	public ExecutableValueChunk optimize(OptimizationEnvironment env) {
 		if (env.isFirstPass) {
 			if (env.forValue) {
-				int index = env.unusedVars.indexOf(name);
+				int index = env.unusedVars.indexOf(op.getVariableName());
 				if (index != -1)
 					env.unusedVars.remove(index);
 			}
 			return this;
 		}
-		return !env.unusedVars.contains(name) ? env.forValue || !post ? this : new OpDec(name, false) : null;
+		return !env.unusedVars.contains(op.getVariableName()) ? env.forValue || !post ? this : new OpInc(op, false) : null;
 	}
 
 	@Override
 	public String toString() {
-		return post ? name + "++" : ("++" + name);
+		return post ? op + "++" : ("++" + op);
 	}
 
 	@Override
 	public void transmit(OutputStream o) throws IOException {
-		StreamUtils.write(o, name);
+		Clsl.writeChunk(o, op);
 		o.write(post ? 1 : 0);
 	}
 }

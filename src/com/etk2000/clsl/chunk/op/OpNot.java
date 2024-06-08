@@ -23,7 +23,7 @@ public class OpNot implements ValueChunk {
 	}
 
 	public OpNot(InputStream i) throws IOException {
-		var = Clsl.readValueChunk(i);
+		var = Clsl.readChunk(i);
 	}
 
 	@Override

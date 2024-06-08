@@ -18,8 +18,8 @@ public class DuoExecutableChunk implements ExecutableChunk {
 	}
 
 	DuoExecutableChunk(InputStream i) throws IOException {
-		ep1 = Clsl.readExecutableChunk(i);
-		ep2 = Clsl.readExecutableChunk(i);
+		ep1 = Clsl.readChunk(i);
+		ep2 = Clsl.readChunk(i);
 	}
 
 	@Override

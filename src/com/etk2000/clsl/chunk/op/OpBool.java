@@ -23,7 +23,7 @@ class OpBool implements ValueChunk {
 	}
 
 	OpBool(InputStream i) throws IOException {
-		var = Clsl.readValueChunk(i);
+		var = Clsl.readChunk(i);
 	}
 
 	@Override

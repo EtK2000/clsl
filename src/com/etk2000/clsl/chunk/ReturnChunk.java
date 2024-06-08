@@ -18,7 +18,7 @@ public class ReturnChunk implements ExecutableChunk {
 	}
 
 	public ReturnChunk(InputStream i) throws IOException {
-		val = Clsl.readValueChunk(i);
+		val = Clsl.readChunk(i);
 	}
 
 	@Override

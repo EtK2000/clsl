@@ -4,6 +4,7 @@ import static com.etk2000.clsl.test.TestingUtils.transmitAndReceive;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.etk2000.clsl.ClslRuntimeEnv;
+import com.etk2000.clsl.chunk.variable.GetVar;
 import com.etk2000.clsl.header.DirectoryHeaderFinder;
 import com.etk2000.clsl.value.ClslInt;
 import com.etk2000.clsl.value.ClslIntConst;
@@ -16,12 +17,13 @@ import java.io.IOException;
 
 public class TestOpInc {
 	private static final String VARIABLE_NAME = "test";
+	private static final GetVar VARIABLE_ACCESS = new GetVar(VARIABLE_NAME);
 
 	@Test
 	void testGetPostfix() {
 		final int initialValue = 5;
 		final ClslRuntimeEnv env = new ClslRuntimeEnv(new DirectoryHeaderFinder());
-		final OpInc chunk = new OpInc(VARIABLE_NAME, true);
+		final OpInc chunk = new OpInc(VARIABLE_ACCESS, true);
 
 		env.defineVar(VARIABLE_NAME, new ClslInt(initialValue));
 		assertEquals(new ClslIntConst(initialValue), chunk.get(env));
@@ -32,7 +34,7 @@ public class TestOpInc {
 	void testGetPrefix() {
 		final int initialValue = 5;
 		final ClslRuntimeEnv env = new ClslRuntimeEnv(new DirectoryHeaderFinder());
-		final OpInc chunk = new OpInc(VARIABLE_NAME, false);
+		final OpInc chunk = new OpInc(VARIABLE_ACCESS, false);
 		final ClslInt subtracted = new ClslInt(initialValue + 1);
 
 		env.defineVar(VARIABLE_NAME, new ClslInt(initialValue));
@@ -43,7 +45,7 @@ public class TestOpInc {
 	@ParameterizedTest
 	@ValueSource(booleans = {false, true})
 	void testIO(boolean isPostfix) throws IOException {
-		final OpInc original = new OpInc(VARIABLE_NAME, isPostfix);
+		final OpInc original = new OpInc(VARIABLE_ACCESS, isPostfix);
 
 		assertEquals(
 				original,
@@ -55,7 +57,7 @@ public class TestOpInc {
 	void testToStringPostfix() {
 		assertEquals(
 				VARIABLE_NAME + "++",
-				new OpInc(VARIABLE_NAME, true).toString()
+				new OpInc(VARIABLE_ACCESS, true).toString()
 		);
 	}
 
@@ -63,7 +65,7 @@ public class TestOpInc {
 	void testToStringPrefix() {
 		assertEquals(
 				"++" + VARIABLE_NAME,
-				new OpInc(VARIABLE_NAME, false).toString()
+				new OpInc(VARIABLE_ACCESS, false).toString()
 		);
 	}
 }
