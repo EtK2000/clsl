@@ -8,9 +8,4 @@ public class ClslException extends RuntimeException {
 	ClslException(String msg, Exception cause) {
 		super(msg, cause);
 	}
-
-	@Override
-	public synchronized ClslException fillInStackTrace() {
-		return this;
-	}
 }

@@ -27,7 +27,6 @@ import com.etk2000.clsl.chunk.op.OpDivide;
 import com.etk2000.clsl.chunk.op.OpEquals;
 import com.etk2000.clsl.chunk.op.OpInc;
 import com.etk2000.clsl.chunk.op.OpLessThan;
-import com.etk2000.clsl.chunk.op.OpMember;
 import com.etk2000.clsl.chunk.op.OpModulus;
 import com.etk2000.clsl.chunk.op.OpMultiply;
 import com.etk2000.clsl.chunk.op.OpNot;
@@ -43,7 +42,6 @@ import com.etk2000.clsl.chunk.value.ConstDoubleChunk;
 import com.etk2000.clsl.chunk.value.ConstFloatChunk;
 import com.etk2000.clsl.chunk.value.ConstIntChunk;
 import com.etk2000.clsl.chunk.value.ConstLongChunk;
-import com.etk2000.clsl.chunk.variable.GetVar;
 import com.etk2000.clsl.chunk.variable.definition.DefineArray;
 import com.etk2000.clsl.chunk.variable.definition.DefineChar;
 import com.etk2000.clsl.chunk.variable.definition.DefineDouble;
@@ -284,7 +282,7 @@ public class ClslCompiler {
 			return getBlock(ss, 0).a;
 		}
 		catch (Exception e) {
-			throw new ClslCompilerException("invalid eval query: " + query + "; " + e.getMessage());
+			throw new ClslCompilerException("invalid eval query: " + query, e);
 		}
 	}
 
@@ -519,7 +517,7 @@ public class ClslCompiler {
 					if (!env.matcher.find() || !res.substring(env.indexInSource, env.matcher.start()).equals("while"))
 						throw new ClslCompilerException(env, "expected while");
 
-					env.exec.add(new DoWhileChunk(effect, readChunk(env, false)));
+					env.exec.add(new DoWhileChunk(effect, readChunk(env, null)));
 					if (!env.matcher.find() || !env.matcher.group().equals(";"))
 						throw new ClslCompilerException(env, "expected `;`");
 
@@ -546,7 +544,7 @@ public class ClslCompiler {
 					System.err.println("validate group: for");
 					env.exec.add(new ForChunk(
 							readExecutable(env, true),
-							readChunk(env, false),
+							readChunk(env, null),
 							readExecutable(env, false),
 							readEffect(env, "")
 					));
@@ -571,7 +569,7 @@ public class ClslCompiler {
 					}
 					// FIXME: ensure return is in function and can be casted to
 					// return type
-					env.exec.add(new ReturnChunk(group.equals(";") ? null : readChunk(env, false, group.equals(" ") ? "" : group)));
+					env.exec.add(new ReturnChunk(group.equals(";") ? null : readChunk(env, null, group.equals(" ") ? "" : group)));
 					break;
 				case "while": {
 					System.err.println("validate group: while");
@@ -606,7 +604,7 @@ public class ClslCompiler {
 
 		while (arr.get(start + index) != ExpressionType.PARENTHESIS_CLOSE && arr.get(start + index) != ExpressionType.COMMA) {
 			if (arr.get(start + index) == ExpressionType.PARENTHESIS_OPEN) {
-				if (!res.isEmpty() && res.get(res.size() - 1) instanceof GetVar) {// function call
+				if (!res.isEmpty() && res.get(res.size() - 1) instanceof VariableAccess) {// function call
 
 					// parse parameters of any are supplied
 					if (arr.get(start + index + 1) != ExpressionType.PARENTHESIS_CLOSE) {
@@ -615,8 +613,10 @@ public class ClslCompiler {
 							index += block.b;
 						} while (arr.get(start + index) == ExpressionType.COMMA);
 					}
+					else
+						++index;
 
-					res.add(new FunctionCallChunk(((GetVar) res.remove(res.size() - 1)), args.toArray(ClslUtil.CHUNK_VALUE)));
+					res.add(new FunctionCallChunk(((VariableAccess) res.remove(res.size() - 1)), args.toArray(ClslUtil.CHUNK_VALUE)));
 					args.clear();
 					++index;
 				}
@@ -839,7 +839,11 @@ public class ClslCompiler {
 						if (BLOCK_CHARS.indexOf(env.source.charAt(env.matcher.start() - 1)) != -1)
 							++blocks;// just parenthesis
 						else {
-							wip = new FunctionCallChunk(new GetVar(env.source.substring(env.indexInSource, env.matcher.start())), readArguments(env).toArray(ClslUtil.CHUNK_VALUE));
+							final String functionAccessStr = env.source.substring(env.indexInSource, env.matcher.start());
+							wip = new FunctionCallChunk(
+									OperatorParser.parseVariableAccessOperator(functionAccessStr),
+									readArguments(env).toArray(ClslUtil.CHUNK_VALUE)
+							);
 							env.indexInSource = env.matcher.start() + 1;
 						}
 					}
@@ -861,34 +865,42 @@ public class ClslCompiler {
 		return arr;
 	}
 
-	static ValueChunk readChunk(ClslCompilationEnv env, boolean untilComma) {
-		return readChunk(env, untilComma, "");
+	static ValueChunk readChunk(ClslCompilationEnv env, ReadUntilToken untilToken) {
+		return readChunk(env, untilToken, "");
 	}
 
-	private static ValueChunk readChunk(ClslCompilationEnv env, boolean untilComma, String prefix) {
-		if (!untilComma) {
+	private static ValueChunk readChunk(ClslCompilationEnv env, ReadUntilToken untilToken, String prefix) {
+		if (untilToken == null) {
 			env.indexInSource = env.matcher.start() + 1;
 			if (!env.matcher.find())
 				throw new ClslCompilerException(env, "expected expression");
 		}
 
 		int blocks = prefix.equals("(") ? 2 : 1;
+		int indexes = 0;
 		out:
 		do {
 			switch (env.matcher.group()) {
 				case ";":
-					if (blocks > 1)
+					if (blocks > 1 || untilToken == ReadUntilToken.CLOSE_SQUARE_BRACKET)
 						throw new ClslCompilerException(env, "illegal token");
 					break out;// assume it's a for(;X;) or variable definition
 				case "(":
 					++blocks;
 					break;
 				case ")":
-					if (--blocks == 0 && !untilComma)
+					if (--blocks == 0 && untilToken == null)
+						break out;
+					break;
+				case "[":
+					++indexes;
+					break;
+				case "]":
+					if (blocks == 1 && indexes == 0 && untilToken == ReadUntilToken.CLOSE_SQUARE_BRACKET)
 						break out;
 					break;
 				case ",":
-					if (blocks == 1 && untilComma)
+					if (blocks == 1 && indexes == 0 && untilToken == ReadUntilToken.COMMA)
 						break out;
 					break;
 			}
@@ -901,7 +913,7 @@ public class ClslCompiler {
 
 	@Deprecated
 	private static Group<ValueChunk, ExecutableChunk[]> readCauseEffect(ClslCompilationEnv env) {
-		return new Group<>(readChunk(env, false), readEffect(env, ""));
+		return new Group<>(readChunk(env, null), readEffect(env, ""));
 	}
 
 	// TODO: look into how this flows and see how to make this more supportive
@@ -940,19 +952,19 @@ public class ClslCompiler {
 				// env.matcher.group().equals(";") ? toValue(env.source.substring(env.indexInSource, env.matcher.start())) : readChunk(env, true)
 				switch (type) {
 					case CHAR:
-						env.exec.add(new DefineChar(varName, readChunk(env, true)));
+						env.exec.add(new DefineChar(varName, readChunk(env, ReadUntilToken.COMMA)));
 						break;
 					case DOUBLE:
-						env.exec.add(new DefineDouble(varName, readChunk(env, true)));
+						env.exec.add(new DefineDouble(varName, readChunk(env, ReadUntilToken.COMMA)));
 						break;
 					case FLOAT:
-						env.exec.add(new DefineFloat(varName, readChunk(env, true)));
+						env.exec.add(new DefineFloat(varName, readChunk(env, ReadUntilToken.COMMA)));
 						break;
 					case INT:
-						env.exec.add(new DefineInt(varName, readChunk(env, true)));
+						env.exec.add(new DefineInt(varName, readChunk(env, ReadUntilToken.COMMA)));
 						break;
 					case LONG:
-						env.exec.add(new DefineLong(varName, readChunk(env, true)));
+						env.exec.add(new DefineLong(varName, readChunk(env, ReadUntilToken.COMMA)));
 						break;
 					case STRUCT:
 						throw new IllegalStateException("`struct <structName> <name> = {...}` is not implemented yet");
@@ -1194,23 +1206,14 @@ public class ClslCompiler {
 
 		// FIXME: support ConstArrayChunk
 
-		// FIXME: support OpIndex
-
-		// a.b.c ... etc
-		{
-			String[] owners = str.split("\\.");
-			if (ClslUtil.isValidId(owners[0])) {
-				VariableAccess res = new GetVar(owners[0]);
-				if (owners.length > 1) {
-					for (short i = 1; i < owners.length; ++i)
-						res = new OpMember(res, owners[i]);
-				}
-				return res;
-			}
+		// attempt to parse index and member access
+		try {
+			return OperatorParser.parseVariableAccessOperator(str);
 		}
-
-		// TODO: attempt to parse as expression
-		throw new ClslCompilerException("invalid variable or value: " + str);
+		catch (Exception e) {
+			// TODO: attempt to parse as expression
+			throw new ClslCompilerException("invalid variable or value: " + str, e);
+		}
 	}
 
 	private ClslCompiler() {

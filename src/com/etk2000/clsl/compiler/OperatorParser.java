@@ -1,5 +1,6 @@
 package com.etk2000.clsl.compiler;
 
+import com.etk2000.clsl.Clsl;
 import com.etk2000.clsl.ClslUtil;
 import com.etk2000.clsl.chunk.ExecutableValueChunk;
 import com.etk2000.clsl.chunk.FunctionCallChunk;
@@ -50,11 +51,15 @@ class OperatorParser {
 
 	// TODO: find a better way to cleanup after the function
 	static void parseNext(ClslCompilationEnv env) {
-		parseNextInner(env);
-		env.currentValueAccess = null;
+		parseNextInner(env, true);
+		if (env.currentValueAccess != null) {
+			if (Clsl.doWarn)
+				System.out.println("`currentValueAccess` has leaked: " + env.currentValueAccess);
+			env.currentValueAccess = null;
+		}
 	}
 
-	private static void parseNextInner(ClslCompilationEnv env) {
+	private static void parseNextInner(ClslCompilationEnv env, boolean requireExpressionAfter) {
 		// FIXME: remove this var, replace with `env.currentValueAccess`
 		final String expression = env.source.substring(env.indexInSource, env.matcher.start());
 
@@ -68,36 +73,16 @@ class OperatorParser {
 		switch (env.matcher.group()) {
 			// function call
 			case "(":
-				env.exec.add(new FunctionCallChunk(env.currentValueAccess, ClslCompiler.readArguments(env).toArray(ClslUtil.CHUNK_VALUE)));
+				env.exec.add(new FunctionCallChunk(env.popCurrentValueAccess(), ClslCompiler.readArguments(env).toArray(ClslUtil.CHUNK_VALUE)));
 				consumeSemicolon(env);
 				break;
 
 			// index
-			case "[": {
-				env.currentValueAccess = new OpIndex(env.currentValueAccess, ClslCompiler.readChunk(env, false));
-
-				System.err.println("please finish implementing index access");
-				parseNext(env);
-				// FIXME: read value until ']'
+			case "[":
+				// member access
+			case ".":
+				parseVariableAccessOperator(env, requireExpressionAfter);
 				break;
-			}
-
-			// member access
-			case ".": {
-				env.indexInSource = env.matcher.start() + 1;
-				if (!env.matcher.find())
-					throw new ClslCompilerException(env, "expected expression");
-
-				env.currentValueAccess = new OpMember(env.currentValueAccess, env.source.substring(env.indexInSource, env.matcher.start()));
-
-				// FIXME: move the below code into next pass of `parseNext` or something
-				//env.indexInSource = env.matcher.start() + 1;
-				//if (!env.matcher.find())
-				//	throw new ClslCompilerException(env, "expected expression");
-
-				parseNext(env);
-				break;
-			}
 
 			case "-": {
 				int start = env.matcher.start();
@@ -109,25 +94,23 @@ class OperatorParser {
 					case "-":
 
 						// --X
-						if (expression.isEmpty()) {
-							int varStart = env.matcher.start() + 1;
+						if (env.currentValueAccess == null) {
+							env.indexInSource = env.matcher.start() + 1;
 							if (!env.matcher.find())
 								throw new ClslCompilerException(env, "expected expression");
 
-							// FIXME: support reading `x.y` and `x[y]`
-							String var = env.source.substring(varStart, env.matcher.start());
-							assetVariableNameIsValid(env, var);
-							env.exec.add(new OpDec(new GetVar(var), false));
+							parseVariableAccessOperator(env, false);
+							env.exec.add(new OpDec(env.popCurrentValueAccess(), false));
 						}
 
 						// X--
 						else
-							env.exec.add(new OpDec(env.currentValueAccess, true));
+							env.exec.add(new OpDec(env.popCurrentValueAccess(), true));
 						break;
 
 					// "-="
 					case "=":
-						env.exec.add(readValueSet(env, env.currentValueAccess, MODE_SET_SUB));
+						env.exec.add(readValueSet(env, env.popCurrentValueAccess(), MODE_SET_SUB));
 						break;
 
 					// FIXME: this is a simple subtract
@@ -149,25 +132,23 @@ class OperatorParser {
 					case "+":
 
 						// ++X
-						if (expression.isEmpty()) {
-							int varStart = env.matcher.start() + 1;
+						if (env.currentValueAccess == null) {
+							env.indexInSource = env.matcher.start() + 1;
 							if (!env.matcher.find())
 								throw new ClslCompilerException(env, "expected expression");
 
-							// FIXME: support reading `x.y` and `x[y]`
-							String var = env.source.substring(varStart, env.matcher.start());
-							assetVariableNameIsValid(env, var);
-							env.exec.add(new OpInc(new GetVar(var), false));
+							parseVariableAccessOperator(env, false);
+							env.exec.add(new OpInc(env.popCurrentValueAccess(), false));
 						}
 
 						// X++
 						else
-							env.exec.add(new OpInc(env.currentValueAccess, true));
+							env.exec.add(new OpInc(env.popCurrentValueAccess(), true));
 						break;
 
 					// "+="
 					case "=":
-						env.exec.add(readValueSet(env, env.currentValueAccess, MODE_SET_ADD));
+						env.exec.add(readValueSet(env, env.popCurrentValueAccess(), MODE_SET_ADD));
 						break;
 
 					// FIXME: this is a simple add
@@ -187,7 +168,7 @@ class OperatorParser {
 				switch (env.matcher.group()) {
 					// "/="
 					case "=":
-						env.exec.add(readValueSet(env, env.currentValueAccess, MODE_SET_DIV));
+						env.exec.add(readValueSet(env, env.popCurrentValueAccess(), MODE_SET_DIV));
 						break;
 
 					// FIXME: this is a simple div
@@ -207,7 +188,7 @@ class OperatorParser {
 				switch (env.matcher.group()) {
 					// "*="
 					case "=": {
-						env.exec.add(readValueSet(env, env.currentValueAccess, MODE_SET_MUL));
+						env.exec.add(readValueSet(env, env.popCurrentValueAccess(), MODE_SET_MUL));
 						break;
 					}
 
@@ -228,7 +209,7 @@ class OperatorParser {
 				switch (env.matcher.group()) {
 					// "%="
 					case "=":
-						env.exec.add(readValueSet(env, env.currentValueAccess, MODE_SET_MOD));
+						env.exec.add(readValueSet(env, env.popCurrentValueAccess(), MODE_SET_MOD));
 						break;
 
 					// FIXME: this is a simple modulus
@@ -248,7 +229,7 @@ class OperatorParser {
 				switch (env.matcher.group()) {
 					// "^="
 					case "=":
-						env.exec.add(readValueSet(env, env.currentValueAccess, MODE_SET_XOR));
+						env.exec.add(readValueSet(env, env.popCurrentValueAccess(), MODE_SET_XOR));
 						break;
 
 					// FIXME: this is a simple xor
@@ -268,7 +249,7 @@ class OperatorParser {
 				switch (env.matcher.group()) {
 					// "&="
 					case "=":
-						env.exec.add(readValueSet(env, env.currentValueAccess, MODE_SET_BAND));
+						env.exec.add(readValueSet(env, env.popCurrentValueAccess(), MODE_SET_BAND));
 						break;
 
 					// FIXME: this is a simple binary and
@@ -288,7 +269,7 @@ class OperatorParser {
 				switch (env.matcher.group()) {
 					// "|="
 					case "=":
-						env.exec.add(readValueSet(env, env.currentValueAccess, MODE_SET_BOR));
+						env.exec.add(readValueSet(env, env.popCurrentValueAccess(), MODE_SET_BOR));
 						break;
 
 					// FIXME: this is a simple binary or
@@ -315,11 +296,10 @@ class OperatorParser {
 						switch (env.matcher.group()) {
 							// <<=
 							case "=":
-								env.exec.add(readValueSet(env, env.currentValueAccess, MODE_SET_BLS));
+								env.exec.add(readValueSet(env, env.popCurrentValueAccess(), MODE_SET_BLS));
 								break;
 							default:
-								// FIXME: this is a simple shift
-								// left
+								// FIXME: this is a simple shift left
 								env.matcher.find(start);
 								break;
 						}
@@ -356,19 +336,17 @@ class OperatorParser {
 						switch (env.matcher.group()) {
 							// >>=
 							case "=":
-								env.exec.add(readValueSet(env, env.currentValueAccess, MODE_SET_BRS));
+								env.exec.add(readValueSet(env, env.popCurrentValueAccess(), MODE_SET_BRS));
 								break;
 							default:
 								// FIXME: this is a simple right
-								// left
 								env.matcher.find(start);
 								break;
 						}
 						break;
 					}
 
-					// FIXME: this is a simple greater than or
-					// equals
+					// FIXME: this is a simple greater than or equals
 					// ">="
 					case "=":
 						env.matcher.find(start);
@@ -384,16 +362,70 @@ class OperatorParser {
 
 			// "="
 			case "=":
-				env.exec.add(readValueSet(env, env.currentValueAccess, MODE_SET));
+				env.exec.add(readValueSet(env, env.popCurrentValueAccess(), MODE_SET));
 				break;
 
 			default:
-				throw new ClslCompilerException(env, "expected expression");
+				if (requireExpressionAfter)
+					throw new ClslCompilerException(env, "expected expression");
+		}
+	}
+
+	static VariableAccess parseVariableAccessOperator(String source) {
+		final ClslCompilationEnv helperEnv = new ClslCompilationEnv(source + ';');
+		helperEnv.matcher.find();
+		parseVariableAccessOperator(helperEnv, false);
+		return helperEnv.popCurrentValueAccess();
+	}
+
+	static void parseVariableAccessOperator(ClslCompilationEnv env, boolean requireExpressionAfter) {
+		// FIXME: remove this var, replace with `env.currentValueAccess`
+		final String expression = env.source.substring(env.indexInSource, env.matcher.start());
+
+		if (!expression.isEmpty()) {
+			if (!(env.currentValueAccess instanceof OpMember)) {
+				assetVariableNameIsValid(env, expression);
+				env.currentValueAccess = new GetVar(expression);
+			}
+		}
+
+		switch (env.matcher.group()) {
+			// index
+			case "[": {
+				env.indexInSource = env.matcher.start() + 1;
+
+				if (!env.matcher.find())
+					throw new ClslCompilerException(env, "expected expression");
+
+				env.currentValueAccess = new OpIndex(env.popCurrentValueAccess(), ClslCompiler.readChunk(env, ReadUntilToken.CLOSE_SQUARE_BRACKET));
+				env.indexInSource = env.matcher.start() + 1;
+
+				if (!env.matcher.find())
+					throw new ClslCompilerException(env, "expected expression");
+
+				parseNextInner(env, requireExpressionAfter);
+				break;
+			}
+
+			// member access
+			case ".": {
+				env.indexInSource = env.matcher.start() + 1;
+				if (!env.matcher.find())
+					throw new ClslCompilerException(env, "expected expression");
+
+				env.currentValueAccess = new OpMember(env.popCurrentValueAccess(), env.source.substring(env.indexInSource, env.matcher.start()));
+				parseNextInner(env, requireExpressionAfter);
+				break;
+			}
+
+			case ";":
+				if (requireExpressionAfter)
+					throw new ClslCompilerException(env, "expected expression");
 		}
 	}
 
 	private static ExecutableValueChunk readValueSet(ClslCompilationEnv env, VariableAccess variableAccess, byte mode) {
-		final ValueChunk val = ClslCompiler.readChunk(env, false);
+		final ValueChunk val = ClslCompiler.readChunk(env, null);
 
 		switch (mode) {
 			case MODE_SET:

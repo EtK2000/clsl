@@ -28,9 +28,14 @@ public class OpIndex implements VariableAccess {
 	}
 
 	@Override
-	public void transmit(OutputStream o) throws IOException {
-		Clsl.writeChunk(o, op);
-		Clsl.writeChunk(o, index);
+	public boolean equals(Object other) {
+		if (this == other)
+			return true;
+		if (other == null || getClass() != other.getClass())
+			return false;
+
+		final OpIndex that = (OpIndex) other;
+		return index.equals(that.index) && op.equals(that.op);
 	}
 
 	@Override
@@ -62,5 +67,11 @@ public class OpIndex implements VariableAccess {
 	@Override
 	public String toString() {
 		return "(" + op + '[' + index + "])";
+	}
+
+	@Override
+	public void transmit(OutputStream o) throws IOException {
+		Clsl.writeChunk(o, op);
+		Clsl.writeChunk(o, index);
 	}
 }

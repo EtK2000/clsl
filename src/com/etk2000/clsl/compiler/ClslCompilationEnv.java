@@ -18,4 +18,10 @@ public class ClslCompilationEnv {
 		this.matcher = ClslCompiler.SYNTAX_PATTERN.matcher(source);
 		this.source = source;
 	}
+
+	VariableAccess popCurrentValueAccess() {
+		final VariableAccess res = currentValueAccess;
+		currentValueAccess = null;
+		return res;
+	}
 }

@@ -48,12 +48,10 @@ public class ClslCompilerException extends ClslException {
 
 	public ClslCompilerException(String msg) {
 		super(msg);
-		setStackTrace(new StackTraceElement[0]);
 	}
 
 	public ClslCompilerException(String msg, Exception cause) {
 		super(msg, cause);
-		setStackTrace(new StackTraceElement[0]);
 	}
 
 	// use this constructor to show the code nearby
