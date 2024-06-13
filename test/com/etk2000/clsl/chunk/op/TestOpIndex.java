@@ -26,8 +26,8 @@ public class TestOpIndex {
 		final OpIndex op = new OpIndex(VARIABLE_ACCESS, new ConstIntChunk(index));
 
 		final ClslIntConst[] expected = new ClslIntConst[]{
-				new ClslIntConst(1),
-				new ClslIntConst(2),
+				ClslIntConst.of(1),
+				ClslIntConst.of(2),
 		};
 
 		env.defineVar(VARIABLE_NAME, new ClslArray(expected));

@@ -45,7 +45,7 @@ public class OpModulus extends OpBinary {
 			}
 
 			else if (op2 instanceof ConstValueChunk) {
-				ClslValue v = op2.get(null);
+				final ClslValue v = op2.get(null);
 
 				// X % 0 = UNDEFINED
 				if (!v.toBoolean())

@@ -26,7 +26,7 @@ public class TestOpMember {
 		final OpMember op = new OpMember(VARIABLE_ACCESS, VARIABLE_MEMBER);
 
 		final Map<String, ClslValue> expected = new HashMap<>();
-		expected.put(VARIABLE_MEMBER, new ClslIntConst(42));
+		expected.put(VARIABLE_MEMBER, ClslIntConst.of(42));
 		env.defineVar(VARIABLE_NAME, new ClslStructMapped(expected));
 
 		assertEquals(expected.get(VARIABLE_MEMBER), op.get(env));

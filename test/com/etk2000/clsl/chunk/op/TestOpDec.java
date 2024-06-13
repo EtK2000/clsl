@@ -26,7 +26,7 @@ public class TestOpDec {
 		final OpDec chunk = new OpDec(VARIABLE_ACCESS, true);
 
 		env.defineVar(VARIABLE_NAME, new ClslInt(initialValue));
-		assertEquals(new ClslIntConst(initialValue), chunk.get(env));
+		assertEquals(ClslIntConst.of(initialValue), chunk.get(env));
 		assertEquals(new ClslInt(initialValue - 1), env.getVar(VARIABLE_NAME));
 	}
 

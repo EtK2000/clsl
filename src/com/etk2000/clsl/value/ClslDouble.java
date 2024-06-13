@@ -338,7 +338,7 @@ public class ClslDouble extends ClslValue {
 
 	@Override
 	public ClslIntConst sizeof() {
-		return new ClslIntConst(8);
+		return ClslIntConst.of(8);
 	}
 
 	@Override
@@ -362,7 +362,7 @@ public class ClslDouble extends ClslValue {
 			case FLOAT:
 				return new ClslFloatConst((float) val);
 			case INT:
-				return new ClslIntConst((int) val);
+				return ClslIntConst.of((int) val);
 			case LONG:
 				return new ClslLongConst((long) val);
 		}

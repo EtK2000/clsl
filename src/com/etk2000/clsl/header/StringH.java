@@ -33,7 +33,7 @@ public class StringH extends HeaderBase {
 		if (!Clsl.isString(args[1]))
 			throw new ClslIncompatibleArgumentTypeException(1, "strcmp");
 
-		return new ClslIntConst(((ClslArray) args[0]).compareTo((ClslArray) args[1]));
+		return ClslIntConst.of(((ClslArray) args[0]).compareTo((ClslArray) args[1]));
 	});
 
 	private static final FunctionalChunk strcpy = Clsl.createFunctionalChunk(ValueType.ARRAY, (env, args) -> {

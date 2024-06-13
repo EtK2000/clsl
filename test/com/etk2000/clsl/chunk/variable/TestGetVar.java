@@ -20,7 +20,7 @@ import java.util.ArrayList;
 
 public class TestGetVar {
 	private static final String VARIABLE_NAME = "test";
-	private static final ClslIntConst EXPECTED_VALUE = new ClslIntConst(42069);
+	private static final ClslIntConst EXPECTED_VALUE = ClslIntConst.of(42069);
 
 	@Test
 	void testGet() {
@@ -66,7 +66,7 @@ public class TestGetVar {
 	void testGlobalScopeOverride() {
 		final ClslRuntimeEnv env = new ClslRuntimeEnv(new DirectoryHeaderFinder());
 		final GetVar chunk = new GetVar(VARIABLE_NAME);
-		final ClslValue expectedLocal = EXPECTED_VALUE.add(new ClslIntConst(1), false);
+		final ClslValue expectedLocal = EXPECTED_VALUE.add(ClslIntConst.of(1), false);
 
 		env.defineVar(VARIABLE_NAME, EXPECTED_VALUE);
 		assertEquals(EXPECTED_VALUE, chunk.get(env));

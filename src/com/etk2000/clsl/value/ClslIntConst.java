@@ -1,6 +1,25 @@
 package com.etk2000.clsl.value;
 
 public class ClslIntConst extends ClslInt implements ClslConst {
+	private static final ClslIntConst ONE = new ClslIntConst(1),
+			ZERO = new ClslIntConst(0);
+
+	public static ClslIntConst of(int val) {
+		switch (val) {
+			case 0:
+				return ZERO;
+			case 1:
+				return ONE;
+			default:
+				return new ClslIntConst(val);
+		}
+	}
+
+	/**
+	 * @param val the integer value of this constant
+	 * @deprecated prefer to use {@link ClslIntConst#of(int)}
+	 */
+	@Deprecated
 	public ClslIntConst(int val) {
 		super(val);
 	}

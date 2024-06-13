@@ -2,8 +2,8 @@ package com.etk2000.clsl.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.etk2000.clsl.ThrowingFunction;
 import com.etk2000.clsl.chunk.ClslChunk;
+import com.etk2000.clsl.functional.ThrowingFunction;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

@@ -52,7 +52,7 @@ public class OpNot implements ValueChunk {
 			if (val instanceof ConstValueChunk)
 				return new ConstIntChunk(val.get(null).toBoolean() ? 0 : 1);
 
-			ClslChunk op = val.optimize(env.forValue());
+			final ClslChunk op = val.optimize(env.forValue());
 			if (op != val)
 				return new OpBool((ValueChunk) op).optimize(env.forValue());
 		}

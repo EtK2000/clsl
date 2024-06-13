@@ -123,7 +123,7 @@ public class ClslPointer extends ClslArray {
 
 	@Override
 	public ClslIntConst sizeof() {
-		return new ClslIntConst(4);
+		return ClslIntConst.of(4);
 	}
 
 	@Override

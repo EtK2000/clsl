@@ -17,7 +17,7 @@ public class ClslVoid extends ClslValue implements ClslConst {
 
 	@Override
 	public ClslIntConst sizeof() {
-		return new ClslIntConst(0);
+		return ClslIntConst.of(0);
 	}
 
 	@Override

@@ -2,15 +2,18 @@ package com.etk2000.clsl;
 
 import com.etk2000.clsl.chunk.ExecutableChunk;
 import com.etk2000.clsl.chunk.ValueChunk;
-import com.etk2000.clsl.value.ClslValue;
+
+import java.util.Arrays;
 
 public class ClslUtil {
-	private static final String[] INVALID_VAR_NAMES = {"break", "case", "char", "const", "continue", "do", "else", "float", "for", "goto", "if", "int", "NULL",
-			"return", "sizeof", "static", "struct", "switch", "typedef", "unsigned", "void", "while"};
+	private static final String[] INVALID_VAR_NAMES = {
+			"break", "case", "char", "const", "continue", "do", "else", "enum", "float",
+			"for", "goto", "if", "int", "NULL", "return", "short", "sizeof", "static",
+			"struct", "switch", "typedef", "unsigned", "void", "while"
+	};
 
 	public static final ExecutableChunk[] CHUNK_EXEC = {};
 	public static final ValueChunk[] CHUNK_VALUE = {};
-	public static final ClslValue[] VALUE = {};
 
 	@SafeVarargs
 	public static <T> T[] array(T... args) {
@@ -91,7 +94,7 @@ public class ClslUtil {
 				return false;
 		}
 
-		return !contains(INVALID_VAR_NAMES, str, false);
+		return Arrays.binarySearch(INVALID_VAR_NAMES, str) < 0;
 	}
 
 	// TODO: deal with " and ' potentially not requiring escaping

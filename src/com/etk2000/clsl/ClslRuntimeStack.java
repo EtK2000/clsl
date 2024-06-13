@@ -124,7 +124,7 @@ public abstract class ClslRuntimeStack {
 				return new DequeStack();
 		}
 
-		throw new IllegalArgumentException("invalid CLSLRuntimeStack type");
+		throw new IllegalArgumentException("invalid ClslRuntimeStack type");
 	}
 
 	public abstract void defineVar(String name, ClslValue value);

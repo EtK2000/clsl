@@ -47,13 +47,13 @@ public class ClslInt extends ClslValue {
 			case VOID:
 				break;
 			case CHAR:
-				return new ClslIntConst(val + other.toChar());
+				return ClslIntConst.of(val + other.toChar());
 			case DOUBLE:
 				return new ClslDoubleConst(val + other.toDouble());
 			case FLOAT:
 				return new ClslFloatConst(val + other.toFloat());
 			case INT:
-				return new ClslIntConst(val + other.toInt());
+				return ClslIntConst.of(val + other.toInt());
 			case LONG:
 				return new ClslLongConst(val + other.toLong());
 		}
@@ -93,9 +93,9 @@ public class ClslInt extends ClslValue {
 			case CHAR:
 				return new ClslCharConst(val & other.toChar());
 			case INT:
-				return new ClslIntConst(val & other.toInt());
+				return ClslIntConst.of(val & other.toInt());
 			case LONG:
-				return new ClslIntConst((int) (val & other.toLong()));
+				return ClslIntConst.of((int) (val & other.toLong()));
 		}
 		super.band(other, set);
 		return this;
@@ -131,9 +131,9 @@ public class ClslInt extends ClslValue {
 			case VOID:
 				break;
 			case CHAR:
-				return new ClslIntConst(val | other.toChar());
+				return ClslIntConst.of(val | other.toChar());
 			case INT:
-				return new ClslIntConst(val | other.toInt());
+				return ClslIntConst.of(val | other.toInt());
 			case LONG:
 				return new ClslLongConst(val | other.toLong());
 		}
@@ -157,7 +157,7 @@ public class ClslInt extends ClslValue {
 			case INT:
 				if (Clsl.doWarn)
 					System.out.println("redundant cast from int to int");
-				return new ClslIntConst(val);
+				return ClslIntConst.of(val);
 			case LONG:
 				return new ClslLongConst(val);
 		}
@@ -167,13 +167,13 @@ public class ClslInt extends ClslValue {
 	@Override
 	@SuppressWarnings("unchecked")
 	public ClslIntConst copy() {
-		return new ClslIntConst(val);
+		return ClslIntConst.of(val);
 	}
 
 	@Override
 	public ClslInt dec(boolean post) {
 		if (post)
-			return new ClslIntConst(val--);
+			return ClslIntConst.of(val--);
 		--val;
 		return this;
 	}
@@ -210,13 +210,13 @@ public class ClslInt extends ClslValue {
 			case VOID:
 				break;
 			case CHAR:
-				return new ClslIntConst(val / other.toChar());
+				return ClslIntConst.of(val / other.toChar());
 			case DOUBLE:
 				return new ClslDoubleConst(val / other.toDouble());
 			case FLOAT:
 				return new ClslFloatConst(val / other.toFloat());
 			case INT:
-				return new ClslIntConst(val / other.toInt());
+				return ClslIntConst.of(val / other.toInt());
 			case LONG:
 				return new ClslLongConst(val / other.toLong());
 		}
@@ -254,7 +254,7 @@ public class ClslInt extends ClslValue {
 	@Override
 	public ClslInt inc(boolean post) {
 		if (post)
-			return new ClslIntConst(val++);
+			return ClslIntConst.of(val++);
 		++val;
 		return this;
 	}
@@ -325,13 +325,13 @@ public class ClslInt extends ClslValue {
 			case VOID:
 				break;
 			case CHAR:
-				return new ClslIntConst(val % other.toChar());
+				return ClslIntConst.of(val % other.toChar());
 			case DOUBLE:
 				return new ClslDoubleConst(val % other.toDouble());
 			case FLOAT:
 				return new ClslFloatConst(val % other.toFloat());
 			case INT:
-				return new ClslIntConst(val % other.toInt());
+				return ClslIntConst.of(val % other.toInt());
 			case LONG:
 				return new ClslLongConst(val % other.toLong());
 		}
@@ -371,13 +371,13 @@ public class ClslInt extends ClslValue {
 			case VOID:
 				break;
 			case CHAR:
-				return new ClslIntConst(val * other.toChar());
+				return ClslIntConst.of(val * other.toChar());
 			case DOUBLE:
 				return new ClslDoubleConst(val * other.toDouble());
 			case FLOAT:
 				return new ClslFloatConst(val * other.toFloat());
 			case INT:
-				return new ClslIntConst(val * other.toInt());
+				return ClslIntConst.of(val * other.toInt());
 			case LONG:
 				return new ClslLongConst(val * other.toLong());
 		}
@@ -406,7 +406,7 @@ public class ClslInt extends ClslValue {
 
 	@Override
 	public ClslIntConst sizeof() {
-		return new ClslIntConst(4);
+		return ClslIntConst.of(4);
 	}
 
 	@Override
@@ -439,11 +439,11 @@ public class ClslInt extends ClslValue {
 			case VOID:
 				break;
 			case CHAR:
-				return new ClslIntConst(val << other.toChar());
+				return ClslIntConst.of(val << other.toChar());
 			case INT:
-				return new ClslIntConst(val << other.toInt());
+				return ClslIntConst.of(val << other.toInt());
 			case LONG:
-				return new ClslIntConst(val << other.toLong());
+				return ClslIntConst.of(val << other.toLong());
 		}
 		super.sl(other, set);
 		return this;
@@ -478,11 +478,11 @@ public class ClslInt extends ClslValue {
 			case VOID:
 				break;
 			case CHAR:
-				return new ClslIntConst(val >> other.toChar());
+				return ClslIntConst.of(val >> other.toChar());
 			case INT:
-				return new ClslIntConst(val >> other.toInt());
+				return ClslIntConst.of(val >> other.toInt());
 			case LONG:
-				return new ClslIntConst(val >> other.toLong());
+				return ClslIntConst.of(val >> other.toLong());
 		}
 		super.sr(other, set);
 		return this;
@@ -520,13 +520,13 @@ public class ClslInt extends ClslValue {
 			case VOID:
 				break;
 			case CHAR:
-				return new ClslIntConst(val - other.toChar());
+				return ClslIntConst.of(val - other.toChar());
 			case DOUBLE:
 				return new ClslDoubleConst(val - other.toDouble());
 			case FLOAT:
 				return new ClslFloatConst(val - other.toFloat());
 			case INT:
-				return new ClslIntConst(val - other.toInt());
+				return ClslIntConst.of(val - other.toInt());
 			case LONG:
 				return new ClslLongConst(val - other.toLong());
 		}
@@ -609,9 +609,9 @@ public class ClslInt extends ClslValue {
 			case VOID:
 				break;
 			case CHAR:
-				return new ClslIntConst(val ^ other.toChar());
+				return ClslIntConst.of(val ^ other.toChar());
 			case INT:
-				return new ClslIntConst(val ^ other.toInt());
+				return ClslIntConst.of(val ^ other.toInt());
 			case LONG:
 				return new ClslLongConst(val ^ other.toLong());
 		}

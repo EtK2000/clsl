@@ -14,6 +14,8 @@ import com.etk2000.clsl.chunk.value.ConstValueChunk;
 import com.etk2000.clsl.compiler.ClslCompiler;
 import com.etk2000.clsl.exception.ClslException;
 import com.etk2000.clsl.exception.function.ClslBrokenJavaFunctionException;
+import com.etk2000.clsl.functional.FunctionData;
+import com.etk2000.clsl.functional.FunctionDataRet;
 import com.etk2000.clsl.header.DirectoryHeaderFinder;
 import com.etk2000.clsl.value.ClslArray;
 import com.etk2000.clsl.value.ClslArrayConst;
@@ -39,16 +41,6 @@ public class Clsl {
 	/**
 	 *
 	 */
-
-	@FunctionalInterface
-	public interface FunctionData {
-		void exec(ClslRuntimeEnv env, ClslValue[] args);
-	}
-
-	@FunctionalInterface
-	public interface FunctionDataRet {
-		ClslValue exec(ClslRuntimeEnv env, ClslValue[] args);
-	}
 
 	public static FunctionalChunk createFunctionalChunk(FunctionData f) {
 		return new FunctionalChunk(ValueType.VOID) {
@@ -136,13 +128,13 @@ public class Clsl {
 		if (o instanceof Float)
 			return new ClslFloatConst((Float) o);
 		if (o instanceof Integer)
-			return new ClslIntConst((Integer) o);
+			return ClslIntConst.of((Integer) o);
 		if (o instanceof Long)
 			return new ClslLongConst((Long) o);
 		if (o instanceof String)
 			return new ClslArrayConst((String) o);
 		if (o instanceof Short)
-			return new ClslIntConst((Short) o);// TODO: add short support
+			return ClslIntConst.of((Short) o);// TODO: add short support
 
 		return new ClslStructConstWrapped<>(o, wrapType);
 	}

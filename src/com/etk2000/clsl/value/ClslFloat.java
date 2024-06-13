@@ -338,7 +338,7 @@ public class ClslFloat extends ClslValue {
 
 	@Override
 	public ClslIntConst sizeof() {
-		return new ClslIntConst(4);
+		return ClslIntConst.of(4);
 	}
 
 	@Override
@@ -362,7 +362,7 @@ public class ClslFloat extends ClslValue {
 					System.out.println("redundant cast from float to float");
 				return new ClslFloatConst(val);
 			case INT:
-				return new ClslIntConst((int) val);
+				return ClslIntConst.of((int) val);
 			case LONG:
 				return new ClslLongConst((long) val);
 		}

@@ -16,12 +16,12 @@ public class ConstIntChunk extends ConstValueChunk {
 
 	public ConstIntChunk(int val) {
 		super(ValueType.INT);
-		this.val = new ClslIntConst(val);
+		this.val = ClslIntConst.of(val);
 	}
 
 	public ConstIntChunk(InputStream i) throws IOException {
 		super(ValueType.INT);
-		val = new ClslIntConst(StreamUtils.readInt(i));
+		val = ClslIntConst.of(StreamUtils.readInt(i));
 	}
 
 	@Override

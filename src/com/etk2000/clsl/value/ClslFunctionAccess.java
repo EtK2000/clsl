@@ -24,7 +24,7 @@ public class ClslFunctionAccess extends ClslValue implements ClslConst {
 
 	@Override
 	public ClslIntConst sizeof() {
-		return new ClslIntConst(8);
+		return ClslIntConst.of(8);
 	}
 
 	@Override

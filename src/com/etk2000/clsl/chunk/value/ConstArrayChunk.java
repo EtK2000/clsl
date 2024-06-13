@@ -45,7 +45,7 @@ public class ConstArrayChunk extends ConstValueChunk {
 		super(ValueType.ARRAY);
 		val = new ClslArrayConst(ValueType.INT, (short) vals.length);
 		for (int i = 0; i < vals.length; ++i)
-			val.val[i] = new ClslIntConst(vals[i]);
+			val.val[i] = ClslIntConst.of(vals[i]);
 	}
 
 	public ConstArrayChunk(InputStream i) throws IOException {
@@ -66,7 +66,7 @@ public class ConstArrayChunk extends ConstValueChunk {
 				break;
 			case INT:
 				for (short j = 0; j < val.val.length; ++j)
-					val.val[j] = new ClslIntConst(StreamUtils.readInt(i));
+					val.val[j] = ClslIntConst.of(StreamUtils.readInt(i));
 				break;
 			case LONG:
 				for (short j = 0; j < val.val.length; ++j)

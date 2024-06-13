@@ -26,7 +26,7 @@ public class TestOpInc {
 		final OpInc chunk = new OpInc(VARIABLE_ACCESS, true);
 
 		env.defineVar(VARIABLE_NAME, new ClslInt(initialValue));
-		assertEquals(new ClslIntConst(initialValue), chunk.get(env));
+		assertEquals(ClslIntConst.of(initialValue), chunk.get(env));
 		assertEquals(new ClslInt(initialValue + 1), env.getVar(VARIABLE_NAME));
 	}
 

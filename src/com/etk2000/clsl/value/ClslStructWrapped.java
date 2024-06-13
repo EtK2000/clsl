@@ -110,7 +110,7 @@ public class ClslStructWrapped<T> extends ClslStruct {
 		else if (o instanceof Float)
 			return constant ? new ClslFloatConst((float) o) : new ClslFloat((float) o);
 		else if (o instanceof Integer)
-			return constant ? new ClslIntConst((int) o) : new ClslInt((int) o);
+			return constant ? ClslIntConst.of((int) o) : new ClslInt((int) o);
 		else if (o instanceof Long)
 			return constant ? new ClslLongConst((long) o) : new ClslLong((long) o);
 
@@ -176,7 +176,7 @@ public class ClslStructWrapped<T> extends ClslStruct {
 		int res = 0;
 		for (ClslValue v : members.values())
 			res += v.sizeof().val;
-		return new ClslIntConst(res);
+		return ClslIntConst.of(res);
 	}
 
 	@Override

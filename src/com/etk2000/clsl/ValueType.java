@@ -56,4 +56,8 @@ public enum ValueType {
 		this.subType = subType;
 		this.clazz = clazz;
 	}
+
+	public boolean isNumeric() {
+		return subType == SubType.NUMBER;
+	}
 }

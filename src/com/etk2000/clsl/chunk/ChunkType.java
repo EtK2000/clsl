@@ -1,6 +1,5 @@
 package com.etk2000.clsl.chunk;
 
-import com.etk2000.clsl.ThrowingFunction;
 import com.etk2000.clsl.chunk.op.OpAdd;
 import com.etk2000.clsl.chunk.op.OpAnd;
 import com.etk2000.clsl.chunk.op.OpBinAnd;
@@ -48,6 +47,7 @@ import com.etk2000.clsl.chunk.variable.set.SetVarShiftLeft;
 import com.etk2000.clsl.chunk.variable.set.SetVarShiftRight;
 import com.etk2000.clsl.chunk.variable.set.SetVarSub;
 import com.etk2000.clsl.chunk.variable.set.SetVarXor;
+import com.etk2000.clsl.functional.ThrowingFunction;
 
 import java.io.IOException;
 import java.io.InputStream;

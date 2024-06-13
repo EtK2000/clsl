@@ -310,7 +310,7 @@ public class ClslLong extends ClslValue {
 			case CHAR:
 				return new ClslCharConst((char) (val & other.toChar()));
 			case INT:
-				return new ClslIntConst((int) (val & other.toInt()));
+				return ClslIntConst.of((int) (val & other.toInt()));
 			case LONG:
 				return new ClslLongConst(val & other.toLong());
 		}
@@ -537,7 +537,7 @@ public class ClslLong extends ClslValue {
 
 	@Override
 	public ClslIntConst sizeof() {
-		return new ClslIntConst(8);
+		return ClslIntConst.of(8);
 	}
 
 	@Override
@@ -559,7 +559,7 @@ public class ClslLong extends ClslValue {
 			case FLOAT:
 				return new ClslFloatConst(val);
 			case INT:
-				return new ClslIntConst((int) val);
+				return ClslIntConst.of((int) val);
 			case LONG:
 				if (Clsl.doWarn)
 					System.out.println("redundant cast from char to char");

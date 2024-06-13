@@ -53,7 +53,7 @@ public class OpBool implements ValueChunk {
 			if (val instanceof ConstValueChunk)
 				return new ConstIntChunk(val.get(null).toBoolean() ? 1 : 0);
 
-			ClslChunk op = val.optimize(env.forValue());
+			final ClslChunk op = val.optimize(env.forValue());
 			if (op != val)
 				return new OpBool((ValueChunk) op).optimize(env);
 		}

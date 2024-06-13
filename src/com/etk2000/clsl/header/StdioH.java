@@ -38,7 +38,7 @@ public class StdioH extends HeaderBase {
 					try {
 						format.format(((String) args[0].toJava()), vals);
 						System.out.print(formatSb);
-						return new ClslIntConst(formatSb.length());
+						return ClslIntConst.of(formatSb.length());
 					}
 					finally {
 						formatSb.setLength(0);
@@ -47,7 +47,7 @@ public class StdioH extends HeaderBase {
 			}
 			catch (Exception e) {
 				System.err.println(e.getClass().getSimpleName() + ": " + e.getMessage());
-				return new ClslIntConst(-1);
+				return ClslIntConst.of(-1);
 			}
 		});
 
@@ -68,7 +68,7 @@ public class StdioH extends HeaderBase {
 					try {
 						format.format(((String) args[1].toJava()), vals);
 						((ClslArray) args[0]).fill(formatSb);
-						return new ClslIntConst(formatSb.length());
+						return ClslIntConst.of(formatSb.length());
 					}
 					finally {
 						formatSb.setLength(0);
@@ -79,7 +79,7 @@ public class StdioH extends HeaderBase {
 				if (e instanceof ClslRuntimeException)
 					throw e;
 				System.err.println(e.getClass().getSimpleName() + ": " + e.getMessage());
-				return new ClslIntConst(-1);
+				return ClslIntConst.of(-1);
 			}
 		});
 	}

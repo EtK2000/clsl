@@ -23,7 +23,7 @@ public class OpOr extends OpBinary {
 
 	@Override
 	public ClslValue get(ClslRuntimeEnv env) {
-		return new ClslIntConst(op1.get(env).toBoolean() || op2.get(env).toBoolean() ? 1 : 0);
+		return ClslIntConst.of(op1.get(env).toBoolean() || op2.get(env).toBoolean() ? 1 : 0);
 	}
 
 	@Override
@@ -33,9 +33,22 @@ public class OpOr extends OpBinary {
 				// true || X = true
 				if (op1.get(null).toBoolean())
 					return new ConstIntChunk(1);
+
+				// false || true/false
 				if (op2 instanceof ConstValueChunk)
 					return new ConstIntChunk(op2.get(null).toBoolean() ? 1 : 0);
-				return new OpBool(op2).optimize(env.forValue());
+
+				// false || X = X
+				return (ValueChunk) op2.optimize(env.forValue());
+			}
+
+			else if (op2 instanceof ConstValueChunk) {
+				// X || true = true
+				if (op2.get(null).toBoolean())
+					return new ConstIntChunk(1);
+
+				// X || false = X
+				return (ValueChunk) op1.optimize(env.forValue());
 			}
 
 			ClslChunk ep1 = op1.optimize(env.forValue()), ep2 = op2.optimize(env.forValue());

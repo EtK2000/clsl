@@ -1,4 +1,4 @@
-package com.etk2000.clsl;
+package com.etk2000.clsl.functional;
 
 @FunctionalInterface
 public interface ThrowingFunction<T, R, E extends Exception> {

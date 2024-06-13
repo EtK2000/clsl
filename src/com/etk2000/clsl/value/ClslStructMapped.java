@@ -52,7 +52,7 @@ public class ClslStructMapped extends ClslStruct {
 		int res = 0;
 		for (ClslValue v : members.values())
 			res += v.sizeof().val;
-		return new ClslIntConst(res);
+		return ClslIntConst.of(res);
 	}
 
 	@Override

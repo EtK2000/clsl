@@ -78,7 +78,7 @@ public class StdlibH extends HeaderBase {
 
 		@Override
 		public ClslIntConst sizeof() {
-			return new ClslIntConst(8);
+			return ClslIntConst.of(8);
 		}
 
 		@Override
@@ -143,7 +143,7 @@ public class StdlibH extends HeaderBase {
 
 		@Override
 		public ClslIntConst sizeof() {
-			return new ClslIntConst(16);
+			return ClslIntConst.of(16);
 		}
 
 		@Override
@@ -173,13 +173,13 @@ public class StdlibH extends HeaderBase {
 	/********/
 
 	private static final FunctionalChunk abs = Clsl.createFunctionalChunk(ValueType.INT,
-			(env, args) -> new ClslIntConst(Math.abs(assertAndGet(args, 1, 0).toInt())));
+			(env, args) -> ClslIntConst.of(Math.abs(assertAndGet(args, 1, 0).toInt())));
 
 	private static final FunctionalChunk atof = Clsl.createFunctionalChunk(ValueType.DOUBLE,
 			(env, args) -> new ClslDoubleConst(Double.parseDouble(assertStringCast(args, "atof"))));
 
 	private static final FunctionalChunk atoi = Clsl.createFunctionalChunk(ValueType.INT,
-			(env, args) -> new ClslIntConst(Integer.parseInt(assertStringCast(args, "atoi"))));
+			(env, args) -> ClslIntConst.of(Integer.parseInt(assertStringCast(args, "atoi"))));
 
 	private static final FunctionalChunk atol = Clsl.createFunctionalChunk(ValueType.LONG,
 			(env, args) -> new ClslLongConst(Long.parseLong(assertStringCast(args, "atol"))));

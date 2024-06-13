@@ -37,7 +37,7 @@ public class OpShiftRight extends OpBinary {
 					return Clsl.toChunk(get(null));
 			}
 
-			ClslChunk ep1 = op1.optimize(env.forValue()), ep2 = op2.optimize(env.forValue());
+			final ClslChunk ep1 = op1.optimize(env.forValue()), ep2 = op2.optimize(env.forValue());
 			if (ep1 != op1 || ep2 != op2)
 				return new OpShiftRight((ValueChunk) ep1, (ValueChunk) ep2).optimize(env);
 		}

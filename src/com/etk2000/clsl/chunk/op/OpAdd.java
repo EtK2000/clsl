@@ -45,7 +45,7 @@ public class OpAdd extends OpBinary {
 			else if (op2 instanceof ConstValueChunk && !op2.get(null).toBoolean())
 				return (ValueChunk) op1.optimize(env.forValue());
 
-			ClslChunk ep1 = op1.optimize(env.forValue()), ep2 = op2.optimize(env.forValue());
+			final ClslChunk ep1 = op1.optimize(env.forValue()), ep2 = op2.optimize(env.forValue());
 			if (ep1 != op1 || ep2 != op2)
 				return new OpAdd((ValueChunk) ep1, (ValueChunk) ep2).optimize(env);
 		}

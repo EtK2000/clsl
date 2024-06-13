@@ -210,7 +210,7 @@ public class ClslArray extends ClslValue {
 
 	@Override
 	public ClslIntConst sizeof() {
-		return new ClslIntConst(val.length > 0 ? val.length * val[0].sizeof().val : 0);
+		return ClslIntConst.of(val.length > 0 ? val.length * val[0].sizeof().val : 0);
 	}
 
 	public int strlen() {

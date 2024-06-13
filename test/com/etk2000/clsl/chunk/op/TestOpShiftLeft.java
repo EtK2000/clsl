@@ -4,7 +4,9 @@ import static com.etk2000.clsl.test.TestingUtils.transmitAndReceive;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.etk2000.clsl.ClslRuntimeEnv;
+import com.etk2000.clsl.OptimizationEnvironment;
 import com.etk2000.clsl.chunk.value.ConstIntChunk;
+import com.etk2000.clsl.chunk.variable.GetVar;
 import com.etk2000.clsl.header.DirectoryHeaderFinder;
 
 import org.junit.jupiter.api.Test;
@@ -12,6 +14,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class TestOpShiftLeft {
 	private static final int VALUE_0 = 1, VALUE_1 = 2;
@@ -38,6 +41,31 @@ public class TestOpShiftLeft {
 		assertEquals(
 				original,
 				transmitAndReceive(original, OpShiftLeft::new)
+		);
+	}
+
+	@Test
+	void testOptimize() {
+		final ConstIntChunk zero = new ConstIntChunk(0);
+		final OptimizationEnvironment env = new OptimizationEnvironment(new ArrayList<>());
+
+		// test that normal usage stays the same
+		final GetVar getVar = new GetVar("test");
+		assertEquals(
+				new OpShiftLeft(getVar, getVar),
+				new OpShiftLeft(getVar, getVar).optimize(env)
+		);
+
+		// test that constants are merged
+		assertEquals(
+				new ConstIntChunk(VALUE_0 << VALUE_1),
+				new OpShiftLeft(CHUNK_VALUE_0, CHUNK_VALUE_1).optimize(env)
+		);
+
+		// test that (X << 0) -> X
+		assertEquals(
+				getVar,
+				new OpShiftLeft(getVar, zero).optimize(env)
 		);
 	}
 
