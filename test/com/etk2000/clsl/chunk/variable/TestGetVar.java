@@ -20,17 +20,17 @@ import java.util.ArrayList;
 
 public class TestGetVar {
 	private static final String VARIABLE_NAME = "test";
+	private static final ClslIntConst EXPECTED_VALUE = new ClslIntConst(42069);
 
 	@Test
 	void testGet() {
 		final ClslRuntimeEnv env = new ClslRuntimeEnv(new DirectoryHeaderFinder());
 		final GetVar chunk = new GetVar(VARIABLE_NAME);
 
-		final ClslValue expected = new ClslIntConst(42069);
-		env.defineVar(VARIABLE_NAME, expected);
+		env.defineVar(VARIABLE_NAME, EXPECTED_VALUE);
 		env.defineVar(VARIABLE_NAME + 1, new ClslCharConst('a'));
 
-		assertEquals(expected, chunk.get(env));
+		assertEquals(EXPECTED_VALUE, chunk.get(env));
 	}
 
 	@Test
@@ -51,10 +51,49 @@ public class TestGetVar {
 	}
 
 	@Test
+	void testGlobalScopeAccess() {
+		final ClslRuntimeEnv env = new ClslRuntimeEnv(new DirectoryHeaderFinder());
+		final GetVar chunk = new GetVar(VARIABLE_NAME);
+
+		env.defineVar(VARIABLE_NAME, EXPECTED_VALUE);
+		assertEquals(EXPECTED_VALUE, chunk.get(env));
+
+		env.pushStack(true);
+		assertEquals(EXPECTED_VALUE, chunk.get(env));
+	}
+
+	@Test
+	void testGlobalScopeOverride() {
+		final ClslRuntimeEnv env = new ClslRuntimeEnv(new DirectoryHeaderFinder());
+		final GetVar chunk = new GetVar(VARIABLE_NAME);
+		final ClslValue expectedLocal = EXPECTED_VALUE.add(new ClslIntConst(1), false);
+
+		env.defineVar(VARIABLE_NAME, EXPECTED_VALUE);
+		assertEquals(EXPECTED_VALUE, chunk.get(env));
+
+		env.pushStack(true);
+		env.defineVar(VARIABLE_NAME, expectedLocal);
+		assertEquals(expectedLocal, chunk.get(env));
+	}
+
+	@Test
 	void testIO() throws IOException {
 		final GetVar original = new GetVar(VARIABLE_NAME);
 
 		assertEquals(original, transmitAndReceive(original, GetVar::new));
+	}
+
+	@Test
+	void testInnerScopeInaccessible() {
+		final ClslRuntimeEnv env = new ClslRuntimeEnv(new DirectoryHeaderFinder());
+		final GetVar chunk = new GetVar(VARIABLE_NAME);
+		env.pushStack(true);
+
+		env.defineVar(VARIABLE_NAME, EXPECTED_VALUE);
+		assertEquals(EXPECTED_VALUE, chunk.get(env));
+
+		env.pushStack(true);
+		assertThrows(ClslVariableCannotBeResolvedException.class, () -> chunk.get(env));
 	}
 
 	@Test

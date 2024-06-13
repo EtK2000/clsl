@@ -99,6 +99,62 @@ public class ClslArray extends ClslValue {
 			throw new ClslInvalidArrayComponentTypeException();
 	}
 
+	public ClslArray append(ClslArray other) {
+		if (component != ValueType.CHAR || other.component != ValueType.CHAR)
+			throw new ClslInvalidArrayComponentTypeException();
+
+		int strlen = strlen();
+		if ((other.val[other.val.length - 1].toBoolean() ? other.val.length + 1 : other.val.length) > val.length - strlen)
+			throw new ClslBufferOverflowException();
+
+		int i = 0;
+		for (; i < other.val.length; ++i)
+			val[i + strlen] = new ClslChar(other.val[i].toChar());
+		val[i + strlen] = new ClslChar(0);// NULL termination (JIC)
+		return this;
+	}
+
+	@Override
+	public ClslConst cast(ValueType to) {
+		switch (to) {
+			case ARRAY:// FIXME: deal with component types
+				if (Clsl.doWarn)
+					System.out.println("redundant cast from array to array");
+				return new ClslArrayConst(val);
+			case CHAR:
+			case DOUBLE:
+			case FLOAT:
+			case INT:
+			case LONG:
+			case VOID:
+				break;
+			case POINTER:
+				if (Clsl.doWarn)
+					System.out.println("redundant cast from array to pointer");
+				return new ClslPointerConst(val);// keep this const?
+		}
+		return super.cast(to);
+	}
+
+	public int compareTo(ClslArray other) {
+		if (component != ValueType.CHAR || other.component != ValueType.CHAR)
+			throw new ClslRuntimeException("can only compare strings");
+
+		int len1 = strlen(), len2 = other.strlen(), lim = Math.min(len1, len2);
+		for (int i = 0; i < lim; ++i) {
+			char c1 = val[i].toChar(), c2 = other.val[i].toChar();
+			if (c1 != c2)
+				return c1 - c2;
+		}
+		return len1 - len2;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public ClslArrayConst copy() {
+		return new ClslArrayConst(val);
+	}
+
 	public ClslArray fill(CharSequence put) {
 		if (component != ValueType.CHAR)
 			throw new ClslInvalidArrayComponentTypeException();
@@ -125,57 +181,6 @@ public class ClslArray extends ClslValue {
 		return this;
 	}
 
-	public ClslArray append(ClslArray other) {
-		if (component != ValueType.CHAR || other.component != ValueType.CHAR)
-			throw new ClslInvalidArrayComponentTypeException();
-
-		int strlen = strlen();
-		if ((other.val[other.val.length - 1].toBoolean() ? other.val.length + 1 : other.val.length) > val.length - strlen)
-			throw new ClslBufferOverflowException();
-
-		int i = 0;
-		for (; i < other.val.length; ++i)
-			val[i + strlen] = new ClslChar(other.val[i].toChar());
-		val[i + strlen] = new ClslChar(0);// NULL termination (JIC)
-		return this;
-	}
-
-	public int compareTo(ClslArray other) {
-		if (component != ValueType.CHAR || other.component != ValueType.CHAR)
-			throw new ClslRuntimeException("can only compare strings");
-
-		int len1 = strlen(), len2 = other.strlen(), lim = Math.min(len1, len2);
-		for (int i = 0; i < lim; ++i) {
-			char c1 = val[i].toChar(), c2 = other.val[i].toChar();
-			if (c1 != c2)
-				return c1 - c2;
-		}
-		return len1 - len2;
-	}
-
-	public int strlen() {
-		if (component != ValueType.CHAR)
-			throw new ClslInvalidArrayComponentTypeException();
-
-		for (int i = 0; i < val.length; ++i) {
-			if (val[i] == null || !val[i].toBoolean())
-				return i;
-		}
-
-		if (Clsl.doWarn)
-			System.out.println("no NULL termination: " + this);
-		return val.length;
-	}
-
-	@Override
-	public ClslArray set(ClslValue other) {
-		if (other instanceof ClslArray)
-			val = ((ClslArray) other).val;
-		else
-			super.set(other);
-		return this;
-	}
-
 	@Override
 	public ClslValue index(ClslValue index) {
 		switch (index.type) {
@@ -194,10 +199,13 @@ public class ClslArray extends ClslValue {
 		return super.index(index);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public ClslArrayConst copy() {
-		return new ClslArrayConst(val);
+	public ClslArray set(ClslValue other) {
+		if (other instanceof ClslArray)
+			val = ((ClslArray) other).val;
+		else
+			super.set(other);
+		return this;
 	}
 
 	@Override
@@ -205,47 +213,20 @@ public class ClslArray extends ClslValue {
 		return new ClslIntConst(val.length > 0 ? val.length * val[0].sizeof().val : 0);
 	}
 
-	@Override
-	public String typeName() {
-		return component.name() + "[]";
-	}
+	public int strlen() {
+		if (component != ValueType.CHAR)
+			throw new ClslInvalidArrayComponentTypeException();
 
-	@Override
-	public ClslConst cast(ValueType to) {
-		switch (to) {
-			case ARRAY:// FIXME: deal with component types
-				if (Clsl.doWarn)
-					System.out.println("redundant cast from array to array");
-				return new ClslArrayConst(val);
-			case CHAR:
-			case DOUBLE:
-			case FLOAT:
-			case INT:
-			case LONG:
-			case VOID:
-				break;
-			case POINTER:
-				return new ClslPointerConst(val);// keep this const?
-		}
-		return super.cast(to);
-	}
-
-	@Override
-	public String toString() {
-		if (component == ValueType.CHAR) {
-			try (StringBuilderPoolable sb = new StringBuilderPoolable()) {
-				sb.append('"');
-				for (short i = 0; i < val.length && val[i].toBoolean(); ++i)
-					sb.append(ClslUtil.escape(val[i].toChar()));
-				return sb.append('"').toString();
-			}
+		for (int i = 0; i < val.length; ++i) {
+			if (val[i] == null || !val[i].toBoolean())
+				return i;
 		}
 
-		// TODO: show toString as { ... } and not [ ... ]?
-		return Arrays.toString(val);
+		if (Clsl.doWarn)
+			System.out.println("no NULL termination: " + this);
+		return val.length;
 	}
 
-	// TODO: find a way to not require creating new arrays every time
 	@Override
 	public Object toJava() {
 		switch (component) {
@@ -294,5 +275,25 @@ public class ClslArray extends ClslValue {
 				break;
 		}
 		throw new UnsupportedOperationException("ClslArray(" + Clsl.typeName(component) + ") not supported yet");
+	}
+
+	@Override
+	public String toString() {
+		if (component == ValueType.CHAR) {
+			try (StringBuilderPoolable sb = new StringBuilderPoolable()) {
+				sb.append('"');
+				for (short i = 0; i < val.length && val[i].toBoolean(); ++i)
+					sb.append(ClslUtil.escape(val[i].toChar()));
+				return sb.append('"').toString();
+			}
+		}
+
+		// TODO: show toString as { ... } and not [ ... ]?
+		return Arrays.toString(val);
+	}
+
+	@Override
+	public String typeName() {
+		return component.name() + "[]";
 	}
 }

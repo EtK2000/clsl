@@ -87,7 +87,7 @@ public abstract class ClslRuntimeStack {
 		@Override
 		public ClslValue getVar(String name) {
 			ClslValue res = currentFrame.getVar(name);
-			return res != null ? res : stack.peek().getVar(name);
+			return res != null ? res : stack.getLast().getVar(name);
 		}
 
 		@Override
