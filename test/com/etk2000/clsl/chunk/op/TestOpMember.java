@@ -7,7 +7,7 @@ import com.etk2000.clsl.ClslRuntimeEnv;
 import com.etk2000.clsl.chunk.variable.GetVar;
 import com.etk2000.clsl.header.DirectoryHeaderFinder;
 import com.etk2000.clsl.value.ClslIntConst;
-import com.etk2000.clsl.value.ClslStructMapped;
+import com.etk2000.clsl.value.ClslStructConstMapped;
 import com.etk2000.clsl.value.ClslValue;
 
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,7 @@ public class TestOpMember {
 
 		final Map<String, ClslValue> expected = new HashMap<>();
 		expected.put(VARIABLE_MEMBER, ClslIntConst.of(42));
-		env.defineVar(VARIABLE_NAME, new ClslStructMapped(expected));
+		env.defineVar(VARIABLE_NAME, new ClslStructConstMapped(expected));
 
 		assertEquals(expected.get(VARIABLE_MEMBER), op.get(env));
 	}

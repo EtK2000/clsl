@@ -1,7 +1,8 @@
 package com.etk2000.clsl;
 
-import com.etk2000.clsl.ClslRuntimeStack.ClslStackType;
 import com.etk2000.clsl.header.ClslExternHeaderFinder;
+import com.etk2000.clsl.stack.ClslRuntimeStack;
+import com.etk2000.clsl.stack.ClslStackType;
 import com.etk2000.clsl.value.ClslValue;
 
 public class ClslRuntimeEnv {
@@ -10,7 +11,7 @@ public class ClslRuntimeEnv {
 	private final ClslRuntimeStack stack;
 
 	public ClslRuntimeEnv(ClslExternHeaderFinder externHeaderFinder) {
-		this(externHeaderFinder, ClslRuntimeStack.create(ClslStackType.array_deque));
+		this(externHeaderFinder, ClslStackType.ARRAY_DEQUE.createStack.get());
 	}
 
 	public ClslRuntimeEnv(ClslExternHeaderFinder externHeaderFinder, ClslRuntimeStack variableScopes) {
