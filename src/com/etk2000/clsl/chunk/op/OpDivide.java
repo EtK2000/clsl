@@ -24,7 +24,11 @@ public class OpDivide extends OpBinary {
 
 	@Override
 	public ClslValue get(ClslRuntimeEnv env) {
-		return op1.get(env).div(op2.get(env), false);
+		final ClslValue denominator = op2.get(env);
+		if (!denominator.toBoolean())
+			throw new ClslDivisionByZeroException(false);
+
+		return op1.get(env).div(denominator, false);
 	}
 
 	// TODO: if op1 == op2 (i.e. they are the same code),

@@ -288,7 +288,7 @@ public class ClslInt extends ClslValue {
 			case FLOAT:
 			case INT:
 			case LONG:
-				return val < other.toInt();
+				return val <= other.toInt();
 		}
 		return super.lte(other);
 	}

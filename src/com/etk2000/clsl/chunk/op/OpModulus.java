@@ -24,7 +24,11 @@ public class OpModulus extends OpBinary {
 
 	@Override
 	public ClslValue get(ClslRuntimeEnv env) {
-		return op1.get(env).mod(op2.get(env), false);
+		final ClslValue denominator = op2.get(env);
+		if (!denominator.toBoolean())
+			throw new ClslDivisionByZeroException(true);
+
+		return op1.get(env).mod(denominator, false);
 	}
 
 	// TODO: if op1 == op2 (i.e. they are the same code),

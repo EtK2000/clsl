@@ -27,9 +27,8 @@ public class OpEquals extends OpBinary {
 	}
 
 	@Override
-	public void transmit(OutputStream o) throws IOException {
-		super.transmit(o);
-		o.write(not ? 1 : 0);
+	public boolean equals(Object other) {
+		return super.equals(other) && not == ((OpEquals) other).not;
 	}
 
 	@Override
@@ -37,10 +36,6 @@ public class OpEquals extends OpBinary {
 		return new ClslInt(op1.get(env).eq(op2.get(env)) != not ? 1 : 0);
 	}
 
-	@Override
-	public String toString() {
-		return "(" + op1 + (not ? " != " : " == ") + op2 + ')';
-	}
 
 	// TODO: if op1 == op2 (i.e. they are the same code),
 	// we can return !not and execute the part of them that's needed
@@ -55,6 +50,17 @@ public class OpEquals extends OpBinary {
 				return new OpEquals((ValueChunk) ep1, (ValueChunk) ep2, not).optimize(env);
 		}
 		return this;
+	}
+
+	@Override
+	public String toString() {
+		return "(" + op1 + (not ? " != " : " == ") + op2 + ')';
+	}
+
+	@Override
+	public void transmit(OutputStream o) throws IOException {
+		super.transmit(o);
+		o.write(not ? 1 : 0);
 	}
 
 	@Override

@@ -25,6 +25,17 @@ public abstract class OpBinary implements ValueChunk {
 	}
 
 	@Override
+	public boolean equals(Object other) {
+		if (this == other)
+			return true;
+		if (other == null || getClass() != other.getClass())
+			return false;
+
+		final OpBinary that = (OpBinary) other;
+		return op1.equals(that.op1) && op2.equals(that.op2);
+	}
+
+	@Override
 	public ExecutableChunk getExecutablePart(OptimizationEnvironment env) {
 		ExecutableChunk ep1 = op1.getExecutablePart(env), ep2 = op2.getExecutablePart(env);
 		if (ep1 == null)
