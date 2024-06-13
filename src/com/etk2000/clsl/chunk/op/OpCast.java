@@ -21,66 +21,70 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class OpCast implements ValueChunk {
-	private final ValueChunk var;
+	private final ValueChunk val;
 	private final ValueType to;
 
-	public OpCast(ValueChunk var, ValueType to) {
-		this.var = var;
+	public OpCast(ValueChunk val, ValueType to) {
+		this.val = val;
 		this.to = to;
 	}
 
-	OpCast(InputStream i) throws IOException {
-		var = Clsl.readChunk(i);
-		to = StreamUtils.read(i, ValueType.class);
-	}
-
-	@Override
-	public void transmit(OutputStream o) throws IOException {
-		Clsl.writeChunk(o, var);
-		StreamUtils.write(o, to);
+	public OpCast(InputStream i) throws IOException {
+		this.val = Clsl.readChunk(i);
+		this.to = StreamUtils.read(i, ValueType.class);
 	}
 
 	@Override
 	public ClslValue get(ClslRuntimeEnv env) {
-		return (ClslValue) var.get(env).cast(to);
-	}
-
-	@Override
-	public String toString() {
-		return "((" + Clsl.typeName(to) + ") " + var + ')';
+		return (ClslValue) val.get(env).cast(to);
 	}
 
 	@Override
 	public ExecutableChunk getExecutablePart(OptimizationEnvironment env) {
-		return var.getExecutablePart(env);
+		return val.getExecutablePart(env);
 	}
 
 	@Override
 	public ValueChunk optimize(OptimizationEnvironment env) {
 		if (env.isFirstPass) {
-			if (var instanceof ConstValueChunk) {
-				if (((ConstValueChunk) var).type == to)
+			if (val instanceof ConstValueChunk) {
+				if (((ConstValueChunk) val).type == to)
 					return this;// already the correct type
 
 				switch (to) {
 					case CHAR:
-						return new ConstCharChunk(var.get(null).toChar());
+						return new ConstCharChunk(val.get(null).toChar());
 					case DOUBLE:
-						return new ConstDoubleChunk(var.get(null).toDouble());
+						return new ConstDoubleChunk(val.get(null).toDouble());
 					case FLOAT:
-						return new ConstFloatChunk(var.get(null).toFloat());
+						return new ConstFloatChunk(val.get(null).toFloat());
 					case INT:
-						return new ConstIntChunk(var.get(null).toInt());
+						return new ConstIntChunk(val.get(null).toInt());
 					case LONG:
-						return new ConstLongChunk(var.get(null).toLong());
+						return new ConstLongChunk(val.get(null).toLong());
 				}
 			}
 			else {
-				ClslChunk op = var.optimize(env.forValue());
-				if (op != var)
+				ClslChunk op = val.optimize(env.forValue());
+				if (op != val)
 					return new OpCast((ValueChunk) op, to).optimize(env);
 			}
 		}
 		return this;
+	}
+
+	@Override
+	public String toString() {
+		return "((" + Clsl.typeName(to) + ") " + val + ')';
+	}
+
+	@Override
+	public void transmit(OutputStream o) throws IOException {
+		Clsl.writeChunk(o, val);
+		StreamUtils.write(o, to);
+	}
+
+	public OpCast withValue(ValueChunk val) {
+		return new OpCast(val, to);
 	}
 }

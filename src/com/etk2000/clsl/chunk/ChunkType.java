@@ -5,6 +5,8 @@ import com.etk2000.clsl.chunk.op.OpAdd;
 import com.etk2000.clsl.chunk.op.OpAnd;
 import com.etk2000.clsl.chunk.op.OpBinAnd;
 import com.etk2000.clsl.chunk.op.OpBinOr;
+import com.etk2000.clsl.chunk.op.OpBool;
+import com.etk2000.clsl.chunk.op.OpCast;
 import com.etk2000.clsl.chunk.op.OpDec;
 import com.etk2000.clsl.chunk.op.OpDivide;
 import com.etk2000.clsl.chunk.op.OpEquals;
@@ -124,6 +126,8 @@ public enum ChunkType {
 	ADD(OpAdd.class, OpAdd::new),
 	BIN_AND(OpBinAnd.class, OpBinAnd::new),
 	BIN_OR(OpBinOr.class, OpBinOr::new),
+	BOOL(OpBool.class, OpBool::new),
+	CAST(OpCast.class, OpCast::new),
 	DEC(OpDec.class, OpDec::new),
 	DIVIDE(OpDivide.class, OpDivide::new),
 	INC(OpInc.class, OpInc::new),

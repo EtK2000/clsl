@@ -27,11 +27,6 @@ public class OpMultiply extends OpBinary {
 	}
 
 	@Override
-	public String toString() {
-		return "(" + op1 + " * " + op2 + ')';
-	}
-
-	@Override
 	public ValueChunk optimize(OptimizationEnvironment env) {
 		if (env.isFirstPass) {
 			if (op1 instanceof ConstValueChunk) {
@@ -66,5 +61,15 @@ public class OpMultiply extends OpBinary {
 				return new OpMultiply((ValueChunk) ep1, (ValueChunk) ep2).optimize(env);
 		}
 		return this;
+	}
+
+	@Override
+	public String toString() {
+		return "(" + op1 + " * " + op2 + ')';
+	}
+
+	@Override
+	public OpMultiply withFirstOp(ValueChunk op1) {
+		return new OpMultiply(op1, op2);
 	}
 }

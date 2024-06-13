@@ -27,11 +27,6 @@ public class OpDivide extends OpBinary {
 		return op1.get(env).div(op2.get(env), false);
 	}
 
-	@Override
-	public String toString() {
-		return "(" + op1 + " / " + op2 + ')';
-	}
-
 	// TODO: if op1 == op2 (i.e. they are the same code),
 	// we can return 1 and execute the part of them that's needed
 	@Override
@@ -62,5 +57,15 @@ public class OpDivide extends OpBinary {
 				return new OpDivide((ValueChunk) ep1, (ValueChunk) ep2).optimize(env);
 		}
 		return this;
+	}
+
+	@Override
+	public String toString() {
+		return "(" + op1 + " / " + op2 + ')';
+	}
+
+	@Override
+	public OpDivide withFirstOp(ValueChunk op1) {
+		return new OpDivide(op1, op2);
 	}
 }

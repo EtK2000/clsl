@@ -26,11 +26,6 @@ public class OpShiftLeft extends OpBinary {
 	}
 
 	@Override
-	public String toString() {
-		return "(" + op1 + " << " + op2 + ')';
-	}
-
-	@Override
 	public ValueChunk optimize(OptimizationEnvironment env) {
 		if (env.isFirstPass) {
 			if (op2 instanceof ConstValueChunk) {
@@ -45,5 +40,15 @@ public class OpShiftLeft extends OpBinary {
 				return new OpShiftLeft((ValueChunk) ep1, (ValueChunk) ep2).optimize(env);
 		}
 		return this;
+	}
+
+	@Override
+	public String toString() {
+		return "(" + op1 + " << " + op2 + ')';
+	}
+
+	@Override
+	public OpShiftLeft withFirstOp(ValueChunk op1) {
+		return new OpShiftLeft(op1, op2);
 	}
 }

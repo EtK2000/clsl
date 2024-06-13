@@ -25,11 +25,6 @@ public class OpBinOr extends OpBinary {
 		return op1.get(env).bor(op2.get(env), false);
 	}
 
-	@Override
-	public String toString() {
-		return "(" + op1 + " | " + op2 + ')';
-	}
-
 	// TODO: optimize for when op1 or op2 are only trues (0xfffffffff...)
 	@Override
 	public ValueChunk optimize(OptimizationEnvironment env) {
@@ -52,5 +47,15 @@ public class OpBinOr extends OpBinary {
 				return new OpBinOr((ValueChunk) ep1, (ValueChunk) ep2).optimize(env);
 		}
 		return this;
+	}
+
+	@Override
+	public String toString() {
+		return "(" + op1 + " | " + op2 + ')';
+	}
+
+	@Override
+	public OpBinOr withFirstOp(ValueChunk op1) {
+		return new OpBinOr(op1, op2);
 	}
 }

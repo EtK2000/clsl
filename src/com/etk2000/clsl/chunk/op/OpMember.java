@@ -72,4 +72,8 @@ public class OpMember implements VariableAccess {
 		Clsl.writeChunk(o, op);
 		StreamUtils.write(o, member);
 	}
+
+	public OpMember withOp(VariableAccess op) {
+		return new OpMember(op, member);
+	}
 }

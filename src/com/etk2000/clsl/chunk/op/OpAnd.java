@@ -27,11 +27,6 @@ public class OpAnd extends OpBinary {
 	}
 
 	@Override
-	public String toString() {
-		return "(" + op1 + " && " + op2 + ')';
-	}
-
-	@Override
 	public ValueChunk optimize(OptimizationEnvironment env) {
 		if (env.isFirstPass) {
 			if (op1 instanceof ConstValueChunk) {
@@ -60,5 +55,15 @@ public class OpAnd extends OpBinary {
 				return new OpAnd((ValueChunk) ep1, (ValueChunk) ep2).optimize(env);
 		}
 		return this;
+	}
+
+	@Override
+	public String toString() {
+		return "(" + op1 + " && " + op2 + ')';
+	}
+
+	@Override
+	public OpAnd withFirstOp(ValueChunk op1) {
+		return new OpAnd(op1, op2);
 	}
 }

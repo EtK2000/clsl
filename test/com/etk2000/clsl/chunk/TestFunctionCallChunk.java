@@ -23,8 +23,8 @@ import java.util.ArrayList;
 public class TestFunctionCallChunk {
 	private static final String FUNCTION_NAME = "test";
 	private static final ValueChunk ARGUMENT_0 = new ConstIntChunk(42069),
-			ARGUMENT_1 = new ConstArrayChunk("banana"),
-			GET_FUNCTION = new GetVar(FUNCTION_NAME);
+			ARGUMENT_1 = new ConstArrayChunk("banana");
+	private static final GetVar GET_FUNCTION = new GetVar(FUNCTION_NAME);
 
 	@Test
 	void testExecute() {

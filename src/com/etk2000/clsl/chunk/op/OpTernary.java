@@ -31,20 +31,8 @@ public class OpTernary implements ValueChunk {
 	}
 
 	@Override
-	public void transmit(OutputStream o) throws IOException {
-		Clsl.writeChunk(o, op1);
-		Clsl.writeChunk(o, op2);
-		Clsl.writeChunk(o, op3);
-	}
-
-	@Override
 	public ClslValue get(ClslRuntimeEnv env) {
 		return op1.get(env).toBoolean() ? op2.get(env) : op3.get(env);
-	}
-
-	@Override
-	public String toString() {
-		return "(" + op1 + " ? " + op2 + " : " + op3 + ')';
 	}
 
 	@Override
@@ -68,5 +56,17 @@ public class OpTernary implements ValueChunk {
 				return new OpTernary((ValueChunk) ep1, (ValueChunk) ep2, (ValueChunk) ep3).optimize(env);
 		}
 		return this;
+	}
+
+	@Override
+	public String toString() {
+		return "(" + op1 + " ? " + op2 + " : " + op3 + ')';
+	}
+
+	@Override
+	public void transmit(OutputStream o) throws IOException {
+		Clsl.writeChunk(o, op1);
+		Clsl.writeChunk(o, op2);
+		Clsl.writeChunk(o, op3);
 	}
 }

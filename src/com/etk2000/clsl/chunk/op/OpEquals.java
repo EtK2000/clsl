@@ -56,4 +56,9 @@ public class OpEquals extends OpBinary {
 		}
 		return this;
 	}
+
+	@Override
+	public OpEquals withFirstOp(ValueChunk op1) {
+		return new OpEquals(op1, op2, not);
+	}
 }

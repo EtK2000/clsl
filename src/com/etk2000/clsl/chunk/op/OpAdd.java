@@ -51,4 +51,9 @@ public class OpAdd extends OpBinary {
 		}
 		return this;
 	}
+
+	@Override
+	public OpAdd withFirstOp(ValueChunk op1) {
+		return new OpAdd(op1, op2);
+	}
 }

@@ -13,12 +13,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 
-public class FunctionCallChunk implements ExecutableValueChunk {
-	private final ValueChunk function;
+public class FunctionCallChunk implements ExecutableValueChunk, VariableAccess {
+	private final VariableAccess function;
 	private final ValueChunk[] args;
 
 	// FIXME: go ver calls tho this and ensure they support more complicated lookups, example: `a.b[i]()`
-	public FunctionCallChunk(ValueChunk function, ValueChunk... args) {
+	public FunctionCallChunk(VariableAccess function, ValueChunk... args) {
 		this.args = args;
 		this.function = function;
 	}
@@ -70,6 +70,11 @@ public class FunctionCallChunk implements ExecutableValueChunk {
 	@Override
 	public FunctionCallChunk getExecutablePart(OptimizationEnvironment env) {
 		return optimize(env);
+	}
+
+	@Override
+	public String getVariableName() {
+		return function.getVariableName();
 	}
 
 	// TODO: look into the underlying function if supplied?

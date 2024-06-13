@@ -25,11 +25,6 @@ public class OpSubtract extends OpBinary {
 		return op1.get(env).sub(op2.get(env), false);
 	}
 
-	@Override
-	public String toString() {
-		return "(" + op1 + " - " + op2 + ')';
-	}
-
 	// TODO: if op1 == op2 (i.e. they are the same code),
 	// we can return 0 and execute the part of them that's needed
 	@Override
@@ -49,5 +44,15 @@ public class OpSubtract extends OpBinary {
 				return new OpSubtract((ValueChunk) ep1, (ValueChunk) ep2).optimize(env);
 		}
 		return this;
+	}
+
+	@Override
+	public String toString() {
+		return "(" + op1 + " - " + op2 + ')';
+	}
+
+	@Override
+	public OpSubtract withFirstOp(ValueChunk op1) {
+		return new OpSubtract(op1, op2);
 	}
 }

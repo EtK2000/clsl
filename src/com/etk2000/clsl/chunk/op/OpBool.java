@@ -15,30 +15,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-class OpBool implements ValueChunk {
+public class OpBool implements ValueChunk {
 	private final ValueChunk var;
 
-	OpBool(ValueChunk var) {
+	public OpBool(ValueChunk var) {
 		this.var = var;
 	}
 
-	OpBool(InputStream i) throws IOException {
-		var = Clsl.readChunk(i);
-	}
-
-	@Override
-	public void transmit(OutputStream o) throws IOException {
-		Clsl.writeChunk(o, var);
+	public OpBool(InputStream i) throws IOException {
+		this.var = Clsl.readChunk(i);
 	}
 
 	@Override
 	public ClslValue get(ClslRuntimeEnv env) {
 		return new ClslInt(Clsl.evalBoolean(var, env) ? 1 : 0);
-	}
-
-	@Override
-	public String toString() {
-		return var.toString();
 	}
 
 	@Override
@@ -57,5 +47,15 @@ class OpBool implements ValueChunk {
 				return new OpBool((ValueChunk) op).optimize(env);
 		}
 		return this;
+	}
+
+	@Override
+	public String toString() {
+		return var.toString();
+	}
+
+	@Override
+	public void transmit(OutputStream o) throws IOException {
+		Clsl.writeChunk(o, var);
 	}
 }

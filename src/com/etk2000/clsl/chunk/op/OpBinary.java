@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-abstract class OpBinary implements ValueChunk {
+public abstract class OpBinary implements ValueChunk {
 	protected final ValueChunk op1, op2;
 
 	OpBinary(ValueChunk op1, ValueChunk op2) {
@@ -20,14 +20,8 @@ abstract class OpBinary implements ValueChunk {
 	}
 
 	OpBinary(InputStream i) throws IOException {
-		op1 = Clsl.readChunk(i);
-		op2 = Clsl.readChunk(i);
-	}
-
-	@Override
-	public void transmit(OutputStream o) throws IOException {
-		Clsl.writeChunk(o, op1);
-		Clsl.writeChunk(o, op2);
+		this.op1 = Clsl.readChunk(i);
+		this.op2 = Clsl.readChunk(i);
 	}
 
 	@Override
@@ -39,4 +33,12 @@ abstract class OpBinary implements ValueChunk {
 			return ep1;
 		return new DuoExecutableChunk(ep1, ep2);
 	}
+
+	@Override
+	public void transmit(OutputStream o) throws IOException {
+		Clsl.writeChunk(o, op1);
+		Clsl.writeChunk(o, op2);
+	}
+
+	public abstract OpBinary withFirstOp(ValueChunk op1);
 }

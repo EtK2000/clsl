@@ -22,11 +22,16 @@ import com.etk2000.clsl.chunk.op.OpAdd;
 import com.etk2000.clsl.chunk.op.OpAnd;
 import com.etk2000.clsl.chunk.op.OpBinAnd;
 import com.etk2000.clsl.chunk.op.OpBinOr;
+import com.etk2000.clsl.chunk.op.OpBinary;
+import com.etk2000.clsl.chunk.op.OpBool;
+import com.etk2000.clsl.chunk.op.OpCast;
 import com.etk2000.clsl.chunk.op.OpDec;
 import com.etk2000.clsl.chunk.op.OpDivide;
 import com.etk2000.clsl.chunk.op.OpEquals;
 import com.etk2000.clsl.chunk.op.OpInc;
+import com.etk2000.clsl.chunk.op.OpIndex;
 import com.etk2000.clsl.chunk.op.OpLessThan;
+import com.etk2000.clsl.chunk.op.OpMember;
 import com.etk2000.clsl.chunk.op.OpModulus;
 import com.etk2000.clsl.chunk.op.OpMultiply;
 import com.etk2000.clsl.chunk.op.OpNot;
@@ -809,7 +814,7 @@ public class ClslCompiler {
 
 		int blocks = 1;
 		boolean inChr = false, inStr = false;
-		ValueChunk wip = null;
+		FunctionCallChunk wip = null;
 		out:
 		do {
 			switch (env.matcher.group()) {
@@ -858,8 +863,23 @@ public class ClslCompiler {
 		} while (env.matcher.find());
 
 		// add the last arg (if it exists)
-		if (env.indexInSource != env.matcher.start())
-			arr.add(buildExpression(env.source.substring(env.indexInSource, env.matcher.start())));
+		if (env.indexInSource != env.matcher.start()) {
+			final ValueChunk chunk = buildExpression(env.source.substring(env.indexInSource, env.matcher.start()));
+			if (wip == null)
+				arr.add(chunk);
+			else if (chunk instanceof OpBinary)
+				arr.add(((OpBinary) chunk).withFirstOp(wip));
+			else if (chunk instanceof OpBool)
+				arr.add(new OpBool(wip));
+			else if (chunk instanceof OpCast)
+				arr.add(((OpCast) chunk).withValue(wip));
+			else if (chunk instanceof OpIndex)
+				arr.add(((OpIndex) chunk).withOp(wip));
+			else if (chunk instanceof OpMember)
+				arr.add(((OpMember) chunk).withOp(wip));
+			else
+				throw new ClslCompilerException("cannot set operand for " + chunk);
+		}
 		else if (wip != null)
 			arr.add(wip);
 		return arr;
