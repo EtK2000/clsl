@@ -73,7 +73,12 @@ public class OpMember implements VariableAccess {
 		StreamUtils.write(o, member);
 	}
 
-	public OpMember withOp(VariableAccess op) {
-		return new OpMember(op, member);
+	public OpMember withOp(VariableAccess newOp) {
+		if (this.op instanceof OpIndex)
+			return new OpMember(((OpIndex) op).withOp(newOp), member);
+		if (this.op instanceof OpMember)
+			return new OpMember(((OpMember) op).withOp(newOp), member);
+
+		return new OpMember(newOp, member);
 	}
 }

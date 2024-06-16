@@ -19,6 +19,7 @@ import com.etk2000.clsl.value.ClslValue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 
 public class FunctionalChunk extends BlockChunk implements ExecutableValueChunk {
 	private final String name;
@@ -142,6 +143,20 @@ public class FunctionalChunk extends BlockChunk implements ExecutableValueChunk 
 		finally {
 			env.popStack(true);
 		}
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (this == other)
+			return true;
+		if (other == null || getClass() != other.getClass())
+			return false;
+
+		final FunctionalChunk that = (FunctionalChunk) other;
+		return Arrays.equals(effect, that.effect) &&
+				name.equals(that.name) &&
+				Arrays.equals(parameters, that.parameters)
+				&& returnType == that.returnType;
 	}
 
 	// execute the function, assumes args have been setup already

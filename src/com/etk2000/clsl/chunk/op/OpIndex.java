@@ -75,7 +75,12 @@ public class OpIndex implements VariableAccess {
 		Clsl.writeChunk(o, index);
 	}
 
-	public OpIndex withOp(VariableAccess op) {
-		return new OpIndex(op, index);
+	public OpIndex withOp(VariableAccess newOp) {
+		if (op instanceof OpIndex)
+			return new OpIndex(((OpIndex) op).withOp(newOp), index);
+		if (op instanceof OpMember)
+			return new OpIndex(((OpMember) op).withOp(newOp), index);
+
+		return new OpIndex(newOp, index);
 	}
 }

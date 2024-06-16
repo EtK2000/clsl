@@ -800,9 +800,29 @@ public class ClslCompiler {
 				res.set(--i, new SetVar((VariableAccess) res.remove(i), (ValueChunk) res.remove(i + 1)));
 		}
 
+		if (res.size() == 2 && res.get(0) instanceof VariableAccess && res.get(1) instanceof ValueChunk) {
+			final ValueChunk merged = attemptToMerge((VariableAccess) res.get(0), (ValueChunk) res.get(1));
+			res.clear();
+			res.add(merged);
+		}
 		if (res.size() != 1)
 			throw new ClslCompilerException("invalid cause: " + res);
 		return IntGroup.make((ValueChunk) res.get(0), index);
+	}
+
+	private static ValueChunk attemptToMerge(VariableAccess op1, ValueChunk op2) {
+		if (op2 instanceof OpBinary)
+			return ((OpBinary) op2).withFirstOp(op1);
+		else if (op2 instanceof OpBool)
+			return new OpBool(op1);
+		else if (op2 instanceof OpCast)
+			return ((OpCast) op2).withValue(op1);
+		else if (op2 instanceof OpIndex)
+			return ((OpIndex) op2).withOp(op1);
+		else if (op2 instanceof OpMember)
+			return ((OpMember) op2).withOp(op1);
+		else
+			throw new ClslCompilerException("cannot set operand for " + op2);
 	}
 
 	static List<ValueChunk> readArguments(ClslCompilationEnv env) {
@@ -867,18 +887,8 @@ public class ClslCompiler {
 			final ValueChunk chunk = buildExpression(env.source.substring(env.indexInSource, env.matcher.start()));
 			if (wip == null)
 				arr.add(chunk);
-			else if (chunk instanceof OpBinary)
-				arr.add(((OpBinary) chunk).withFirstOp(wip));
-			else if (chunk instanceof OpBool)
-				arr.add(new OpBool(wip));
-			else if (chunk instanceof OpCast)
-				arr.add(((OpCast) chunk).withValue(wip));
-			else if (chunk instanceof OpIndex)
-				arr.add(((OpIndex) chunk).withOp(wip));
-			else if (chunk instanceof OpMember)
-				arr.add(((OpMember) chunk).withOp(wip));
 			else
-				throw new ClslCompilerException("cannot set operand for " + chunk);
+				arr.add(attemptToMerge(wip, chunk));
 		}
 		else if (wip != null)
 			arr.add(wip);
